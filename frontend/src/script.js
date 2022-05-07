@@ -1,6 +1,9 @@
 import './style.css'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+import Client from './Client/Client'
+
+Client.init()
 
 /**
  * Base
@@ -105,12 +108,3 @@ const tick = () => {
 }
 
 tick()
-
-var HOST = 'ws://localhost:3000'
-console.log(HOST)
-var ws = new WebSocket(HOST);
-var el;
-
-ws.onmessage = function (event) {
-    console.log(event)
-};
