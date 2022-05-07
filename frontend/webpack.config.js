@@ -1,17 +1,20 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const MiniCSSExtractPlugin = require('mini-css-extract-plugin')
 const path = require('path');
 
 module.exports = {
     mode: 'development',
-    entry: './src/index.js',
+    entry: './src/script.js',
     devtool: 'inline-source-map',
     devServer: {
         static: './dist'
     },
     plugins: [
         new HtmlWebpackPlugin({
-            title: 'Development',
-        })
+            template: "./src/index.html",
+            minify: true
+        }),
+        new MiniCSSExtractPlugin()
     ],
     output: {
         filename: '[name].bundle.js',
@@ -21,4 +24,58 @@ module.exports = {
     optimization: {
         runtimeChunk: 'single',
     },
+    module:
+    {
+        rules:
+            [
+                // HTML
+                {
+                    test: /\.(html)$/,
+                    use:
+                        [
+                            'html-loader'
+                        ]
+                },
+
+                // JS
+                {
+                    test: /\.js$/,
+                    exclude: /node_modules/,
+                    use:
+                        [
+                            'babel-loader'
+                        ]
+                },
+
+                // CSS
+                {
+                    test: /\.css$/,
+                    use:
+                        [
+                            MiniCSSExtractPlugin.loader,
+                            'css-loader'
+                        ]
+                },
+
+                // Images
+                {
+                    test: /\.(jpg|png|gif|svg)$/,
+                    type: 'asset/resource',
+                    generator:
+                    {
+                        filename: 'assets/images/[hash][ext]'
+                    }
+                },
+
+                // Fonts
+                {
+                    test: /\.(ttf|eot|woff|woff2)$/,
+                    type: 'asset/resource',
+                    generator:
+                    {
+                        filename: 'assets/fonts/[hash][ext]'
+                    }
+                }
+            ]
+    }
 };
