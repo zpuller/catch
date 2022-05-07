@@ -4,7 +4,7 @@ const init = () => {
     var el;
 
     ws.onmessage = function (event) {
-        console.log(event)
+        // console.log(event)
     };
 }
 
