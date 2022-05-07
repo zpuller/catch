@@ -10,3 +10,12 @@ function component() {
 }
 
 document.body.appendChild(component());
+
+var HOST = 'ws://localhost:3000'
+console.log(HOST)
+var ws = new WebSocket(HOST);
+var el;
+
+ws.onmessage = function (event) {
+    console.log(event)
+};
