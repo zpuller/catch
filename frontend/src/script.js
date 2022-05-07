@@ -2,6 +2,7 @@ import './style.css'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import Client from './Client/Client'
+import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
 
 Client.init()
 
@@ -94,7 +95,7 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
  */
 const clock = new THREE.Clock()
 
-const tick = () => {
+renderer.setAnimationLoop(() => {
     const elapsedTime = clock.getElapsedTime()
 
     // Update controls
@@ -102,9 +103,7 @@ const tick = () => {
 
     // Render
     renderer.render(scene, camera)
+})
 
-    // Call tick again on the next frame
-    window.requestAnimationFrame(tick)
-}
-
-tick()
+renderer.xr.enabled = true;
+document.body.appendChild(VRButton.createButton(renderer));
