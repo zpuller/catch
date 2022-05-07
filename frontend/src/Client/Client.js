@@ -1,10 +1,10 @@
 const init = () => {
-    var HOST = 'ws://localhost:3000'
+    var HOST = location.origin.replace(/^http/, 'ws')
     var ws = new WebSocket(HOST);
     var el;
 
     ws.onmessage = function (event) {
-        // console.log(event)
+        console.log(event)
     };
 }
 

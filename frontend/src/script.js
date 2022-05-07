@@ -202,11 +202,11 @@ const animate = () => {
         const inputs = renderer.xr.getSession()?.inputSources;
         if (inputs) {
             for (const source of inputs) {
-                console.log(source.handedness)
-                console.log(source.gamepad.axes)
-                for (const button of source.gamepad.buttons) {
-                    console.log(button)
-                }
+                // console.log(source.handedness)
+                // console.log(source.gamepad.axes)
+                // for (const button of source.gamepad.buttons) {
+                //     console.log(button)
+                // }
             }
         }
         handleController(controller1)
