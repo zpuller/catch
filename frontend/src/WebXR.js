@@ -3,7 +3,7 @@ import * as THREE from 'three'
 import { VRButton } from 'three/examples/jsm/webxr/VRButton.js'
 import { XRControllerModelFactory } from 'three/examples/jsm/webxr/XRControllerModelFactory.js'
 
-import Physics from './Assets/Physics'
+import Physics from './Physics'
 
 const buildController = (data) => {
     let geometry, material;
@@ -29,7 +29,7 @@ const buildController = (data) => {
     }
 }
 
-const init = (renderer, scene, mesh, timeframes) => {
+const init = (renderer, scene, mesh) => {
     renderer.xr.enabled = true
     document.body.appendChild(VRButton.createButton(renderer))
 

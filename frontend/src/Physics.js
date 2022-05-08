@@ -10,6 +10,8 @@ let mesh
 const init = (pTimeframes, pMesh) => {
     timeframes = pTimeframes
     mesh = pMesh
+
+    resetBall()
 }
 
 const linearRegressionQuadratic = (positions, frametimes) => {

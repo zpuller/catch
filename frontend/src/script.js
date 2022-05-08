@@ -7,18 +7,12 @@ import Client from './Client'
 import Camera from './Assets/Camera'
 import Lights from './Assets/Lights'
 import Objects from './Assets/Objects'
-import Physics from './Assets/Physics'
 import Renderer from './Assets/Renderer'
 import Windowing from './Assets/Window'
 
-import WebXR from './WebXR'
-
+import Game from './Game'
 
 let renderer, scene, camera, mesh
-
-let controller1, controller2
-
-let timeframes = Array(5).fill(1)
 
 const sizes = {
     width: window.innerWidth,
@@ -37,36 +31,16 @@ const init = () => {
     camera = Camera.init(scene, sizes)
     renderer = Renderer.init(canvas, sizes)
 
-    Physics.init(timeframes, mesh)
-    Physics.resetBall()
-
     Windowing.init(camera, renderer, canvas, sizes)
 
-    let res = WebXR.init(renderer, scene, mesh, timeframes)
-    controller1 = res.controller1
-    controller2 = res.controller2
+    Game.init(renderer, scene, mesh)
+
 }
 
 const animate = () => {
-    const clock = new THREE.Clock()
-    let elapsedTime = clock.getElapsedTime()
 
     renderer.setAnimationLoop(() => {
-        const prevTime = elapsedTime
-        elapsedTime = clock.getElapsedTime()
-        const dt = elapsedTime - prevTime
-        let ks = [...timeframes.keys()].slice(1)
-        ks.forEach((i) => {
-            timeframes[i - 1] = timeframes[i]
-        })
-        timeframes[timeframes.length - 1] = dt
-
-        Physics.update(controller2)
-
-        WebXR.handleInputs(renderer)
-        WebXR.handleController(controller1)
-        WebXR.handleController(controller2)
-
+        Game.update(renderer)
         renderer.render(scene, camera)
     })
 }
