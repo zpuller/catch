@@ -4,12 +4,15 @@ import * as THREE from 'three'
 import Client from './Client/Client'
 import { VRButton } from 'three/examples/jsm/webxr/VRButton.js'
 import { XRControllerModelFactory } from 'three/examples/jsm/webxr/XRControllerModelFactory.js'
+import * as math from 'mathjs'
 
 let renderer, scene, camera
 let controller1, controller2
 let controllerGrip1, controllerGrip2
 
 let mesh
+let timeframes = Array(5).fill(1)
+let velocity
 
 const init = () => {
     Client.init()
@@ -33,7 +36,7 @@ const init = () => {
     /**
      * Object
      */
-    const geometry = new THREE.SphereGeometry(0.5, 16, 16)
+    const geometry = new THREE.SphereGeometry(0.2, 16, 16)
     const material = new THREE.MeshPhysicalMaterial({ color: '#04f679' })
     mesh = new THREE.Mesh(geometry, material)
     mesh.position.y = 1.6
@@ -115,6 +118,10 @@ const init = () => {
 
     function onSelectStart() {
         this.userData.isSelecting = true
+        mesh.position.x = 0
+        mesh.position.y = 1.6
+        mesh.position.z = -1
+        velocity.fromArray([0, 0, 0])
     }
 
     function onSelectEnd() {
@@ -123,10 +130,42 @@ const init = () => {
 
     function onSqueezeStart() {
         this.userData.isSqueezing = true
+        let distance = this.position.distanceTo(mesh.position)
+        if (distance < 0.5) {
+            console.log('touching')
+            this.userData.isHolding = true
+            mesh.material.color.setHex(0xffffff)
+        }
     }
 
     function onSqueezeEnd() {
         this.userData.isSqueezing = false
+        if (this.userData.isHolding) {
+            console.log('throw')
+            function linearRegressionQuadratic(positions, frametimes) {
+                const X = frametimes.map((t) => [1, t, t * t]);
+                const Xt = math.transpose(X);
+                const theta = math.multiply(math.multiply(math.inv(math.multiply(Xt, X)), Xt), positions);
+                return theta;
+            }
+
+            const frametimes = Array(5).fill(0)
+            frametimes[0] = timeframes[0]
+            let ks = [...frametimes.keys()]
+            ks.slice(1).forEach((i) => {
+                frametimes[i] = frametimes[i - 1] + timeframes[i]
+            })
+            const theta = linearRegressionQuadratic(this.userData.prevPositions, frametimes)
+
+            const [vx, vy, vz] = theta[1];
+            console.log(vx, vy, vz)
+            velocity.fromArray(theta[1])
+            velocity.multiplyScalar(0.01)
+
+
+
+        }
+        this.userData.isHolding = false
     }
 
     controller1 = renderer.xr.getController(0)
@@ -134,6 +173,7 @@ const init = () => {
 
     const cons = [controller1, controller2]
     cons.forEach((con) => {
+        con.userData.prevPositions = Array(5).fill(Array(3).fill(0))
         con.addEventListener('selectstart', onSelectStart)
         con.addEventListener('selectend', onSelectEnd)
         con.addEventListener('squeezestart', onSqueezeStart)
@@ -183,18 +223,18 @@ const buildController = (data) => {
 }
 
 const handleController = (controller) => {
+    // console.log(controller.position)
+    // console.log(controller.userData.prevPositions)
+
+    controller.userData.prevPositions = controller.userData.prevPositions.slice(1)
+    controller.userData.prevPositions.push(controller.position.toArray())
+
     if (controller.userData.isSelecting) {
-        console.log('selecting')
+        // console.log('selecting')
     }
 
     mesh.material.color.setHex(0x04f679)
     if (controller.userData.isSqueezing) {
-        let distance = controller.position.distanceTo(mesh.position)
-        console.log(distance)
-        if (distance < 0.5) {
-            console.log('touching')
-            mesh.material.color.setHex(0xffffff)
-        }
     }
 }
 
@@ -203,8 +243,13 @@ const animate = () => {
      * Animate
      */
     const clock = new THREE.Clock()
+    let elapsedTime = clock.getElapsedTime()
+    // let velocity = new THREE.Vector3(.01, 0.05, -0.02)
+    velocity = new THREE.Vector3()
 
     renderer.setAnimationLoop(() => {
+        // velocity.y -= .003
+        mesh.position.add(velocity)
         const inputs = renderer.xr.getSession()?.inputSources;
         if (inputs) {
             for (const source of inputs) {
@@ -218,7 +263,11 @@ const animate = () => {
         handleController(controller1)
         handleController(controller2)
 
-        const elapsedTime = clock.getElapsedTime()
+        const prevTime = elapsedTime
+        elapsedTime = clock.getElapsedTime()
+        const dt = elapsedTime - prevTime
+        timeframes = timeframes.slice(1)
+        timeframes.push(dt)
 
         // Update controls
         // controls.update()
