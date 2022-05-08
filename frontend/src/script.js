@@ -9,6 +9,8 @@ let renderer, scene, camera
 let controller1, controller2
 let controllerGrip1, controllerGrip2
 
+let mesh
+
 const init = () => {
     Client.init()
 
@@ -31,9 +33,9 @@ const init = () => {
     /**
      * Object
      */
-    const geometry = new THREE.BoxGeometry(1, 1, 1)
-    const material = new THREE.MeshBasicMaterial({ color: 0xff0000 })
-    const mesh = new THREE.Mesh(geometry, material)
+    const geometry = new THREE.SphereGeometry(0.5, 16, 16)
+    const material = new THREE.MeshPhysicalMaterial({ color: '#04f679' })
+    mesh = new THREE.Mesh(geometry, material)
     mesh.position.y = 1.6
     mesh.position.z = -2
     scene.add(mesh)
@@ -183,12 +185,14 @@ const buildController = (data) => {
 const handleController = (controller) => {
     if (controller.userData.isSelecting) {
         console.log('selecting')
-        console.log(controller)
     }
 
     if (controller.userData.isSqueezing) {
-        console.log('squeezing')
-        console.log(controller)
+        let distance = controller.position.distanceTo(mesh.position)
+        console.log(distance)
+        if (distance < 0.5) {
+            console.log('touching')
+        }
     }
 }
 
