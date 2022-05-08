@@ -3,8 +3,6 @@ import * as THREE from 'three'
 import { VRButton } from 'three/examples/jsm/webxr/VRButton.js'
 import { XRControllerModelFactory } from 'three/examples/jsm/webxr/XRControllerModelFactory.js'
 
-import Physics from './Physics'
-
 const buildController = (data) => {
     let geometry, material;
 
@@ -29,34 +27,10 @@ const buildController = (data) => {
     }
 }
 
-const init = (renderer, scene, mesh) => {
+const init = (renderer, scene, handlers) => {
     renderer.xr.enabled = true
     document.body.appendChild(VRButton.createButton(renderer))
 
-    // Controls
-    function onSelectStart() {
-        this.userData.isSelecting = true
-        Physics.resetBall()
-    }
-
-    function onSelectEnd() {
-        this.userData.isSelecting = false
-    }
-
-    function onSqueezeStart() {
-        this.userData.isSqueezing = true
-        Physics.doCatch(this, mesh)
-    }
-
-    function onSqueezeEnd() {
-        this.userData.isSqueezing = false
-        if (this.userData.isHolding) {
-            Physics.doThrow(this)
-        }
-
-        mesh.material.color.setHex(0x04f679)
-        this.userData.isHolding = false
-    }
 
     const controller1 = renderer.xr.getController(0)
     const controller2 = renderer.xr.getController(1)
@@ -64,10 +38,12 @@ const init = (renderer, scene, mesh) => {
     const cons = [controller1, controller2]
     cons.forEach((con) => {
         con.userData.prevPositions = Array(5).fill(Array(3).fill(0))
-        con.addEventListener('selectstart', onSelectStart)
-        con.addEventListener('selectend', onSelectEnd)
-        con.addEventListener('squeezestart', onSqueezeStart)
-        con.addEventListener('squeezeend', onSqueezeEnd)
+
+        con.addEventListener('selectstart', handlers.onSelectStart)
+        con.addEventListener('selectend', handlers.onSelectEnd)
+        con.addEventListener('squeezestart', handlers.onSqueezeStart)
+        con.addEventListener('squeezeend', handlers.onSqueezeEnd)
+
         con.addEventListener('connected', function (event) {
             this.add(buildController(event.data))
         })
@@ -95,7 +71,7 @@ const handleController = (controller) => {
     controller.userData.prevPositions.push(controller.position.toArray())
 }
 
-const handleInputs = (renderer) => {
+const handleInputs = (renderer, controller1, controller2) => {
     const inputs = renderer.xr.getSession()?.inputSources;
     if (inputs) {
         for (const source of inputs) {
@@ -106,6 +82,9 @@ const handleInputs = (renderer) => {
             // }
         }
     }
+
+    handleController(controller1)
+    handleController(controller2)
 }
 
-export default { init, handleController, handleInputs }
+export default { init, handleInputs }

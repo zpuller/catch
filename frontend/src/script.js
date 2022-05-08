@@ -6,13 +6,12 @@ import Client from './Client'
 
 import Camera from './Assets/Camera'
 import Lights from './Assets/Lights'
-import Objects from './Assets/Objects'
 import Renderer from './Assets/Renderer'
 import Windowing from './Assets/Window'
 
 import Game from './Game'
 
-let renderer, scene, camera, mesh
+let renderer, scene, camera
 
 const sizes = {
     width: window.innerWidth,
@@ -27,18 +26,16 @@ const init = () => {
     scene = new THREE.Scene()
 
     Lights.init(scene)
-    mesh = Objects.init(scene)
     camera = Camera.init(scene, sizes)
     renderer = Renderer.init(canvas, sizes)
 
     Windowing.init(camera, renderer, canvas, sizes)
 
-    Game.init(renderer, scene, mesh)
+    Game.init(renderer, scene)
 
 }
 
 const animate = () => {
-
     renderer.setAnimationLoop(() => {
         Game.update(renderer)
         renderer.render(scene, camera)
