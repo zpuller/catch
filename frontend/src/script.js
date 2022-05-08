@@ -1,73 +1,68 @@
 import './style.css'
 import * as THREE from 'three'
-// import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import Client from './Client/Client'
 import { VRButton } from 'three/examples/jsm/webxr/VRButton.js'
 import { XRControllerModelFactory } from 'three/examples/jsm/webxr/XRControllerModelFactory.js'
 import * as math from 'mathjs'
 
-let renderer, scene, camera
+let renderer, scene, camera, mesh
+
 let controller1, controller2
 let controllerGrip1, controllerGrip2
 
-let mesh
 let timeframes = Array(5).fill(1)
-let velocity
+let velocity = new THREE.Vector3()
 
-const init = () => {
-    Client.init()
+const gravity = 0
 
-    /**
-     * Base
-     */
-    // Canvas
-    const canvas = document.querySelector('canvas.webgl')
+const sizes = {
+    width: window.innerWidth,
+    height: window.innerHeight
+}
 
-    // Scene
-    scene = new THREE.Scene()
-
-    // Lights
+const initLights = () => {
     scene.add(new THREE.HemisphereLight(0x606060, 0x404040));
 
     const light = new THREE.DirectionalLight(0xffffff);
     light.position.set(1, 1, 1).normalize();
     scene.add(light);
+}
 
-    /**
-     * Object
-     */
+const initObjects = () => {
     const geometry = new THREE.SphereGeometry(0.2, 16, 16)
     const material = new THREE.MeshPhysicalMaterial({ color: '#04f679' })
     mesh = new THREE.Mesh(geometry, material)
     mesh.position.y = 1.6
     mesh.position.z = -1
     scene.add(mesh)
+}
 
-    /**
-     * Sizes
-     */
-    const sizes = {
-        width: window.innerWidth,
-        height: window.innerHeight
-    }
+const initCamera = () => {
+    camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
+    camera.position.y = 1.60
+    scene.add(camera)
+}
 
+const initRenderer = (canvas) => {
+    renderer = new THREE.WebGLRenderer({
+        canvas: canvas
+    })
+    renderer.setSize(sizes.width, sizes.height)
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+}
+
+const setupWindowing = () => {
     window.addEventListener('resize', () => {
-        // Update sizes
         sizes.width = window.innerWidth
         sizes.height = window.innerHeight
 
-        // Update camera
         camera.aspect = sizes.width / sizes.height
         camera.updateProjectionMatrix()
 
-        // Update renderer
         renderer.setSize(sizes.width, sizes.height)
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
     })
 
-    /**
-     * Fullscreen
-     */
     window.addEventListener('dblclick', () => {
         const fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement
 
@@ -88,34 +83,37 @@ const init = () => {
             }
         }
     })
+}
 
-    /**
-     * Camera
-     */
-    // Base camera
-    camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
-    camera.position.y = 1.60
-    scene.add(camera)
+const buildController = (data) => {
+    let geometry, material;
 
-    // Controls
-    // const controls = new OrbitControls(camera, canvas)
-    // controls.enableDamping = true
+    switch (data.targetRayMode) {
 
-    /**
-     * Renderer
-     */
-    renderer = new THREE.WebGLRenderer({
-        canvas: canvas
-    })
-    renderer.setSize(sizes.width, sizes.height)
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+        case 'tracked-pointer':
 
-    /**
-     * VR
-     */
+            geometry = new THREE.BufferGeometry();
+            geometry.setAttribute('position', new THREE.Float32BufferAttribute([0, 0, 0, 0, 0, - 1], 3));
+            geometry.setAttribute('color', new THREE.Float32BufferAttribute([0.5, 0.5, 0.5, 0, 0, 0], 3));
+
+            material = new THREE.LineBasicMaterial({ vertexColors: true, blending: THREE.AdditiveBlending });
+
+            return new THREE.Line(geometry, material);
+
+        case 'gaze':
+
+            geometry = new THREE.RingGeometry(0.02, 0.04, 32).translate(0, 0, - 1);
+            material = new THREE.MeshBasicMaterial({ opacity: 0.5, transparent: true });
+            return new THREE.Mesh(geometry, material);
+
+    }
+}
+
+const initWebXR = () => {
     renderer.xr.enabled = true
     document.body.appendChild(VRButton.createButton(renderer))
 
+    // Controls
     function onSelectStart() {
         this.userData.isSelecting = true
         mesh.position.x = 0
@@ -165,6 +163,8 @@ const init = () => {
 
 
         }
+
+        mesh.material.color.setHex(0x04f679)
         this.userData.isHolding = false
     }
 
@@ -198,81 +198,59 @@ const init = () => {
     })
 }
 
-const buildController = (data) => {
-    let geometry, material;
+const init = () => {
+    Client.init()
 
-    switch (data.targetRayMode) {
+    const canvas = document.querySelector('canvas.webgl')
 
-        case 'tracked-pointer':
+    scene = new THREE.Scene()
 
-            geometry = new THREE.BufferGeometry();
-            geometry.setAttribute('position', new THREE.Float32BufferAttribute([0, 0, 0, 0, 0, - 1], 3));
-            geometry.setAttribute('color', new THREE.Float32BufferAttribute([0.5, 0.5, 0.5, 0, 0, 0], 3));
+    initLights()
+    initObjects()
+    initCamera()
+    initRenderer(canvas)
 
-            material = new THREE.LineBasicMaterial({ vertexColors: true, blending: THREE.AdditiveBlending });
+    setupWindowing()
 
-            return new THREE.Line(geometry, material);
-
-        case 'gaze':
-
-            geometry = new THREE.RingGeometry(0.02, 0.04, 32).translate(0, 0, - 1);
-            material = new THREE.MeshBasicMaterial({ opacity: 0.5, transparent: true });
-            return new THREE.Mesh(geometry, material);
-
-    }
+    initWebXR()
 }
 
 const handleController = (controller) => {
-    // console.log(controller.position)
-    // console.log(controller.userData.prevPositions)
-
     controller.userData.prevPositions = controller.userData.prevPositions.slice(1)
     controller.userData.prevPositions.push(controller.position.toArray())
+}
 
-    if (controller.userData.isSelecting) {
-        // console.log('selecting')
-    }
-
-    mesh.material.color.setHex(0x04f679)
-    if (controller.userData.isSqueezing) {
+const handleInputs = () => {
+    const inputs = renderer.xr.getSession()?.inputSources;
+    if (inputs) {
+        for (const source of inputs) {
+            // console.log(source.handedness)
+            // console.log(source.gamepad.axes)
+            // for (const button of source.gamepad.buttons) {
+            //     console.log(button)
+            // }
+        }
     }
 }
 
 const animate = () => {
-    /**
-     * Animate
-     */
     const clock = new THREE.Clock()
     let elapsedTime = clock.getElapsedTime()
-    // let velocity = new THREE.Vector3(.01, 0.05, -0.02)
-    velocity = new THREE.Vector3()
 
     renderer.setAnimationLoop(() => {
-        // velocity.y -= .003
-        mesh.position.add(velocity)
-        const inputs = renderer.xr.getSession()?.inputSources;
-        if (inputs) {
-            for (const source of inputs) {
-                // console.log(source.handedness)
-                // console.log(source.gamepad.axes)
-                // for (const button of source.gamepad.buttons) {
-                //     console.log(button)
-                // }
-            }
-        }
-        handleController(controller1)
-        handleController(controller2)
-
         const prevTime = elapsedTime
         elapsedTime = clock.getElapsedTime()
         const dt = elapsedTime - prevTime
         timeframes = timeframes.slice(1)
         timeframes.push(dt)
 
-        // Update controls
-        // controls.update()
+        velocity.y -= gravity
+        mesh.position.add(velocity)
 
-        // Render
+        handleInputs()
+        handleController(controller1)
+        handleController(controller2)
+
         renderer.render(scene, camera)
     })
 }
