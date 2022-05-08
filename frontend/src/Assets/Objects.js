@@ -11,10 +11,10 @@ const init = (scene) => {
         scene.add(mesh)
     }
 
-    const geometry = new THREE.SphereGeometry(0.2, 16, 16)
+    const geometry = new THREE.SphereGeometry(0.1, 16, 16)
     const material = new THREE.MeshPhysicalMaterial({ color: '#04f679' })
     const mesh = new THREE.Mesh(geometry, material)
-    mesh.position.fromArray([0, 1.6, -1])
+    mesh.position.fromArray([0, 1.6, -0.5])
     scene.add(mesh)
 
     return mesh

@@ -20,7 +20,7 @@ let controller1, controller2
 let timeframes = Array(5).fill(1)
 let velocity = new THREE.Vector3()
 
-const gravity = 0
+const gravity = 0.0004
 
 const sizes = {
     width: window.innerWidth,
@@ -49,6 +49,7 @@ const init = () => {
 const animate = () => {
     const clock = new THREE.Clock()
     let elapsedTime = clock.getElapsedTime()
+    let offset = new THREE.Vector3(-.07, .07, -.07)
 
     renderer.setAnimationLoop(() => {
         const prevTime = elapsedTime
@@ -60,8 +61,13 @@ const animate = () => {
         })
         timeframes[timeframes.length - 1] = dt
 
-        velocity.y -= gravity
-        mesh.position.add(velocity)
+        if (controller2.userData.isHolding) {
+            mesh.position.copy(controller2.position).add(offset)
+        }
+        else {
+            velocity.y -= gravity
+            mesh.position.add(velocity)
+        }
 
         WebXR.handleInputs(renderer)
         WebXR.handleController(controller1)

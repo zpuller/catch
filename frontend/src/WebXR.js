@@ -35,9 +35,7 @@ const init = (renderer, scene, mesh, timeframes, velocity) => {
     // Controls
     function onSelectStart() {
         this.userData.isSelecting = true
-        mesh.position.x = 0
-        mesh.position.y = 1.6
-        mesh.position.z = -1
+        mesh.position.fromArray([0, 1.6, -0.5])
         velocity.fromArray([0, 0, 0])
     }
 
@@ -48,7 +46,7 @@ const init = (renderer, scene, mesh, timeframes, velocity) => {
     function onSqueezeStart() {
         this.userData.isSqueezing = true
         let distance = this.position.distanceTo(mesh.position)
-        if (distance < 0.5) {
+        if (distance < 0.2) {
             this.userData.isHolding = true
             mesh.material.color.setHex(0xffffff)
         }
@@ -74,9 +72,6 @@ const init = (renderer, scene, mesh, timeframes, velocity) => {
 
             velocity.fromArray(theta[1])
             velocity.multiplyScalar(0.01)
-
-
-
         }
 
         mesh.material.color.setHex(0x04f679)
