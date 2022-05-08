@@ -38,6 +38,26 @@ let handlers = {
     },
 }
 
+const handleController = (controller) => {
+    controller.userData.prevPositions = controller.userData.prevPositions.slice(1)
+    controller.userData.prevPositions.push(controller.position.toArray())
+}
+
+const handleInputs = (inputs, controller1, controller2) => {
+    if (inputs) {
+        for (const source of inputs) {
+            // console.log(source.handedness)
+            // console.log(source.gamepad.axes)
+            // for (const button of source.gamepad.buttons) {
+            //     console.log(button)
+            // }
+        }
+    }
+
+    handleController(controller1)
+    handleController(controller2)
+}
+
 const init = (renderer, scene) => {
     mesh = Objects.init(scene)
 
@@ -48,7 +68,7 @@ const init = (renderer, scene) => {
     Physics.init(timeframes, mesh)
 }
 
-const update = (renderer) => {
+const update = (inputs) => {
     const prevTime = elapsedTime
     elapsedTime = clock.getElapsedTime()
     const dt = elapsedTime - prevTime
@@ -58,7 +78,7 @@ const update = (renderer) => {
     })
     timeframes[timeframes.length - 1] = dt
 
-    WebXR.handleInputs(renderer, controller1, controller2)
+    handleInputs(inputs, controller1, controller2)
     Physics.update(controller1, controller2)
 }
 

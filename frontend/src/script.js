@@ -37,7 +37,8 @@ const init = () => {
 
 const animate = () => {
     renderer.setAnimationLoop(() => {
-        Game.update(renderer)
+        const inputs = renderer.xr.getSession()?.inputSources;
+        Game.update(inputs)
         renderer.render(scene, camera)
     })
 }
