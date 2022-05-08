@@ -4,21 +4,21 @@ const path = require('path');
 
 module.exports = {
     mode: 'development',
-    entry: './src/script.js',
+    entry: './frontend/src/script.js',
     devtool: 'inline-source-map',
     devServer: {
-        static: './dist'
+        static: './frontend/dist'
     },
     plugins: [
         new HtmlWebpackPlugin({
-            template: "./src/index.html",
+            template: "./frontend/src/index.html",
             minify: true
         }),
         new MiniCSSExtractPlugin()
     ],
     output: {
         filename: '[name].bundle.js',
-        path: path.resolve(__dirname, 'dist'),
+        path: path.resolve(__dirname, 'frontend/dist'),
         clean: true,
     },
     optimization: {
