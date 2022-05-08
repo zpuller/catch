@@ -37,7 +37,7 @@ const init = () => {
     const material = new THREE.MeshPhysicalMaterial({ color: '#04f679' })
     mesh = new THREE.Mesh(geometry, material)
     mesh.position.y = 1.6
-    mesh.position.z = -2
+    mesh.position.z = -1
     scene.add(mesh)
 
     /**
@@ -187,11 +187,13 @@ const handleController = (controller) => {
         console.log('selecting')
     }
 
+    mesh.material.color.setHex(0x04f679)
     if (controller.userData.isSqueezing) {
         let distance = controller.position.distanceTo(mesh.position)
         console.log(distance)
         if (distance < 0.5) {
             console.log('touching')
+            mesh.material.color.setHex(0xffffff)
         }
     }
 }
