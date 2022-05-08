@@ -1,4 +1,4 @@
-until adb devices 2>&1 > /dev/null
+until adb shell ip route
 do
   echo 'no device found, make sure your headset is connected via usb'
   echo 'waiting for device...'
@@ -10,6 +10,7 @@ echo host ip: $HOST
 
 PORT=5555
 adb tcpip $PORT
+sleep 5
 adb connect $HOST:$PORT
 
 read -p 'unplug your device from usb, then press enter to continue'
