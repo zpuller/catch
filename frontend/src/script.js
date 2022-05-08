@@ -7,6 +7,7 @@ import Client from './Client'
 import Camera from './Assets/Camera'
 import Lights from './Assets/Lights'
 import Objects from './Assets/Objects'
+import Physics from './Assets/Physics'
 import Renderer from './Assets/Renderer'
 import Windowing from './Assets/Window'
 
@@ -18,9 +19,6 @@ let renderer, scene, camera, mesh
 let controller1, controller2
 
 let timeframes = Array(5).fill(1)
-let velocity = new THREE.Vector3()
-
-const gravity = 0.0004
 
 const sizes = {
     width: window.innerWidth,
@@ -39,9 +37,12 @@ const init = () => {
     camera = Camera.init(scene, sizes)
     renderer = Renderer.init(canvas, sizes)
 
+    Physics.init(timeframes, mesh)
+    Physics.resetBall()
+
     Windowing.init(camera, renderer, canvas, sizes)
 
-    let res = WebXR.init(renderer, scene, mesh, timeframes, velocity)
+    let res = WebXR.init(renderer, scene, mesh, timeframes)
     controller1 = res.controller1
     controller2 = res.controller2
 }
@@ -49,7 +50,6 @@ const init = () => {
 const animate = () => {
     const clock = new THREE.Clock()
     let elapsedTime = clock.getElapsedTime()
-    let offset = new THREE.Vector3(-.07, .07, -.07)
 
     renderer.setAnimationLoop(() => {
         const prevTime = elapsedTime
@@ -61,13 +61,7 @@ const animate = () => {
         })
         timeframes[timeframes.length - 1] = dt
 
-        if (controller2.userData.isHolding) {
-            mesh.position.copy(controller2.position).add(offset)
-        }
-        else {
-            velocity.y -= gravity
-            mesh.position.add(velocity)
-        }
+        Physics.update(controller2)
 
         WebXR.handleInputs(renderer)
         WebXR.handleController(controller1)

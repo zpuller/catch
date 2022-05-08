@@ -1,8 +1,9 @@
-import * as math from 'mathjs'
 import * as THREE from 'three'
 
 import { VRButton } from 'three/examples/jsm/webxr/VRButton.js'
 import { XRControllerModelFactory } from 'three/examples/jsm/webxr/XRControllerModelFactory.js'
+
+import Physics from './Assets/Physics'
 
 const buildController = (data) => {
     let geometry, material;
@@ -28,15 +29,14 @@ const buildController = (data) => {
     }
 }
 
-const init = (renderer, scene, mesh, timeframes, velocity) => {
+const init = (renderer, scene, mesh, timeframes) => {
     renderer.xr.enabled = true
     document.body.appendChild(VRButton.createButton(renderer))
 
     // Controls
     function onSelectStart() {
         this.userData.isSelecting = true
-        mesh.position.fromArray([0, 1.6, -0.5])
-        velocity.fromArray([0, 0, 0])
+        Physics.resetBall()
     }
 
     function onSelectEnd() {
@@ -45,33 +45,13 @@ const init = (renderer, scene, mesh, timeframes, velocity) => {
 
     function onSqueezeStart() {
         this.userData.isSqueezing = true
-        let distance = this.position.distanceTo(mesh.position)
-        if (distance < 0.2) {
-            this.userData.isHolding = true
-            mesh.material.color.setHex(0xffffff)
-        }
+        Physics.doCatch(this, mesh)
     }
 
     function onSqueezeEnd() {
         this.userData.isSqueezing = false
         if (this.userData.isHolding) {
-            function linearRegressionQuadratic(positions, frametimes) {
-                const X = frametimes.map((t) => [1, t, t * t]);
-                const Xt = math.transpose(X);
-                const theta = math.multiply(math.multiply(math.inv(math.multiply(Xt, X)), Xt), positions);
-                return theta;
-            }
-
-            const frametimes = Array(5).fill(0)
-            frametimes[0] = timeframes[0]
-            let ks = [...frametimes.keys()]
-            ks.slice(1).forEach((i) => {
-                frametimes[i] = frametimes[i - 1] + timeframes[i]
-            })
-            const theta = linearRegressionQuadratic(this.userData.prevPositions, frametimes)
-
-            velocity.fromArray(theta[1])
-            velocity.multiplyScalar(0.01)
+            Physics.doThrow(this)
         }
 
         mesh.material.color.setHex(0x04f679)
