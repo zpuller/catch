@@ -3,7 +3,8 @@ import * as THREE from 'three'
 
 let velocity = new THREE.Vector3()
 const gravity = 0.0004
-const offset = new THREE.Vector3(-.07, .07, -.07)
+const leftOffset = new THREE.Vector3(.07, .07, -.07)
+const rightOffset = new THREE.Vector3(-.07, .07, -.07)
 let timeframes
 let mesh
 
@@ -42,14 +43,18 @@ const doCatch = (controller) => {
     }
 }
 
-const update = (controller2) => {
+const update = (controller1, controller2) => {
+    if (controller1.userData.isHolding) {
+        mesh.position.copy(controller1.position).add(leftOffset)
+        return
+    }
     if (controller2.userData.isHolding) {
-        mesh.position.copy(controller2.position).add(offset)
+        mesh.position.copy(controller2.position).add(rightOffset)
+        return
     }
-    else {
-        velocity.y -= gravity
-        mesh.position.add(velocity)
-    }
+
+    velocity.y -= gravity
+    mesh.position.add(velocity)
 }
 
 const resetBall = () => {

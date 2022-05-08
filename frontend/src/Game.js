@@ -27,7 +27,7 @@ const update = (renderer) => {
     })
     timeframes[timeframes.length - 1] = dt
 
-    Physics.update(controller2)
+    Physics.update(controller1, controller2)
 
     WebXR.handleInputs(renderer)
     WebXR.handleController(controller1)
