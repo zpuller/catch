@@ -43,13 +43,14 @@ const doCatch = (controller) => {
     }
 }
 
+let controllerWorldPosition = new THREE.Vector3()
 const update = (controller1, controller2) => {
     if (controller1.userData.isHolding) {
-        mesh.position.copy(controller1.position).add(leftOffset)
+        mesh.position.copy(controller1.getWorldPosition(controllerWorldPosition)).add(leftOffset)
         return
     }
     if (controller2.userData.isHolding) {
-        mesh.position.copy(controller2.position).add(rightOffset)
+        mesh.position.copy(controller2.getWorldPosition(controllerWorldPosition)).add(rightOffset)
         return
     }
 

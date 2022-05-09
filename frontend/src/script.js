@@ -11,6 +11,7 @@ import Windowing from './Assets/Window'
 
 import Game from './Game'
 
+let cameraGroup
 let renderer, scene, camera
 
 const sizes = {
@@ -29,10 +30,13 @@ const init = () => {
     camera = Camera.init(scene, sizes)
     renderer = Renderer.init(canvas, sizes)
 
+    cameraGroup = new THREE.Group()
+    cameraGroup.add(camera)
+    scene.add(cameraGroup)
+
     Windowing.init(camera, renderer, canvas, sizes)
 
-    Game.init(renderer, scene)
-
+    Game.init(renderer, scene, cameraGroup)
 }
 
 const animate = () => {

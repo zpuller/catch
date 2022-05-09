@@ -27,7 +27,7 @@ const buildController = (data) => {
     }
 }
 
-const init = (renderer, scene, handlers) => {
+const init = (renderer, scene, handlers, player) => {
     renderer.xr.enabled = true
     document.body.appendChild(VRButton.createButton(renderer))
 
@@ -35,8 +35,10 @@ const init = (renderer, scene, handlers) => {
     const controller1 = renderer.xr.getController(0)
     const controller2 = renderer.xr.getController(1)
 
+
     const cons = [controller1, controller2]
     cons.forEach((con) => {
+        player.add(con)
         con.userData.prevPositions = Array(5).fill(Array(3).fill(0))
 
         con.addEventListener('selectstart', handlers.onSelectStart)
@@ -50,7 +52,6 @@ const init = (renderer, scene, handlers) => {
         con.addEventListener('disconnected', function () {
             this.remove(this.children[0])
         })
-        scene.add(con)
     })
 
     const controllerModelFactory = new XRControllerModelFactory()
@@ -60,7 +61,7 @@ const init = (renderer, scene, handlers) => {
     const grips = [controllerGrip1, controllerGrip2]
     grips.forEach((grip) => {
         grip.add(controllerModelFactory.createControllerModel(grip))
-        scene.add(grip)
+        player.add(grip)
     })
 
     return { controller1, controller2 }

@@ -9,7 +9,9 @@ const clock = new THREE.Clock()
 let elapsedTime = clock.getElapsedTime()
 let timeframes = Array(5).fill(1)
 
+let player
 let controller1, controller2
+
 let mesh
 
 let handlers = {
@@ -47,7 +49,10 @@ const handleInputs = (inputs, controller1, controller2) => {
     if (inputs) {
         for (const source of inputs) {
             // console.log(source.handedness)
-            // console.log(source.gamepad.axes)
+            let a = source.gamepad.axes
+            let [x, z] = [a[2], a[3]]
+            player.position.x += .01 * x
+            player.position.z += .01 * z
             // for (const button of source.gamepad.buttons) {
             //     console.log(button)
             // }
@@ -58,10 +63,11 @@ const handleInputs = (inputs, controller1, controller2) => {
     handleController(controller2)
 }
 
-const init = (renderer, scene) => {
+const init = (renderer, scene, cameraGroup) => {
+    player = cameraGroup
     mesh = Objects.init(scene)
 
-    let res = WebXR.init(renderer, scene, handlers)
+    let res = WebXR.init(renderer, scene, handlers, cameraGroup)
     controller1 = res.controller1
     controller2 = res.controller2
 
