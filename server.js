@@ -16,15 +16,24 @@ const server = express()
 
 const wss = new Server({ server });
 
+const state = { players: [] }
+
 wss.on('connection', (ws) => {
     console.log('Client connected');
     ws.on('close', () => console.log('Client disconnected'));
     ws.onmessage = (e) => {
-        // console.log(e.data)
+        const data = JSON.parse(e.data)
+        if (data.op === "set_username") {
+            console.log('here')
+            state.players.push({
+                username: data.username
+            })
+        }
+        wss.clients.forEach(c => c.send(JSON.stringify(state)))
         // console.log(JSON.stringify(e.data).length)
-        let aClients = [...wss.clients]
-        aClients.filter(c => c != ws).forEach(c => {
-            c.send(e.data)
-        })
+        // let aClients = [...wss.clients]
+        // aClients.filter(c => c != ws).forEach(c => {
+        //     c.send(e.data)
+        // })
     }
 });
