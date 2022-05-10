@@ -12,7 +12,8 @@ import Windowing from './Assets/Window'
 import Game from './Game'
 
 let cameraGroup
-let renderer, scene, camera
+let renderer, scene, lights, camera
+let game
 
 const sizes = {
     width: window.innerWidth,
@@ -24,9 +25,9 @@ const init = () => {
 
     scene = new THREE.Scene()
 
-    Lights.init(scene)
-    camera = Camera.init(scene, sizes)
-    renderer = Renderer.init(canvas, sizes)
+    lights = new Lights(scene)
+    camera = new Camera(scene, sizes)
+    renderer = new Renderer(canvas, sizes)
 
     cameraGroup = new THREE.Group()
     cameraGroup.add(camera)
@@ -34,13 +35,13 @@ const init = () => {
 
     Windowing.init(camera, renderer, canvas, sizes)
 
-    Game.init(renderer, scene, cameraGroup)
+    game = new Game(renderer, scene, cameraGroup)
 }
 
 const animate = () => {
     renderer.setAnimationLoop(() => {
         const inputs = renderer.xr.getSession()?.inputSources;
-        Game.update(inputs)
+        game.update(inputs)
         renderer.render(scene, camera)
     })
 }
@@ -49,10 +50,11 @@ init()
 animate()
 
 const form = document.getElementById('nameinput')
+let client
 form.onsubmit = (e) => {
     e.preventDefault()
     const data = new FormData(form)
     const username = data.get('username')
 
-    Client.init(username)
+    client = new Client(username)
 }
