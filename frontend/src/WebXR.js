@@ -27,7 +27,7 @@ const buildController = (data) => {
     }
 }
 
-const init = (renderer, scene, handlers, player) => {
+const init = (renderer, handlers, player) => {
     renderer.xr.enabled = true
     document.body.appendChild(VRButton.createButton(renderer))
 

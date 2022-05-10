@@ -67,7 +67,7 @@ const init = (renderer, scene, cameraGroup) => {
     player = cameraGroup
     mesh = Objects.init(scene)
 
-    let res = WebXR.init(renderer, scene, handlers, cameraGroup)
+    let res = WebXR.init(renderer, handlers, cameraGroup)
     controller1 = res.controller1
     controller2 = res.controller2
 

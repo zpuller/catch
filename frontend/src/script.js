@@ -20,8 +20,6 @@ const sizes = {
 }
 
 const init = () => {
-    Client.init()
-
     const canvas = document.querySelector('canvas.webgl')
 
     scene = new THREE.Scene()
@@ -49,3 +47,12 @@ const animate = () => {
 
 init()
 animate()
+
+const form = document.getElementById('nameinput')
+form.onsubmit = (e) => {
+    e.preventDefault()
+    const data = new FormData(form)
+    const username = data.get('username')
+
+    Client.init(username)
+}

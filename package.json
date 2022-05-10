@@ -9,7 +9,8 @@
   "scripts": {
     "dev": "webpack serve",
     "start": "node server.js",
-    "build": "webpack --mode production"
+    "build": "webpack --mode production",
+    "build_dev": "webpack"
   },
   "keywords": [],
   "author": "",

@@ -20,10 +20,20 @@ const wss = new Server({ server });
 wss.on('connection', (ws) => {
     console.log('Client connected');
     ws.on('close', () => console.log('Client disconnected'));
+    ws.onmessage = (e) => {
+        // console.log(e.data)
+        // console.log(JSON.stringify(e.data).length)
+        let aClients = [...wss.clients]
+        aClients.filter(c => c != ws).forEach(c => {
+            c.send(e.data)
+        })
+    }
 });
 
-setInterval(() => {
-    wss.clients.forEach((client) => {
-        client.send(new Date().toTimeString());
-    });
-}, 1000);
+// setInterval(() => {
+//     wss.clients.forEach((client) => {
+//         client.send(new Date().toTimeString());
+//     });
+// }, 1000);
+
+// window.location.pathname
