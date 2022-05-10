@@ -6,7 +6,7 @@ export default class Objects {
             const geometry = new THREE.BoxGeometry(32, 16, 32)
             const material = new THREE.MeshPhysicalMaterial({ color: '#eb9048', side: THREE.BackSide })
             const mesh = new THREE.Mesh(geometry, material)
-            mesh.position.fromArray([0, 8, 0])
+            mesh.position.set(0, 8, 0)
             scene.add(mesh)
         }
 

@@ -57,7 +57,7 @@ export default class Physics {
     }
 
     resetBall() {
-        this.mesh.position.fromArray([0, 1.6, -0.5])
-        this.velocity.fromArray([0, 0, 0])
+        this.mesh.position.set(0, 1.6, -0.5)
+        this.velocity.set(0, 0, 0)
     }
 }

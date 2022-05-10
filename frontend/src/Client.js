@@ -11,6 +11,6 @@ export default class Client {
             // ws.send('test')
         };
 
-        setInterval(() => { ws.send(username) }, 1000)
+        // setInterval(() => { ws.send(username) }, 1000)
     }
 }

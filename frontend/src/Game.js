@@ -47,6 +47,8 @@ export default class Game {
         this.controller2 = res.controller2
 
         this.physics = new Physics(this.timeframes, this.mesh)
+
+        scene.add(WebXR.buildNewPlayer(renderer))
     }
 
     handleController(controller) {
@@ -77,7 +79,7 @@ export default class Game {
         this.elapsedTime = this.clock.getElapsedTime()
         const dt = this.elapsedTime - prevTime
         let ks = [...this.timeframes.keys()].slice(1)
-        ks.forEach((i) => {
+        ks.forEach(i => {
             this.timeframes[i - 1] = this.timeframes[i]
         })
         this.timeframes[this.timeframes.length - 1] = dt
