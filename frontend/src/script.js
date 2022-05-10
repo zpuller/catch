@@ -52,6 +52,7 @@ animate()
 const form = document.getElementById('nameinput')
 let client
 form.onsubmit = (e) => {
+    form.style.display = "none"
     e.preventDefault()
     const data = new FormData(form)
     const username = data.get('username')
