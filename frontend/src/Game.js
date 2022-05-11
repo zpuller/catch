@@ -5,6 +5,20 @@ import Objects from './Assets/Objects'
 import Physics from './Physics'
 import WebXR from './WebXR'
 
+const defaultPlayer = () => {
+    return {
+        player: { position: { x: 0, z: 0 } },
+        leftCon: {
+            position: { x: 0, y: 0, z: 0 },
+            rotation: { x: 0, y: 0, z: 0 }
+        },
+        rightCon: {
+            position: { x: 0, y: 0, z: 0 },
+            rotation: { x: 0, y: 0, z: 0 }
+        }
+    }
+}
+
 const handlers = (game) => {
     return {
         onSelectStart: function () {
@@ -18,7 +32,7 @@ const handlers = (game) => {
 
         onSqueezeStart: function () {
             this.userData.isSqueezing = true
-            game.physics.doCatch(this, this.mesh)
+            game.physics.doCatch(this, this.objects.ball)
         },
 
         onSqueezeEnd: function () {
@@ -27,7 +41,7 @@ const handlers = (game) => {
                 game.physics.doThrow(this)
             }
 
-            game.mesh.material.color.setHex(0x04f679)
+            game.objects.ball.material.color.setHex(0x04f679)
             this.userData.isHolding = false
         },
     }
@@ -35,14 +49,8 @@ const handlers = (game) => {
 
 export default class Game {
     constructor(renderer, scene, cameraGroup, client) {
-        this.renderer = renderer
-
         this.client = client
-        this.client.stateHandler = {
-            handleUpdateState: this.handleUpdateState.bind(this),
-            handlePlayerJoined: this.handlePlayerJoined.bind(this),
-            handlePlayerDisconnected: this.handlePlayerDisconnected.bind(this)
-        }
+        this.client.eventListeners.push(this)
 
         this.players = {}
         this.playerGroups = {}
@@ -52,26 +60,27 @@ export default class Game {
         this.timeframes = Array(5).fill(1)
 
         this.player = cameraGroup
-        this.mesh = new Objects(scene)
+        this.objects = new Objects(scene)
         this.scene = scene
 
         let res = WebXR.init(renderer, handlers(this), cameraGroup)
         this.controller1 = res.controller1
         this.controller2 = res.controller2
 
-        this.physics = new Physics(this.timeframes, this.mesh)
+        this.physics = new Physics(this.timeframes, this.objects.ball)
 
         this.handledInitialState = false
     }
 
-    handlePlayerJoined(player) {
-        player.position = {
-            player: { x: 0, z: 0 },
-            leftCon: { x: 0, y: 0, z: 0 },
-            rightCon: { x: 0, y: 0, z: 0 }
-        }
+    forEachPlayerExceptSelf(f) {
+        Object.keys(this.players).filter(id => id != this.client.id && this.players[id]).forEach(f)
+    }
+
+    handlePlayerJoined(id) {
+        const player = defaultPlayer()
+        player.id = id
         this.players[player.id] = player
-        this.playerGroups[player.id] = WebXR.buildNewPlayer(this.renderer)
+        this.playerGroups[player.id] = this.objects.buildNewPlayer()
         this.scene.add(this.playerGroups[player.id])
     }
 
@@ -87,13 +96,10 @@ export default class Game {
         if (!this.handledInitialState) {
             this.handledInitialState = true
 
-            for (const id in this.players) {
-                if (id == this.client.id || this.players[id] === null) {
-                    continue
-                }
-                this.playerGroups[id] = WebXR.buildNewPlayer(this.renderer)
+            this.forEachPlayerExceptSelf(id => {
+                this.playerGroups[id] = this.objects.buildNewPlayer()
                 this.scene.add(this.playerGroups[id])
-            }
+            })
         }
     }
 
@@ -133,32 +139,28 @@ export default class Game {
         this.handleInputs(inputs)
         this.physics.update(this.controller1, this.controller2)
 
-        const lp = this.controller1.position
-        const rp = this.controller2.position
-        const lr = this.controller1.rotation
-        const rr = this.controller2.rotation
+        const [lp, rp] = [this.controller1.position, this.controller2.position]
+        const [lr, rr] = [this.controller1.rotation, this.controller2.rotation]
         this.client.emitPlayerState({
-            player: { x: this.player.position.x, z: this.player.position.z },
-            leftCon: { x: lp.x, y: lp.y, z: lp.z },
-            rightCon: { x: rp.x, y: rp.y, z: rp.z },
-        }, {
-            leftCon: { x: lr.x, y: lr.y, z: lr.z },
-            rightCon: { x: rr.x, y: rr.y, z: rr.z },
+            player: { position: { x: this.player.position.x, z: this.player.position.z } },
+            leftCon: {
+                position: { x: lp.x, y: lp.y, z: lp.z },
+                rotation: { x: lr.x, y: lr.y, z: lr.z },
+            },
+            rightCon: {
+                position: { x: rp.x, y: rp.y, z: rp.z },
+                rotation: { x: rr.x, y: rr.y, z: rr.z },
+            }
         })
 
-        // TODO refactor combine with above loop
-        for (const id in this.players) {
-            if (id == this.client.id || this.players[id] === null) {
-                continue
-            }
+        this.forEachPlayerExceptSelf(id => {
             const p = this.players[id]
             const g = this.playerGroups[id]
-            g.position.set(p.position.player.x, 0, p.position.player.z)
+            g.position.set(p.player.position.x, 0, p.player.position.z)
 
-            const lp = p.position.leftCon
-            const rp = p.position.rightCon
+            const [lp, rp] = [p.leftCon.position, p.rightCon.position]
             g.children[0].position.set(lp.x, lp.y, lp.z)
             g.children[1].position.set(rp.x, rp.y, rp.z)
-        }
+        })
     }
 }

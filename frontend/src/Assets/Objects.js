@@ -15,6 +15,21 @@ export default class Objects {
         const mesh = new THREE.Mesh(geometry, material)
         scene.add(mesh)
 
-        return mesh
+        this.ball = mesh
+    }
+
+    buildNewPlayer() {
+        const group = new THREE.Group()
+
+        const geometry = new THREE.SphereGeometry(0.1, 16, 16)
+        const material = new THREE.MeshPhysicalMaterial({ color: '#04f679' })
+
+        const leftGrip = new THREE.Mesh(geometry, material)
+        group.add(leftGrip)
+
+        const rightGrip = new THREE.Mesh(geometry, material)
+        group.add(rightGrip)
+
+        return group
     }
 }

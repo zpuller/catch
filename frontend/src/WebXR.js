@@ -25,25 +25,6 @@ const buildController = (data) => {
     }
 }
 
-const buildNewPlayer = (renderer) => {
-    const group = new THREE.Group()
-
-    const controllerModelFactory = new XRControllerModelFactory()
-
-    const geometry = new THREE.SphereGeometry(0.1, 16, 16)
-    const material = new THREE.MeshPhysicalMaterial({ color: '#04f679' })
-
-    // const leftGrip = controllerModelFactory.createControllerModel(renderer.xr.getControllerGrip(0))
-    const leftGrip = new THREE.Mesh(geometry, material)
-    group.add(leftGrip)
-
-    // const rightGrip = controllerModelFactory.createControllerModel(renderer.xr.getControllerGrip(1))
-    const rightGrip = new THREE.Mesh(geometry, material)
-    group.add(rightGrip)
-
-    return group
-}
-
 const init = (renderer, handlers, player) => {
     renderer.xr.enabled = true
     document.body.appendChild(VRButton.createButton(renderer))
@@ -79,4 +60,4 @@ const init = (renderer, handlers, player) => {
     return { controller1, controller2 }
 }
 
-export default { init, buildNewPlayer }
+export default { init }

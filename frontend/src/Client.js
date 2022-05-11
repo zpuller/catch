@@ -1,12 +1,12 @@
 export default class Client {
     constructor() {
-        this.stateHandler = null
         // var HOST = location.origin.replace(/^http/, 'ws')
         var HOST = location.origin.replace(/^http/, 'ws').replace(/8080/, '3000')
         this.ws = new WebSocket(HOST);
-        var el;
 
         this.ws.onmessage = this.handleMessage.bind(this)
+
+        this.eventListeners = []
     }
 
     handleMessage(event) {
@@ -18,7 +18,7 @@ export default class Client {
                 break
 
             case 'player_joined':
-                this.handlePlayerJoined({ id: data.id })
+                this.handlePlayerJoined(data.id)
                 break
 
             case 'player_disconnected':
@@ -32,30 +32,24 @@ export default class Client {
 
     handleUpdateState(state) {
         console.log('client handle state', state)
-        if (this.stateHandler) {
-            this.stateHandler.handleUpdateState(state)
-        }
+        this.eventListeners.forEach(l => l.handleUpdateState(state))
     }
 
     handleSetId(id) {
         this.id = id
     }
 
-    handlePlayerJoined(player) {
-        console.log('client player joined', player)
-        if (this.stateHandler) {
-            this.stateHandler.handlePlayerJoined(player)
-        }
+    handlePlayerJoined(id) {
+        console.log('client player joined', id)
+        this.eventListeners.forEach(l => l.handlePlayerJoined(id))
     }
 
     handlePlayerDisconnected(id) {
         console.log('client player diconnected', id)
-        if (this.stateHandler) {
-            this.stateHandler.handlePlayerDisconnected(id)
-        }
+        this.eventListeners.forEach(l => l.handlePlayerDisconnected(id))
     }
 
-    emitPlayerState(position, rotation) {
-        this.ws.send(JSON.stringify({ op: 'player_position', id: this.id, position, rotation }))
+    emitPlayerState(state) {
+        this.ws.send(JSON.stringify({ op: 'player_state', id: this.id, state }))
     }
 }
