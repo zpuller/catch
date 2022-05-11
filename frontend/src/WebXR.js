@@ -30,16 +30,16 @@ const buildNewPlayer = (renderer) => {
 
     const controllerModelFactory = new XRControllerModelFactory()
 
-    const leftGrip = controllerModelFactory.createControllerModel(renderer.xr.getControllerGrip(0))
-    leftGrip.position.set(-.5, 1.5, -1.5)
+    const geometry = new THREE.SphereGeometry(0.1, 16, 16)
+    const material = new THREE.MeshPhysicalMaterial({ color: '#04f679' })
+
+    // const leftGrip = controllerModelFactory.createControllerModel(renderer.xr.getControllerGrip(0))
+    const leftGrip = new THREE.Mesh(geometry, material)
     group.add(leftGrip)
 
-    const rightGrip = controllerModelFactory.createControllerModel(renderer.xr.getControllerGrip(1))
-    rightGrip.position.set(.5, 1.5, -1.5)
+    // const rightGrip = controllerModelFactory.createControllerModel(renderer.xr.getControllerGrip(1))
+    const rightGrip = new THREE.Mesh(geometry, material)
     group.add(rightGrip)
-
-    group.position.set(0, 0, -3)
-    group.rotateY(Math.PI)
 
     return group
 }
