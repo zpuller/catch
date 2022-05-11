@@ -21,7 +21,7 @@ const sizes = {
     height: window.innerHeight
 }
 
-const init = (username) => {
+const init = () => {
     const canvas = document.querySelector('canvas.webgl')
 
     scene = new THREE.Scene()
@@ -36,7 +36,7 @@ const init = (username) => {
 
     Windowing.init(camera, renderer, canvas, sizes)
 
-    client = new Client(username)
+    client = new Client()
     setTimeout(waitForClientLogin, 100)
 }
 
@@ -57,15 +57,4 @@ const animate = () => {
     })
 }
 
-
-const form = document.getElementById('nameinput')
-const input = document.getElementById('username')
-input.setAttribute('value', parseInt(10000 * Math.random()).toString())
-form.onsubmit = (e) => {
-    form.style.display = 'none'
-    e.preventDefault()
-    const data = new FormData(form)
-    const username = data.get('username')
-
-    init(username)
-}
+init()

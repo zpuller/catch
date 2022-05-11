@@ -1,6 +1,5 @@
 export default class Client {
-    constructor(username) {
-        this.username = username
+    constructor() {
         this.stateHandler = null
         // var HOST = location.origin.replace(/^http/, 'ws')
         var HOST = location.origin.replace(/^http/, 'ws').replace(/8080/, '3000')
@@ -8,10 +7,6 @@ export default class Client {
         var el;
 
         this.ws.onmessage = this.handleMessage.bind(this)
-
-        this.ws.onopen = function (event) {
-            this.ws.send(JSON.stringify({ op: 'set_username', username: username }))
-        }.bind(this)
     }
 
     handleMessage(event) {
@@ -23,7 +18,7 @@ export default class Client {
                 break
 
             case 'player_joined':
-                this.handlePlayerJoined({ id: data.id, username: data.username })
+                this.handlePlayerJoined({ id: data.id })
                 break
 
             case 'player_disconnected':

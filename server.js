@@ -14,20 +14,19 @@ const server = express()
     .listen(PORT, () => console.log(`Listening on ${PORT}`));
 
 const wss = new Server({ server });
+let id = 0
 
 const state = { players: [] }
-let id = 0
 const playersPriv = []
 
 const broadcastState = () => {
     playersPriv.forEach(p => p.conn.send(JSON.stringify({ op: 'update_state', state })))
 }
 
-const registerNewPlayer = (ws, username) => {
+const registerNewPlayer = (ws) => {
     ws.send(JSON.stringify({ 'op': 'set_id', 'id': ws.id }))
-    playersPriv.forEach(p => p?.conn.send(JSON.stringify({ op: 'player_joined', id: ws.id, username })))
+    playersPriv.forEach(p => p?.conn.send(JSON.stringify({ op: 'player_joined', id: ws.id })))
     state.players.push({
-        username,
         position: {
             player: { x: 0, z: 0 },
             leftCon: { x: 0, y: 0, z: 0 },
@@ -57,9 +56,11 @@ const disconnectPlayer = (id) => {
 }
 
 wss.on('connection', (ws) => {
+    console.log('Client connected');
+
     ws.id = id
     id++
-    console.log('Client connected');
+
     ws.on('close', () => {
         console.log('client', ws.id, 'disconnected')
         disconnectPlayer(ws.id)
@@ -67,15 +68,13 @@ wss.on('connection', (ws) => {
     ws.onmessage = (e) => {
         const data = JSON.parse(e.data)
         switch (data.op) {
-            case 'set_username':
-                registerNewPlayer(ws, data.username)
-                break
-
             case 'player_position':
                 handlePlayerState(data)
                 break
         }
     }
+
+    registerNewPlayer(ws)
 });
 
 setInterval(broadcastState, 1000)
