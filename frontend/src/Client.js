@@ -1,32 +1,40 @@
 export default class Client {
     constructor(username) {
         this.username = username
-        var HOST = location.origin.replace(/^http/, 'ws')
-        // var HOST = location.origin.replace(/^http/, 'ws').replace(/8080/, '3000')
-        var ws = new WebSocket(HOST);
+        // var HOST = location.origin.replace(/^http/, 'ws')
+        var HOST = location.origin.replace(/^http/, 'ws').replace(/8080/, '3000')
+        this.ws = new WebSocket(HOST);
         var el;
 
-        ws.onmessage = this.handle_message.bind(this)
+        this.ws.onmessage = this.handleMessage.bind(this)
 
-        ws.onopen = function (event) {
-            ws.send(JSON.stringify({ op: 'set_username', username: username }))
-        }
-
-        // setInterval(() => { ws.send(username) }, 1000)
+        this.ws.onopen = function (event) {
+            this.ws.send(JSON.stringify({ op: 'set_username', username: username }))
+        }.bind(this)
     }
 
-    handle_message(event) {
+    handleMessage(event) {
         const data = JSON.parse(event.data)
-        console.log(data)
+        // console.log(data)
         switch (data.op) {
-            case "set_id":
-                this.handle_set_id(data.id)
+            case 'set_id':
+                this.handleSetId(data.id)
                 break
 
+            case 'update_state':
+                this.handleUpdateState(data.state)
         }
     }
 
-    handle_set_id(id) {
+    handleUpdateState(state) {
+        console.log('handle state', state)
+    }
+
+    handleSetId(id) {
         this.id = id
+    }
+
+    emitPlayerState(position, rotation) {
+        this.ws.send(JSON.stringify({ op: 'player_position', id: this.id, position, rotation }))
     }
 }

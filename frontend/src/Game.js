@@ -34,7 +34,9 @@ const handlers = (game) => {
 }
 
 export default class Game {
-    constructor(renderer, scene, cameraGroup) {
+    constructor(renderer, scene, cameraGroup, client) {
+        this.client = client
+
         this.clock = new THREE.Clock()
         this.elapsedTime = this.clock.getElapsedTime()
         this.timeframes = Array(5).fill(1)
@@ -86,5 +88,18 @@ export default class Game {
 
         this.handleInputs(inputs)
         this.physics.update(this.controller1, this.controller2)
+
+        const lp = this.controller1.position
+        const rp = this.controller2.position
+        const lr = this.controller1.rotation
+        const rr = this.controller2.rotation
+        this.client.emitPlayerState({
+            player: { x: this.player.position.x, z: this.player.position.z },
+            leftCon: { x: lp.x, y: lp.y, z: lp.z },
+            rightCon: { x: rp.x, y: rp.y, z: rp.z },
+        }, {
+            leftCon: { x: lr.x, y: lr.y, z: lr.z },
+            rightCon: { x: rr.x, y: rr.y, z: rr.z },
+        })
     }
 }
