@@ -180,7 +180,7 @@ export default class Game {
     emitPlayerState() {
         const [lp, rp] = [this.controller1.position, this.controller2.position]
         const [lr, rr] = [this.controller1.rotation, this.controller2.rotation]
-        this.client.emitPlayerState({
+        const state = {
             player: { position: { x: this.player.position.x, z: this.player.position.z } },
             leftCon: {
                 position: { x: lp.x, y: lp.y, z: lp.z },
@@ -190,7 +190,10 @@ export default class Game {
                 position: { x: rp.x, y: rp.y, z: rp.z },
                 rotation: { x: rr.x, y: rr.y, z: rr.z },
             }
-        })
+        }
+        this.players[this.client.id] = state
+
+        this.client.emitPlayerState(state)
     }
 
     updateOtherPlayerState() {
