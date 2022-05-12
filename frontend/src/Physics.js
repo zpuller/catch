@@ -5,12 +5,9 @@ export default class Physics {
     constructor(pTimeframes, pBall) {
         this.controllerWorldPosition = new THREE.Vector3()
         this.gravity = 0.0004
-        // this.leftOffset = new THREE.Vector3(.07, .07, -.07)
-        // this.rightOffset = new THREE.Vector3(-.07, .07, -.07)
         this.timeframes = pTimeframes
         this.ball = pBall
         this.ball.velocity = new THREE.Vector3()
-        console.log(this.ball)
     }
 
     linearRegressionQuadratic(positions, frametimes) {
@@ -34,26 +31,11 @@ export default class Physics {
     }
 
     doCatch(controller) {
-        let distance = controller.position.distanceTo(this.ball.mesh.position)
-        if (distance < 0.2) {
-            // TODO might not need this after we have full ball state
-            // controller.userData.isHolding = true
-            // this.ball.mesh.material.color.setHex(0xffffff)
-        }
-
+        const distance = controller.position.distanceTo(this.ball.mesh.position)
         return distance < 0.2
     }
 
     update(controller1, controller2, players) {
-        // if (controller1.userData.isHolding) {
-        //     this.ball.mesh.position.copy(controller1.getWorldPosition(this.controllerWorldPosition)).add(this.leftOffset)
-        //     return
-        // }
-        // if (controller2.userData.isHolding) {
-        //     this.ball.mesh.position.copy(controller2.getWorldPosition(this.controllerWorldPosition)).add(this.rightOffset)
-        //     return
-        // }
-
         switch (this.ball.state) {
             case 'free':
                 this.ball.velocity.y -= this.gravity

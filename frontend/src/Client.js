@@ -40,7 +40,6 @@ export default class Client {
     }
 
     handleUpdateState(state) {
-        // console.log('client handle state', state)
         this.eventListeners.forEach(l => l.handleUpdateState(state))
     }
 
@@ -63,8 +62,7 @@ export default class Client {
     }
 
     emitPlayerState(state) {
-        // TODO don't need to send id
-        this.ws.send(JSON.stringify({ op: 'player_state', id: this.id, state }))
+        this.ws.send(JSON.stringify({ op: 'player_state', state }))
     }
 
     emitBallState(state) {

@@ -22,16 +22,13 @@ const defaultPlayer = () => {
 const handlers = (game) => {
     return {
         onSelectStart: function () {
-            // this.userData.isSelecting = true
             game.resetBall()
         },
 
         onSelectEnd: function () {
-            // this.userData.isSelecting = false
         },
 
         onSqueezeStart: function () {
-            // this.userData.isSqueezing = true
             if (game.physics.doCatch(this, this.ball)) {
                 game.ball.state = 'held'
                 game.ball.holding = game.client.id
@@ -46,8 +43,6 @@ const handlers = (game) => {
         },
 
         onSqueezeEnd: function () {
-            // this.userData.isSqueezing = false
-            // if (this.userData.isHolding) {
             if (game.ball.state == 'held' && game.ball.holding == game.client.id && (game.ball.hand === 'left') === (this === game.controller1)) {
                 game.physics.doThrow(this)
 
@@ -61,11 +56,6 @@ const handlers = (game) => {
                     velocity: { x: v.x, y: v.y, z: v.z }
                 })
             }
-
-
-
-            game.ball.mesh.material.color.setHex(0x04f679)
-            // this.userData.isHolding = false
         },
     }
 }

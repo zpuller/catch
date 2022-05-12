@@ -39,7 +39,6 @@ const broadcastState = () => {
 }
 
 const broadcastBallState = (state) => {
-    // TODO maybe filter out sender
     playersPriv.forEach(p => p.conn.send(JSON.stringify({ op: 'update_ball_state', state })))
 }
 
@@ -51,8 +50,8 @@ const registerNewPlayer = (ws) => {
     broadcastState()
 }
 
-const handlePlayerState = (data) => {
-    state.players[data.id] = data.state
+const handlePlayerState = (id, data) => {
+    state.players[id] = data.state
 }
 
 const handleBallState = (data) => {
@@ -80,7 +79,7 @@ wss.on('connection', (ws) => {
         const data = JSON.parse(e.data)
         switch (data.op) {
             case 'player_state':
-                handlePlayerState(data)
+                handlePlayerState(ws.id, data)
                 break
 
             case 'ball_state':
