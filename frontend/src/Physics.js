@@ -38,7 +38,7 @@ export default class Physics {
         if (distance < 0.2) {
             // TODO might not need this after we have full ball state
             // controller.userData.isHolding = true
-            this.ball.mesh.material.color.setHex(0xffffff)
+            // this.ball.mesh.material.color.setHex(0xffffff)
         }
 
         return distance < 0.2

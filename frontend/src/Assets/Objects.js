@@ -19,8 +19,8 @@ export default class Objects {
     buildNewPlayer() {
         const group = new THREE.Group()
 
-        const geometry = new THREE.SphereGeometry(0.1, 16, 16)
-        const material = new THREE.MeshPhysicalMaterial({ color: '#04f679' })
+        const geometry = new THREE.SphereGeometry(0.025, 16, 16)
+        const material = new THREE.MeshPhysicalMaterial({ color: '#ffffff' })
 
         const leftGrip = new THREE.Mesh(geometry, material)
         group.add(leftGrip)
