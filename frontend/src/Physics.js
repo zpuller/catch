@@ -5,8 +5,8 @@ export default class Physics {
     constructor(pTimeframes, pBall) {
         this.controllerWorldPosition = new THREE.Vector3()
         this.gravity = 0.0004
-        this.leftOffset = new THREE.Vector3(.07, .07, -.07)
-        this.rightOffset = new THREE.Vector3(-.07, .07, -.07)
+        // this.leftOffset = new THREE.Vector3(.07, .07, -.07)
+        // this.rightOffset = new THREE.Vector3(-.07, .07, -.07)
         this.timeframes = pTimeframes
         this.ball = pBall
         this.ball.velocity = new THREE.Vector3()
@@ -38,25 +38,39 @@ export default class Physics {
     doCatch(controller) {
         let distance = controller.position.distanceTo(this.ball.mesh.position)
         if (distance < 0.2) {
-            controller.userData.isHolding = true
+            // TODO might not need this after we have full ball state
+            // controller.userData.isHolding = true
             this.ball.mesh.material.color.setHex(0xffffff)
         }
     }
 
-    update(controller1, controller2) {
-        if (controller1.userData.isHolding) {
-            this.ball.mesh.position.copy(controller1.getWorldPosition(this.controllerWorldPosition)).add(this.leftOffset)
-            return
-        }
-        if (controller2.userData.isHolding) {
-            this.ball.mesh.position.copy(controller2.getWorldPosition(this.controllerWorldPosition)).add(this.rightOffset)
-            return
-        }
+    update(controller1, controller2, players) {
+        // if (controller1.userData.isHolding) {
+        //     this.ball.mesh.position.copy(controller1.getWorldPosition(this.controllerWorldPosition)).add(this.leftOffset)
+        //     return
+        // }
+        // if (controller2.userData.isHolding) {
+        //     this.ball.mesh.position.copy(controller2.getWorldPosition(this.controllerWorldPosition)).add(this.rightOffset)
+        //     return
+        // }
 
-        this.ball.velocity.y -= this.gravity
-        this.ball.velocity.y = Math.max(this.ball.velocity.y, -1)
-        this.ball.mesh.position.add(this.ball.velocity)
-        this.ball.mesh.position.y = Math.max(this.ball.mesh.position.y, this.ball.mesh.geometry.parameters.radius)
+        switch (this.ball.state) {
+            case 'free':
+                this.ball.velocity.y -= this.gravity
+                this.ball.velocity.y = Math.max(this.ball.velocity.y, -1)
+                this.ball.mesh.position.add(this.ball.velocity)
+                this.ball.mesh.position.y = Math.max(this.ball.mesh.position.y, this.ball.mesh.geometry.parameters.radius)
+                break
+
+            case 'held':
+                const player = players[this.ball.holding]
+                const p = this.ball.mesh.position
+                p.copy(player.player.position)
+                p.y = 0
+
+                const con = this.ball.hand == 'left' ? player.leftCon : player.rightCon
+                p.add(con.position)
+        }
     }
 
     resetBall() {

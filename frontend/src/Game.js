@@ -22,27 +22,35 @@ const defaultPlayer = () => {
 const handlers = (game) => {
     return {
         onSelectStart: function () {
-            this.userData.isSelecting = true
+            // this.userData.isSelecting = true
             game.physics.resetBall()
         },
 
         onSelectEnd: function () {
-            this.userData.isSelecting = false
+            // this.userData.isSelecting = false
         },
 
         onSqueezeStart: function () {
-            this.userData.isSqueezing = true
+            // this.userData.isSqueezing = true
             game.physics.doCatch(this, this.ball)
+            game.ball.state = 'held'
+            game.ball.holding = game.client.id
+            game.ball.hand = this === game.controller1 ? 'left' : 'right'
         },
 
         onSqueezeEnd: function () {
-            this.userData.isSqueezing = false
-            if (this.userData.isHolding) {
+            // this.userData.isSqueezing = false
+            // if (this.userData.isHolding) {
+            if (game.ball.state == 'held' && game.ball.holding == game.client.id && (game.ball.hand === 'left') === (this === game.controller1)) {
                 game.physics.doThrow(this)
+
+                game.ball.state = 'free'
             }
 
+
+
             game.ball.mesh.material.color.setHex(0x04f679)
-            this.userData.isHolding = false
+            // this.userData.isHolding = false
         },
     }
 }
@@ -62,6 +70,7 @@ export default class Game {
 
         const objects = new Objects()
         const ball = {
+            state: 'free',
             mesh: objects.buildBall()
         }
         const room = objects.buildRoom()
@@ -177,7 +186,7 @@ export default class Game {
     update(inputs) {
         this.tick()
         this.handleInputs(inputs)
-        this.physics.update(this.controller1, this.controller2)
+        this.physics.update(this.controller1, this.controller2, this.players)
         this.emitPlayerState()
         this.updateOtherPlayerState()
     }
