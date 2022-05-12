@@ -9,6 +9,10 @@ export default class Client {
         this.eventListeners = []
     }
 
+    subscribeToEvents(listener) {
+        this.eventListeners.push(listener)
+    }
+
     handleMessage(event) {
         const data = JSON.parse(event.data)
         // console.log(data)

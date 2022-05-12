@@ -32,7 +32,7 @@ const handlers = (game) => {
 
         onSqueezeStart: function () {
             this.userData.isSqueezing = true
-            game.physics.doCatch(this, this.objects.ball)
+            game.physics.doCatch(this, this.ball)
         },
 
         onSqueezeEnd: function () {
@@ -41,16 +41,16 @@ const handlers = (game) => {
                 game.physics.doThrow(this)
             }
 
-            game.objects.ball.material.color.setHex(0x04f679)
+            game.ball.material.color.setHex(0x04f679)
             this.userData.isHolding = false
         },
     }
 }
 
 export default class Game {
-    constructor(renderer, scene, cameraGroup, client) {
+    constructor(xr, scene, cameraGroup, client) {
         this.client = client
-        this.client.eventListeners.push(this)
+        this.client.subscribeToEvents(this)
 
         this.players = {}
         this.playerGroups = {}
@@ -60,14 +60,21 @@ export default class Game {
         this.timeframes = Array(5).fill(1)
 
         this.player = cameraGroup
-        this.objects = new Objects(scene)
+        const objects = new Objects()
+        const ball = objects.buildBall()
+        const room = objects.buildRoom()
+        scene.add(room)
+        scene.add(ball)
+
+        this.objects = objects
+        this.ball = ball
         this.scene = scene
 
-        let res = WebXR.init(renderer, handlers(this), cameraGroup)
+        let res = WebXR.init(xr, handlers(this), cameraGroup)
         this.controller1 = res.controller1
         this.controller2 = res.controller2
 
-        this.physics = new Physics(this.timeframes, this.objects.ball)
+        this.physics = new Physics(this.timeframes, this.ball)
 
         this.handledInitialState = false
     }

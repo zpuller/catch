@@ -1,8 +1,6 @@
 import * as THREE from 'three'
 
-import { VRButton } from 'three/examples/jsm/webxr/VRButton.js'
 import { XRControllerModelFactory } from 'three/examples/jsm/webxr/XRControllerModelFactory.js'
-
 
 const buildController = (data) => {
     let geometry, material
@@ -25,12 +23,11 @@ const buildController = (data) => {
     }
 }
 
-const init = (renderer, handlers, player) => {
-    renderer.xr.enabled = true
-    document.body.appendChild(VRButton.createButton(renderer))
+const init = (xr, handlers, player) => {
+    xr.enabled = true
 
-    const controller1 = renderer.xr.getController(0)
-    const controller2 = renderer.xr.getController(1)
+    const controller1 = xr.getController(0)
+    const controller2 = xr.getController(1)
 
     const cons = [controller1, controller2]
     cons.forEach(con => {
@@ -51,7 +48,7 @@ const init = (renderer, handlers, player) => {
     })
 
     const controllerModelFactory = new XRControllerModelFactory()
-    const grips = [renderer.xr.getControllerGrip(0), renderer.xr.getControllerGrip(1)]
+    const grips = [xr.getControllerGrip(0), xr.getControllerGrip(1)]
     grips.forEach(grip => {
         grip.add(controllerModelFactory.createControllerModel(grip))
         player.add(grip)

@@ -1,6 +1,7 @@
 import './style.css'
 
 import * as THREE from 'three'
+import { VRButton } from 'three/examples/jsm/webxr/VRButton.js'
 
 import Client from './Client'
 
@@ -26,8 +27,10 @@ const init = () => {
 
     scene = new THREE.Scene()
 
-    lights = new Lights(scene)
-    camera = new Camera(scene, sizes)
+    lights = new Lights()
+    scene.add(lights.get())
+
+    camera = new Camera(sizes)
     renderer = new Renderer(canvas, sizes)
 
     cameraGroup = new THREE.Group()
@@ -44,7 +47,8 @@ const waitForClientLogin = () => {
     if (client.id === undefined) {
         setTimeout(waitForClientLogin, 100)
     } else {
-        game = new Game(renderer, scene, cameraGroup, client)
+        game = new Game(renderer.xr, scene, cameraGroup, client)
+        document.body.appendChild(VRButton.createButton(renderer))
         animate()
     }
 }
