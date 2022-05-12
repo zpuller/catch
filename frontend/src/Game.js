@@ -114,7 +114,11 @@ export default class Game {
     }
 
     handleUpdateState(state) {
-        this.forEachPlayerExceptSelf(id => this.players[id] = state.players[id])
+        state.players.forEach((p, id) => {
+            if (id !== this.client.id) {
+                this.players[id] = p
+            }
+        })
 
         if (!this.handledInitialState) {
             this.handledInitialState = true
