@@ -52,6 +52,7 @@ export default class Game {
         this.client = client
         this.client.subscribeToEvents(this)
 
+        this.player = cameraGroup
         this.players = {}
         this.playerGroups = {}
 
@@ -59,7 +60,6 @@ export default class Game {
         this.elapsedTime = this.clock.getElapsedTime()
         this.timeframes = Array(5).fill(1)
 
-        this.player = cameraGroup
         const objects = new Objects()
         const ball = objects.buildBall()
         const room = objects.buildRoom()
@@ -133,7 +133,7 @@ export default class Game {
         this.handleController(this.controller2)
     }
 
-    update(inputs) {
+    tick() {
         const prevTime = this.elapsedTime
         this.elapsedTime = this.clock.getElapsedTime()
         const dt = this.elapsedTime - prevTime
@@ -142,10 +142,9 @@ export default class Game {
             this.timeframes[i - 1] = this.timeframes[i]
         })
         this.timeframes[this.timeframes.length - 1] = dt
+    }
 
-        this.handleInputs(inputs)
-        this.physics.update(this.controller1, this.controller2)
-
+    emitPlayerState() {
         const [lp, rp] = [this.controller1.position, this.controller2.position]
         const [lr, rr] = [this.controller1.rotation, this.controller2.rotation]
         this.client.emitPlayerState({
@@ -159,7 +158,9 @@ export default class Game {
                 rotation: { x: rr.x, y: rr.y, z: rr.z },
             }
         })
+    }
 
+    updateOtherPlayerState() {
         this.forEachPlayerExceptSelf(id => {
             const p = this.players[id]
             const g = this.playerGroups[id]
@@ -169,5 +170,13 @@ export default class Game {
             g.children[0].position.set(lp.x, lp.y, lp.z)
             g.children[1].position.set(rp.x, rp.y, rp.z)
         })
+    }
+
+    update(inputs) {
+        this.tick()
+        this.handleInputs(inputs)
+        this.physics.update(this.controller1, this.controller2)
+        this.emitPlayerState()
+        this.updateOtherPlayerState()
     }
 }

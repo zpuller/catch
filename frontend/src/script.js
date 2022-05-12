@@ -25,16 +25,16 @@ const sizes = {
 const init = () => {
     const canvas = document.querySelector('canvas.webgl')
 
-    scene = new THREE.Scene()
+    renderer = new Renderer(canvas, sizes)
 
     lights = new Lights()
-    scene.add(lights.get())
-
     camera = new Camera(sizes)
-    renderer = new Renderer(canvas, sizes)
 
     cameraGroup = new THREE.Group()
     cameraGroup.add(camera)
+
+    scene = new THREE.Scene()
+    scene.add(lights.get())
     scene.add(cameraGroup)
 
     Windowing.init(camera, renderer, canvas, sizes)
