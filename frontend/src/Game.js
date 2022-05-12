@@ -41,7 +41,7 @@ const handlers = (game) => {
                 game.physics.doThrow(this)
             }
 
-            game.ball.material.color.setHex(0x04f679)
+            game.ball.mesh.material.color.setHex(0x04f679)
             this.userData.isHolding = false
         },
     }
@@ -61,10 +61,12 @@ export default class Game {
         this.timeframes = Array(5).fill(1)
 
         const objects = new Objects()
-        const ball = objects.buildBall()
+        const ball = {
+            mesh: objects.buildBall()
+        }
         const room = objects.buildRoom()
         scene.add(room)
-        scene.add(ball)
+        scene.add(ball.mesh)
 
         this.objects = objects
         this.ball = ball
