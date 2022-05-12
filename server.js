@@ -38,6 +38,11 @@ const broadcastState = () => {
     playersPriv.forEach(p => p.conn.send(JSON.stringify({ op: 'update_state', state })))
 }
 
+const broadcastBallState = (state) => {
+    // TODO maybe filter out sender
+    playersPriv.forEach(p => p.conn.send(JSON.stringify({ op: 'update_ball_state', state })))
+}
+
 const registerNewPlayer = (ws) => {
     ws.send(JSON.stringify({ 'op': 'set_id', 'id': ws.id }))
     playersPriv.forEach(p => p?.conn.send(JSON.stringify({ op: 'player_joined', id: ws.id })))
@@ -48,6 +53,10 @@ const registerNewPlayer = (ws) => {
 
 const handlePlayerState = (data) => {
     state.players[data.id] = data.state
+}
+
+const handleBallState = (data) => {
+    broadcastBallState(data.state)
 }
 
 const disconnectPlayer = (id) => {
@@ -73,10 +82,14 @@ wss.on('connection', (ws) => {
             case 'player_state':
                 handlePlayerState(data)
                 break
+
+            case 'ball_state':
+                handleBallState(data)
+                break
         }
     }
 
     registerNewPlayer(ws)
 })
 
-setInterval(broadcastState, 1000)
+setInterval(broadcastState, 33)

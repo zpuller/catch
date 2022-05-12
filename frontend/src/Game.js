@@ -32,10 +32,17 @@ const handlers = (game) => {
 
         onSqueezeStart: function () {
             // this.userData.isSqueezing = true
-            game.physics.doCatch(this, this.ball)
-            game.ball.state = 'held'
-            game.ball.holding = game.client.id
-            game.ball.hand = this === game.controller1 ? 'left' : 'right'
+            if (game.physics.doCatch(this, this.ball)) {
+                game.ball.state = 'held'
+                game.ball.holding = game.client.id
+                game.ball.hand = this === game.controller1 ? 'left' : 'right'
+
+                game.client.emitBallState({
+                    state: game.ball.state,
+                    holding: game.ball.holding,
+                    hand: game.ball.hand,
+                })
+            }
         },
 
         onSqueezeEnd: function () {
@@ -45,6 +52,14 @@ const handlers = (game) => {
                 game.physics.doThrow(this)
 
                 game.ball.state = 'free'
+
+                const v = game.ball.velocity
+                game.client.emitBallState({
+                    state: game.ball.state,
+                    holding: game.ball.holding,
+                    hand: game.ball.hand,
+                    velocity: { x: v.x, y: v.y, z: v.z }
+                })
             }
 
 
@@ -118,6 +133,16 @@ export default class Game {
                 this.playerGroups[id] = this.objects.buildNewPlayer()
                 this.scene.add(this.playerGroups[id])
             })
+        }
+    }
+
+    handleUpdateBallState(state) {
+        this.ball.state = state.state
+        this.ball.holding = state.holding
+        this.ball.hand = state.hand
+        if (state.velocity) {
+            const v = state.velocity
+            this.ball.velocity.set(v.x, v.y, v.z)
         }
     }
 

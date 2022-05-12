@@ -31,12 +31,21 @@ export default class Client {
 
             case 'update_state':
                 this.handleUpdateState(data.state)
+                break
+
+            case 'update_ball_state':
+                this.handleUpdateBallState(data.state)
+                break
         }
     }
 
     handleUpdateState(state) {
         // console.log('client handle state', state)
         this.eventListeners.forEach(l => l.handleUpdateState(state))
+    }
+
+    handleUpdateBallState(state) {
+        this.eventListeners.forEach(l => l.handleUpdateBallState(state))
     }
 
     handleSetId(id) {
@@ -54,6 +63,11 @@ export default class Client {
     }
 
     emitPlayerState(state) {
+        // TODO don't need to send id
         this.ws.send(JSON.stringify({ op: 'player_state', id: this.id, state }))
+    }
+
+    emitBallState(state) {
+        this.ws.send(JSON.stringify({ op: 'ball_state', state }))
     }
 }

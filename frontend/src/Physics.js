@@ -42,6 +42,8 @@ export default class Physics {
             // controller.userData.isHolding = true
             this.ball.mesh.material.color.setHex(0xffffff)
         }
+
+        return distance < 0.2
     }
 
     update(controller1, controller2, players) {
