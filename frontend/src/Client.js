@@ -35,7 +35,7 @@ export default class Client {
     }
 
     handleUpdateState(state) {
-        console.log('client handle state', state)
+        // console.log('client handle state', state)
         this.eventListeners.forEach(l => l.handleUpdateState(state))
     }
 

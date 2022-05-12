@@ -53,7 +53,9 @@ export default class Physics {
         }
 
         this.velocity.y -= this.gravity
+        this.velocity.y = Math.max(this.velocity.y, -1)
         this.mesh.position.add(this.velocity)
+        this.mesh.position.y = Math.max(this.mesh.position.y, this.mesh.geometry.parameters.radius)
     }
 
     resetBall() {
