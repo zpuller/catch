@@ -45,7 +45,7 @@ const broadcastBallState = (state) => {
 
 const registerNewPlayer = (ws) => {
     ws.send(JSON.stringify({ 'op': 'set_id', 'id': ws.id }))
-    playersPriv.forEach(p => p?.conn.send(JSON.stringify({ op: 'player_joined', id: ws.id })))
+    playersPriv.filter(p => p).forEach(p => p.conn.send(JSON.stringify({ op: 'player_joined', id: ws.id })))
     state.players.push(defaultPlayer())
     playersPriv.push({ 'conn': ws })
     broadcastState()
