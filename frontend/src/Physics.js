@@ -31,7 +31,7 @@ export default class Physics {
     }
 
     doCatch(controller) {
-        const distance = controller.position.distanceTo(this.ball.mesh.position)
+        const distance = controller.getWorldPosition(this.controllerWorldPosition).distanceTo(this.ball.mesh.position)
         return distance < 0.2
     }
 
