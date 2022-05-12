@@ -11,8 +11,6 @@ export default class Physics {
         this.ball = pBall
         this.ball.velocity = new THREE.Vector3()
         console.log(this.ball)
-
-        this.resetBall()
     }
 
     linearRegressionQuadratic(positions, frametimes) {
@@ -73,10 +71,5 @@ export default class Physics {
                 const con = this.ball.hand == 'left' ? player.leftCon : player.rightCon
                 p.add(con.position)
         }
-    }
-
-    resetBall() {
-        this.ball.mesh.position.set(0, 1.6, -0.5)
-        this.ball.velocity.set(0, 0, 0)
     }
 }

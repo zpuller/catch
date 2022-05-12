@@ -23,7 +23,7 @@ const handlers = (game) => {
     return {
         onSelectStart: function () {
             // this.userData.isSelecting = true
-            game.physics.resetBall()
+            game.resetBall()
         },
 
         onSelectEnd: function () {
@@ -103,6 +103,8 @@ export default class Game {
         this.physics = new Physics(this.timeframes, this.ball)
 
         this.handledInitialState = false
+
+        this.resetBall()
     }
 
     forEachPlayerExceptSelf(f) {
@@ -143,6 +145,11 @@ export default class Game {
         if (state.velocity) {
             const v = state.velocity
             this.ball.velocity.set(v.x, v.y, v.z)
+        }
+
+        if (state.position) {
+            const p = state.position
+            this.ball.mesh.position.set(p.x, p.y, p.z)
         }
     }
 
@@ -214,5 +221,18 @@ export default class Game {
         this.physics.update(this.controller1, this.controller2, this.players)
         this.emitPlayerState()
         this.updateOtherPlayerState()
+    }
+
+    resetBall() {
+        this.ball.mesh.position.set(0, 1.6, -0.5)
+        this.ball.velocity.set(0, 0, 0)
+
+        const v = this.ball.velocity
+        const p = this.ball.mesh.position
+        this.client.emitBallState({
+            state: 'free',
+            velocity: { x: v.x, y: v.y, z: v.z },
+            position: { x: p.x, y: p.y, z: p.z },
+        })
     }
 }
