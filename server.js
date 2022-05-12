@@ -63,7 +63,7 @@ const disconnectPlayer = (id) => {
     delete state.players[id]
     delete playersPriv[id]
 
-    playersPriv.forEach(p => p?.conn.send(JSON.stringify({ op: 'player_disconnected', id })))
+    playersPriv.filter(p => p).forEach(p => p.conn.send(JSON.stringify({ op: 'player_disconnected', id })))
 }
 
 wss.on('connection', (ws) => {
