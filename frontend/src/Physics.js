@@ -44,7 +44,7 @@ export default class Physics {
                 this.ball.mesh.position.y += this.ball.velocity.y * dt
                 this.ball.mesh.position.z += this.ball.velocity.z * dt
 
-                this.ball.mesh.position.y = Math.max(this.ball.mesh.position.y, this.ball.mesh.geometry.parameters.radius)
+                this.ball.mesh.position.y = Math.max(this.ball.mesh.position.y, 0.1)
                 break
 
             case 'held':

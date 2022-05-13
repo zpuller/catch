@@ -2,6 +2,7 @@ import './style.css'
 
 import * as THREE from 'three'
 import { VRButton } from 'three/examples/jsm/webxr/VRButton.js'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 
 import Client from './Client'
 
@@ -16,6 +17,8 @@ let cameraGroup
 let renderer, scene, lights, camera
 let game
 let client
+
+let controls
 
 const sizes = {
     width: window.innerWidth,
@@ -32,6 +35,10 @@ const init = () => {
 
     cameraGroup = new THREE.Group()
     cameraGroup.add(camera)
+
+    controls = new OrbitControls(camera, canvas)
+    controls.target.set(0, 0.75, 0)
+    controls.enableDamping = true
 
     scene = new THREE.Scene()
     scene.add(lights.get())
@@ -56,6 +63,7 @@ const waitForClientLogin = () => {
 const animate = () => {
     renderer.setAnimationLoop(() => {
         const inputs = renderer.xr.getSession()?.inputSources;
+        controls.update()
         game.update(inputs)
         renderer.render(scene, camera)
     })
