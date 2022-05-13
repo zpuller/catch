@@ -4,7 +4,7 @@ import * as THREE from 'three'
 export default class Physics {
     constructor(pTimeframes, pBall) {
         this.controllerWorldPosition = new THREE.Vector3()
-        this.gravity = 0.0004
+        this.gravity = 0.05
         this.timeframes = pTimeframes
         this.ball = pBall
         this.ball.velocity = new THREE.Vector3()
@@ -27,7 +27,6 @@ export default class Physics {
         const theta = this.linearRegressionQuadratic(controller.userData.prevPositions, frametimes)
 
         this.ball.velocity.fromArray(theta[1])
-        this.ball.velocity.multiplyScalar(0.01)
     }
 
     doCatch(controller) {
@@ -35,12 +34,16 @@ export default class Physics {
         return distance < 0.2
     }
 
-    update(controller1, controller2, players) {
+    update(dt, players) {
         switch (this.ball.state) {
             case 'free':
                 this.ball.velocity.y -= this.gravity
-                this.ball.velocity.y = Math.max(this.ball.velocity.y, -1)
-                this.ball.mesh.position.add(this.ball.velocity)
+                this.ball.velocity.y = Math.max(this.ball.velocity.y, -1000)
+
+                this.ball.mesh.position.x += this.ball.velocity.x * dt
+                this.ball.mesh.position.y += this.ball.velocity.y * dt
+                this.ball.mesh.position.z += this.ball.velocity.z * dt
+
                 this.ball.mesh.position.y = Math.max(this.ball.mesh.position.y, this.ball.mesh.geometry.parameters.radius)
                 break
 

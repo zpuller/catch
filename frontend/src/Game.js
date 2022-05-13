@@ -178,6 +178,8 @@ export default class Game {
             this.timeframes[i - 1] = this.timeframes[i]
         })
         this.timeframes[this.timeframes.length - 1] = dt
+
+        return dt
     }
 
     emitPlayerState() {
@@ -211,14 +213,6 @@ export default class Game {
         })
     }
 
-    update(inputs) {
-        this.tick()
-        this.handleInputs(inputs)
-        this.physics.update(this.controller1, this.controller2, this.players)
-        this.emitPlayerState()
-        this.updateOtherPlayerState()
-    }
-
     resetBall(x, y, z) {
         this.ball.mesh.position.set(x, y, z)
         this.ball.velocity.set(0, 0, 0)
@@ -230,5 +224,13 @@ export default class Game {
             velocity: { x: v.x, y: v.y, z: v.z },
             position: { x: p.x, y: p.y, z: p.z },
         })
+    }
+
+    update(inputs) {
+        const dt = this.tick()
+        this.handleInputs(inputs)
+        this.physics.update(dt, this.players)
+        this.emitPlayerState()
+        this.updateOtherPlayerState()
     }
 }

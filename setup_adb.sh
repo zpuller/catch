@@ -16,5 +16,6 @@ adb connect $HOST:$PORT
 read -p 'unplug your device from usb, then press enter to continue'
 echo 'continuing...'
 adb reverse tcp:3000 tcp:3000
+adb reverse tcp:8080 tcp:8080
 
 echo 'done'
