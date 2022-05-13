@@ -22,7 +22,8 @@ const defaultPlayer = () => {
 const handlers = (game) => {
     return {
         onSelectStart: function () {
-            game.resetBall()
+            const p = this.position
+            game.resetBall(p.x, p.y + 0.5, p.z)
         },
 
         onSelectEnd: function () {
@@ -94,7 +95,7 @@ export default class Game {
 
         this.handledInitialState = false
 
-        this.resetBall()
+        this.resetBall(0, 1.6, -0.5)
     }
 
     forEachPlayerExceptSelf(f) {
@@ -218,8 +219,8 @@ export default class Game {
         this.updateOtherPlayerState()
     }
 
-    resetBall() {
-        this.ball.mesh.position.set(0, 1.6, -0.5)
+    resetBall(x, y, z) {
+        this.ball.mesh.position.set(x, y, z)
         this.ball.velocity.set(0, 0, 0)
 
         const v = this.ball.velocity
