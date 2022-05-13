@@ -7,7 +7,7 @@ module.exports = {
     entry: './frontend/src/script.js',
     devtool: 'inline-source-map',
     devServer: {
-        static: './frontend/dist'
+        static: './frontend/static'
     },
     plugins: [
         new HtmlWebpackPlugin({

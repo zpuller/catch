@@ -1,3 +1,4 @@
+import { lgamma } from 'mathjs';
 import * as THREE from 'three'
 
 import { XRControllerModelFactory } from 'three/examples/jsm/webxr/XRControllerModelFactory.js'
@@ -23,11 +24,15 @@ const buildController = (data) => {
     }
 }
 
-const init = (xr, handlers, player) => {
+const init = (xr, handlers, player, objects, scene) => {
     xr.enabled = true
 
     const controller1 = xr.getController(0)
     const controller2 = xr.getController(1)
+
+    controller2.addEventListener('connected', function (event) {
+        this.add(buildController(event.data))
+    })
 
     const cons = [controller1, controller2]
     cons.forEach(con => {
@@ -40,20 +45,17 @@ const init = (xr, handlers, player) => {
         con.addEventListener('squeezestart', handlers.onSqueezeStart)
         con.addEventListener('squeezeend', handlers.onSqueezeEnd)
 
-        con.addEventListener('connected', function (event) {
-            this.add(buildController(event.data))
-        })
         con.addEventListener('disconnected', function () {
             this.remove(this.children[0])
         })
     })
 
     const controllerModelFactory = new XRControllerModelFactory()
-    const grips = [xr.getControllerGrip(0), xr.getControllerGrip(1)]
-    grips.forEach(grip => {
-        grip.add(controllerModelFactory.createControllerModel(grip))
-        player.add(grip)
-    })
+    const [lg, rg] = [xr.getControllerGrip(0), xr.getControllerGrip(1)]
+    objects.buildGlove(lg, scene)
+    rg.add(controllerModelFactory.createControllerModel(rg))
+    player.add(lg)
+    player.add(rg)
 
     return { controller1, controller2 }
 }

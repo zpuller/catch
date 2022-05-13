@@ -22,7 +22,8 @@ const defaultPlayer = () => {
 const handlers = (game) => {
     return {
         onSelectStart: function () {
-            const p = this.position
+            const data = new THREE.Vector3()
+            const p = this.getWorldPosition(data)
             game.resetBall(p.x, p.y + 0.5, p.z)
         },
 
@@ -77,17 +78,16 @@ export default class Game {
         const objects = new Objects()
         const ball = {
             state: 'free',
-            mesh: objects.buildBall()
+            mesh: new THREE.Group()
         }
-        const room = objects.buildRoom()
-        scene.add(room)
-        scene.add(ball.mesh)
+        objects.buildBall(ball, scene)
+        const room = objects.buildRoom(scene)
 
         this.objects = objects
         this.ball = ball
         this.scene = scene
 
-        let res = WebXR.init(xr, handlers(this), cameraGroup)
+        let res = WebXR.init(xr, handlers(this), cameraGroup, this.objects, scene)
         this.controller1 = res.controller1
         this.controller2 = res.controller2
 
