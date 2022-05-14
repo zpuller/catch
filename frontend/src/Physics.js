@@ -47,14 +47,14 @@ export default class Physics {
                 this.ball.mesh.position.y = Math.max(this.ball.mesh.position.y, 0.1)
                 break
 
-            case 'held':
-                const player = players[this.ball.holding]
-                const p = this.ball.mesh.position
-                p.copy(player.player.position)
-                p.y = 0
+            // case 'held':
+            // const player = players[this.ball.holding]
+            // const p = this.ball.mesh.position
+            // p.copy(player.player.position)
+            // p.y = 0
 
-                const con = this.ball.hand == 'left' ? player.leftCon : player.rightCon
-                p.add(con.position)
+            // const con = this.ball.hand == 'left' ? player.leftCon : player.rightCon
+            // p.add(con.position)
         }
     }
 }
