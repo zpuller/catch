@@ -19,7 +19,7 @@ export default class Physics {
             worldscale: 1, // scale full world 
             random: true,  // randomize sample
             info: false,   // calculate statistic or not
-            gravity: [0, -9.8, 0]
+            gravity: [0, -2, 0]
         })
 
         const r = 1.2
@@ -61,8 +61,11 @@ export default class Physics {
             frametimes[i] = frametimes[i - 1] + this.timeframes[i]
         })
         const theta = this.linearRegressionQuadratic(controller.userData.prevPositions, frametimes)
+        const v = theta[1]
+        console.log(this.body.linearVelocity)
 
-        this.ball.velocity.fromArray(theta[1])
+        this.body.linearVelocity.set(v[0], v[1], v[2])
+        console.log(this.body.linearVelocity)
     }
 
     doCatch(controller) {
@@ -70,43 +73,39 @@ export default class Physics {
         return distance < 0.2
     }
 
-    resetBall() {
+    resetBall(x, y, z) {
         const b = this.body
-        b.resetPosition(0, 1.6, -0.5)
-        b.linearVelocity.set(1, 0, 0)
+        b.resetPosition(x, y, z)
         b.resetRotation(0, 0, 0)
     }
 
-    update(dt) {
-        this.world.timestep = dt
-        this.body.linearVelocity.multiply(this.airFriction)
-        const l = this.body.linearVelocity
-        this.world.step()
-        this.ball.mesh.position.copy(this.body.getPosition())
-        const scale = -0.2
-        this.ball.mesh.rotateX(this.body.linearVelocity.z * scale)
-        this.ball.mesh.rotateZ(this.body.linearVelocity.x * scale)
+    update(dt, players) {
 
         switch (this.ball.state) {
-            // case 'free':
-            //     this.ball.velocity.y -= this.gravity
-            //     this.ball.velocity.y = Math.max(this.ball.velocity.y, -1000)
+            case 'free':
+                const l = this.body.linearVelocity
+                l.multiply(this.airFriction)
 
-            //     this.ball.mesh.position.x += this.ball.velocity.x * dt
-            //     this.ball.mesh.position.y += this.ball.velocity.y * dt
-            //     this.ball.mesh.position.z += this.ball.velocity.z * dt
+                const scale = 0.2
+                this.ball.mesh.rotateX(this.body.linearVelocity.z * scale)
+                this.ball.mesh.rotateZ(this.body.linearVelocity.x * scale * -1)
+                break
 
-            //     this.ball.mesh.position.y = Math.max(this.ball.mesh.position.y, 0.1)
-            //     break
+            case 'held':
+                const player = players[this.ball.holding]
+                const p = this.controllerWorldPosition
+                p.copy(player.player.position)
+                p.y = 0
 
-            // case 'held':
-            // const player = players[this.ball.holding]
-            // const p = this.ball.mesh.position
-            // p.copy(player.player.position)
-            // p.y = 0
+                const con = this.ball.hand == 'left' ? player.leftCon : player.rightCon
+                p.add(con.position)
 
-            // const con = this.ball.hand == 'left' ? player.leftCon : player.rightCon
-            // p.add(con.position)
+                this.body.resetPosition(p.x, p.y, p.z)
         }
+
+        this.ball.mesh.position.copy(this.body.getPosition())
+
+        this.world.timestep = dt
+        this.world.step()
     }
 }
