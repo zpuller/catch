@@ -106,6 +106,11 @@ export default class Game {
         this.handledInitialState = false
 
         this.resetBall(0, 1.6, -0.5)
+
+        window.addEventListener('click', () => {
+            // this.resetBall(0, 1.6, -0.5)
+            this.physics.resetBall()
+        })
     }
 
     forEachPlayerExceptSelf(f) {
@@ -256,7 +261,7 @@ export default class Game {
     update(inputs) {
         const dt = this.tick()
         this.handleInputs(inputs)
-        this.physics.update(dt, this.players)
+        this.physics.update(dt)
         this.emitPlayerState()
         this.updateOtherPlayerState()
     }
