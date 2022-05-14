@@ -45,8 +45,10 @@ export default class Objects {
             '/models/glove/scene.gltf',
             (gltf) => {
                 gltf.scene.scale.set(0.05, 0.05, 0.05)
+                gltf.scene.rotateX(Math.PI * -0.5)
                 gltf.scene.rotateY(Math.PI * 0.5)
-                gltf.scene.rotateZ(Math.PI * -0.7)
+                gltf.scene.rotateX(Math.PI * 0.2)
+                gltf.scene.rotateY(Math.PI * -0.2)
                 group.add(gltf.scene)
             }
         )
