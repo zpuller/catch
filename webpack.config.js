@@ -1,3 +1,4 @@
+const CopyWebpackPlugin = require('copy-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCSSExtractPlugin = require('mini-css-extract-plugin')
 const path = require('path');
@@ -10,6 +11,11 @@ module.exports = {
         static: './frontend/static'
     },
     plugins: [
+        new CopyWebpackPlugin({
+            patterns: [
+                { from: path.resolve(__dirname, 'frontend/static') }
+            ]
+        }),
         new HtmlWebpackPlugin({
             template: "./frontend/src/index.html",
             minify: true
