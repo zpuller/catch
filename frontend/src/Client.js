@@ -1,7 +1,7 @@
 export default class Client {
     constructor() {
-        // var HOST = location.origin.replace(/^http/, 'ws')
-        var HOST = location.origin.replace(/^http/, 'ws').replace(/8080/, '3000')
+        var HOST = location.origin.replace(/^http/, 'ws')
+        // var HOST = location.origin.replace(/^http/, 'ws').replace(/8080/, '3000')
         this.ws = new WebSocket(HOST);
 
         this.ws.onmessage = this.handleMessage.bind(this)
