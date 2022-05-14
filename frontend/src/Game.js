@@ -41,11 +41,19 @@ const handlers = (game) => {
                     holding: game.ball.holding,
                     hand: game.ball.hand,
                 })
+
+                const m = game.ball.mesh
+                this.add(m)
+                m.position.set(0.03 * (this === game.controller1 ? 1 : -1), 0, 0.03)
             }
         },
 
         onSqueezeEnd: function () {
             if (game.ball.state == 'held' && game.ball.holding == game.client.id && (game.ball.hand === 'left') === (this === game.controller1)) {
+                const m = game.ball.mesh
+                game.scene.add(m)
+                m.position.copy(this.getWorldPosition(game.controllerWorldPosition))
+
                 game.physics.doThrow(this)
 
                 game.ball.state = 'free'
@@ -64,6 +72,8 @@ const handlers = (game) => {
 
 export default class Game {
     constructor(xr, scene, cameraGroup, client) {
+        this.scene = scene
+
         this.client = client
         this.client.subscribeToEvents(this)
 
@@ -90,6 +100,8 @@ export default class Game {
         let res = WebXR.init(xr, handlers(this), cameraGroup, this.objects, scene)
         this.controller1 = res.controller1
         this.controller2 = res.controller2
+
+        this.controllerWorldPosition = new THREE.Vector3()
 
         this.physics = new Physics(this.timeframes, this.ball)
 
@@ -148,7 +160,7 @@ export default class Game {
 
     handleController(controller) {
         controller.userData.prevPositions = controller.userData.prevPositions.slice(1)
-        controller.userData.prevPositions.push(controller.position.toArray())
+        controller.userData.prevPositions.push(controller.getWorldPosition(this.controllerWorldPosition).toArray())
     }
 
     handleInputs(inputs) {
