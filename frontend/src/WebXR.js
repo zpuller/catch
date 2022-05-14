@@ -1,4 +1,3 @@
-import { lgamma } from 'mathjs';
 import * as THREE from 'three'
 
 import { XRControllerModelFactory } from 'three/examples/jsm/webxr/XRControllerModelFactory.js'
