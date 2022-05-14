@@ -42,29 +42,31 @@ const handlers = (game) => {
                     hand: game.ball.hand,
                 })
 
-                const m = game.ball.mesh
-                this.add(m)
-                m.position.set(0.03 * (this === game.controller1 ? 1 : -1), 0, 0.03)
+                // const m = game.ball.mesh
+                // this.add(m)
+                // m.position.set(0.03 * (this === game.controller1 ? 1 : -1), 0, 0.03)
             }
         },
 
         onSqueezeEnd: function () {
             if (game.ball.state == 'held' && game.ball.holding == game.client.id && (game.ball.hand === 'left') === (this === game.controller1)) {
-                const m = game.ball.mesh
-                game.scene.add(m)
-                m.position.copy(this.getWorldPosition(game.controllerWorldPosition))
+                // const m = game.ball.mesh
+                // game.scene.add(m)
+                // m.position.copy(this.getWorldPosition(game.controllerWorldPosition))
 
+                console.log(game.physics.body.position)
                 game.physics.doThrow(this)
 
                 game.ball.state = 'free'
 
-                const v = game.ball.velocity
+                const v = game.physics.body.linearVelocity
                 game.client.emitBallState({
                     state: game.ball.state,
                     holding: game.ball.holding,
                     hand: game.ball.hand,
                     velocity: { x: v.x, y: v.y, z: v.z }
                 })
+                console.log(game.physics.body.position)
             }
         },
     }
@@ -108,8 +110,7 @@ export default class Game {
         this.resetBall(0, 1.6, -0.5)
 
         window.addEventListener('click', () => {
-            // this.resetBall(0, 1.6, -0.5)
-            this.physics.resetBall()
+            this.resetBall(0, 1.6, -0.5)
         })
     }
 
@@ -246,10 +247,9 @@ export default class Game {
 
     resetBall(x, y, z) {
         this.scene.add(this.ball.mesh)
-        this.ball.mesh.position.set(x, y, z)
-        this.ball.velocity.set(0, 0, 0)
+        this.physics.resetBall(x, y, z)
 
-        const v = this.ball.velocity
+        const v = this.physics.body.linearVelocity
         const p = this.ball.mesh.position
         this.client.emitBallState({
             state: 'free',
@@ -261,7 +261,7 @@ export default class Game {
     update(inputs) {
         const dt = this.tick()
         this.handleInputs(inputs)
-        this.physics.update(dt)
+        this.physics.update(dt, this.players)
         this.emitPlayerState()
         this.updateOtherPlayerState()
     }
