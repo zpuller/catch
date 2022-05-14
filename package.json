@@ -27,6 +27,7 @@
     "html-webpack-plugin": "^5.5.0",
     "mathjs": "^10.5.1",
     "mini-css-extract-plugin": "^2.6.0",
+    "oimo": "^1.0.9",
     "three": "^0.140.0",
     "utf-8-validate": "^5.0.9",
     "webpack": "^5.72.0",

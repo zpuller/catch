@@ -12,26 +12,33 @@ gltfLoader.setDRACOLoader(dracoLoader)
 
 export default class Objects {
     buildRoom(scene) {
-        gltfLoader.load(
-            '/models/room/scene.gltf',
-            (gltf) => {
-                // mixer = new THREE.AnimationMixer(gltf.scene)
-                // const action = mixer.clipAction(gltf.animations[0])
-                // action.play()
+        // gltfLoader.load(
+        //     '/models/room/scene.gltf',
+        //     (gltf) => {
+        //         // mixer = new THREE.AnimationMixer(gltf.scene)
+        //         // const action = mixer.clipAction(gltf.animations[0])
+        //         // action.play()
 
-                scene.add(gltf.scene)
-            }
-        )
+        //         scene.add(gltf.scene)
+        //     }
+        // )
+
+        const geometry = new THREE.BoxGeometry(32, 16, 32)
+        const material = new THREE.MeshPhysicalMaterial({ color: '#4287f5', side: THREE.BackSide })
+        const mesh = new THREE.Mesh(geometry, material)
+        mesh.position.set(0, 8, 0)
+
+        scene.add(mesh)
     }
 
     buildBall(ball, scene) {
-        const geometry = new THREE.SphereGeometry(0.1, 16, 16)
-        const material = new THREE.MeshPhysicalMaterial({ color: '#04f679' })
+        const geometry = new THREE.SphereGeometry(0.04, 16, 16)
+        const material = new THREE.MeshPhysicalMaterial({ color: '#04f679', wireframe: true })
         ball.mesh = new THREE.Mesh(geometry, material)
         scene.add(ball.mesh)
 
         gltfLoader.load(
-            '/models/baseball/scene.gltf',
+            '/models/baseball/scene.glb',
             (gltf) => {
                 scene.remove(ball.mesh)
                 ball.mesh = gltf.scene
