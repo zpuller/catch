@@ -72,8 +72,6 @@ const handlers = (game) => {
 
 export default class Game {
     constructor(xr, scene, cameraGroup, client) {
-        this.scene = scene
-
         this.client = client
         this.client.subscribeToEvents(this)
 
@@ -145,8 +143,24 @@ export default class Game {
 
     handleUpdateBallState(state) {
         this.ball.state = state.state
-        this.ball.holding = state.holding
+        const id = state.holding
+        this.ball.holding = id
         this.ball.hand = state.hand
+
+        const m = this.ball.mesh
+        if (this.ball.state === 'held') {
+            if (id !== this.client.id) {
+                const g = this.playerGroups[id]
+                console.log(g)
+                const left = this.ball.hand === 'left'
+                const grip = g.children[left ? 0 : 1]
+                grip.add(m)
+                m.position.set(0.03 * (left ? 1 : -1), 0, 0.03)
+            }
+        } else {
+            this.scene.add(m)
+        }
+
         if (state.velocity) {
             const v = state.velocity
             this.ball.velocity.set(v.x, v.y, v.z)
@@ -226,6 +240,7 @@ export default class Game {
     }
 
     resetBall(x, y, z) {
+        this.scene.add(this.ball.mesh)
         this.ball.mesh.position.set(x, y, z)
         this.ball.velocity.set(0, 0, 0)
 
