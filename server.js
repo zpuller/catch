@@ -8,9 +8,23 @@ const { Server } = require('ws')
 const PORT = process.env.PORT || 3000
 
 const dist = path.join(__dirname, 'frontend/dist')
+
+const livereload = require('livereload')
+const liveReloadServer = livereload.createServer()
+liveReloadServer.watch(dist)
+
+const connectLivereload = require('connect-livereload')
+
 const server = express()
+    .use(connectLivereload())
     .use(express.static(dist))
     .listen(PORT, () => console.log(`Listening on ${PORT}`))
+
+liveReloadServer.server.once('connection', () => {
+    setTimeout(() => {
+        liveReloadServer.refresh('/')
+    }, 500)
+})
 
 const wss = new Server({ server })
 let id = 0

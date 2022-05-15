@@ -19,7 +19,7 @@ export default class Objects {
         // TODO env vars
         // TODO physics in worker
         // TODO constraints when caught
-        this.realRoom = true
+        this.realRoom = false
     }
     buildRoom(scene) {
         if (this.realRoom) {
