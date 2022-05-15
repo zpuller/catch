@@ -19,10 +19,6 @@ export default class Objects {
             gltfLoader.load(
                 '/models/room/scene.gltf',
                 (gltf) => {
-                    // mixer = new THREE.AnimationMixer(gltf.scene)
-                    // const action = mixer.clipAction(gltf.animations[0])
-                    // action.play()
-
                     scene.add(gltf.scene)
                 }
             )
