@@ -49,16 +49,14 @@ export default class Objects {
         ball.mesh = new THREE.Mesh(geometry, material)
         scene.add(ball.mesh)
 
-        if (this.realRoom) {
-            gltfLoader.load(
-                'https://res.cloudinary.com/hack-reactor888/image/upload/v1652594431/myUploads/scene_glnhyg.glb',
-                (gltf) => {
-                    scene.remove(ball.mesh)
-                    ball.mesh = gltf.scene
-                    scene.add(ball.mesh)
-                }
-            )
-        }
+        gltfLoader.load(
+            'https://res.cloudinary.com/hack-reactor888/image/upload/v1652594431/myUploads/baseball.glb',
+            (gltf) => {
+                scene.remove(ball.mesh)
+                ball.mesh = gltf.scene
+                scene.add(ball.mesh)
+            }
+        )
     }
 
     buildWall(scene, wall) {
@@ -74,7 +72,7 @@ export default class Objects {
 
     buildGlove(group, scene) {
         gltfLoader.load(
-            '/models/glove/scene.gltf',
+            'https://res.cloudinary.com/hack-reactor888/image/upload/v1652647643/myUploads/glove.glb',
             (gltf) => {
                 gltf.scene.scale.set(0.05, 0.05, 0.05)
                 gltf.scene.rotateX(Math.PI * -0.5)
