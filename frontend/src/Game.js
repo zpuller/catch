@@ -93,7 +93,12 @@ export default class Game {
 
         this.controllerWorldPosition = new THREE.Vector3()
 
-        this.physics = new Physics(this.timeframes, this.ball)
+        const wall = {}
+        objects.buildWall(scene, wall)
+        this.physics = new Physics(this.timeframes, this.ball, wall)
+
+
+
 
         this.handledInitialState = false
 
@@ -140,18 +145,10 @@ export default class Game {
         this.ball.hand = state.hand
 
         const m = this.ball.mesh
-        if (this.ball.state === 'held') {
-            this.ball.body.isKinetic = true
-            if (id !== this.client.id) {
-                const g = this.playerGroups[id]
-                const left = this.ball.hand === 'left'
-                const grip = g.children[left ? 0 : 1]
-                // grip.add(m)
-                // m.position.set(0.03 * (left ? 1 : -1), 0, 0.03)
-            }
-        } else {
-            this.ball.body.isKinetic = false
-            // this.scene.add(m)
+        if (this.ball.state === 'held' && id !== this.client.id) {
+            const g = this.playerGroups[id]
+            const left = this.ball.hand === 'left'
+            const grip = g.children[left ? 0 : 1]
         }
 
         if (state.velocity) {

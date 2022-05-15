@@ -3,9 +3,8 @@ import * as THREE from 'three'
 import * as OIMO from 'oimo'
 
 export default class Physics {
-    constructor(pTimeframes, pBall) {
+    constructor(pTimeframes, pBall, pWall) {
         this.controllerWorldPosition = new THREE.Vector3()
-        this.gravity = 0.05
         this.timeframes = pTimeframes
         this.ball = pBall
         const friction = 0.99
@@ -16,32 +15,32 @@ export default class Physics {
             iterations: 8,
             broadphase: 2, // 1 brute force, 2 sweep and prune, 3 volume tree
             worldscale: 1,
-            random: true,
+            random: false,
             info: false, // calculate statistic or not
-            gravity: [0, -5, 0]
+            gravity: [0, -9.8, 0]
         })
 
-        const r = 1.05
+        this.floor = this.world.add({
+            size: [32, 4, 32],
+            pos: [0, -2, 0],
+        })
+
+        const r = .04
         this.ball.body = this.world.add({
             type: 'sphere',
-            size: [r],
+            size: [r, r, r],
             pos: [0, 1.6, -0.5],
-            rot: [0, 0, 90],
             move: true,
-            density: 1,
-            friction: 0.4,
-            restitution: 0.2,
-            belongsTo: 1, // The bits of the collision groups to which the shape belongs.
-            collidesWith: 0xffffffff, // The bits of the collision groups with which the shape collides.
-        });
+            density: 100
+        })
 
-        this.floor = this.world.add({
-            type: 'plane',
-            size: [32, 2, 32],
-            pos: [0, -1, 0],
-            density: 1,
-            restitution: 0.4,
-            friction: 0.4,
+        this.wall = pWall
+        this.wall.body = this.world.add({
+            type: 'box',
+            size: [1, 1, 0.2],
+            pos: [0, 0.5, -2],
+            move: true,
+            density: 1
         })
     }
 
@@ -81,11 +80,6 @@ export default class Physics {
             case 'free':
                 const l = this.ball.body.linearVelocity
                 l.multiply(this.airFriction)
-
-                const scale = 0.2
-                const v = this.ball.body.linearVelocity
-                this.ball.mesh.rotateX(v.z * scale)
-                this.ball.mesh.rotateZ(v.x * scale * -1)
                 break
 
             case 'held':
@@ -100,9 +94,13 @@ export default class Physics {
                 this.ball.body.resetPosition(p.x, p.y, p.z)
         }
 
-        this.ball.mesh.position.copy(this.ball.body.position)
-
         this.world.timeStep = dt
         this.world.step()
+
+        this.ball.mesh.position.copy(this.ball.body.position)
+        this.ball.mesh.quaternion.copy(this.ball.body.getQuaternion())
+
+        this.wall.mesh.position.copy(this.wall.body.getPosition())
+        this.wall.mesh.quaternion.copy(this.wall.body.getQuaternion())
     }
 }
