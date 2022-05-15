@@ -65,7 +65,7 @@ const handlers = (game) => {
 }
 
 export default class Game {
-    constructor(xr, scene, cameraGroup, client) {
+    constructor(mode, xr, scene, cameraGroup, client) {
         this.client = client
         this.client.subscribeToEvents(this)
 
@@ -77,7 +77,7 @@ export default class Game {
         this.elapsedTime = this.clock.getElapsedTime()
         this.timeframes = Array(5).fill(1)
 
-        const objects = new Objects()
+        const objects = new Objects(mode === 'prod')
         const ball = {
             state: 'free',
             mesh: new THREE.Group()

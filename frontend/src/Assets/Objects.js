@@ -12,14 +12,11 @@ const gltfLoader = new GLTFLoader()
 dracoLoader.setDecoderPath('/draco/')
 gltfLoader.setDRACOLoader(dracoLoader)
 
-// let mixer = null
-
 export default class Objects {
-    constructor() {
-        // TODO env vars
+    constructor(realRoom) {
         // TODO physics in worker
         // TODO constraints when caught
-        this.realRoom = false
+        this.realRoom = realRoom
     }
     buildRoom(scene) {
         if (this.realRoom) {

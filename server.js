@@ -5,6 +5,9 @@ var path = require('path')
 const express = require('express')
 const { Server } = require('ws')
 
+const mode = process.env.MODE || 'prod'
+console.log(`running in ${mode} mode`)
+
 const PORT = process.env.PORT || 3000
 
 const dist = path.join(__dirname, 'frontend/dist')

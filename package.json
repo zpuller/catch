@@ -7,11 +7,13 @@
     "node": "17.9.x"
   },
   "scripts": {
-    "all": "npm-run-all -p dev start",
-    "dev": "webpack --watch",
-    "start": "nodemon server.js --watch server.js",
+    "start": "npm-run-all -p fe:watch be:start",
+    "dev": "MODE=dev npm-run-all -p fe:watch:dev be:start",
+    "fe:watch": "webpack --watch",
+    "fe:watch:dev": "webpack --watch --env mode=dev",
+    "be:start": "nodemon server.js --watch server.js",
     "build": "webpack --mode production",
-    "build_dev": "webpack"
+    "build:dev": "webpack --env mode=dev"
   },
   "keywords": [],
   "author": "",
