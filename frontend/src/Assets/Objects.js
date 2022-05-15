@@ -1,7 +1,11 @@
 import * as THREE from 'three'
 
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
-import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader'
+import {
+    GLTFLoader
+} from 'three/examples/jsm/loaders/GLTFLoader'
+import {
+    DRACOLoader
+} from 'three/examples/jsm/loaders/DRACOLoader'
 
 const dracoLoader = new DRACOLoader()
 const gltfLoader = new GLTFLoader()
@@ -12,7 +16,7 @@ gltfLoader.setDRACOLoader(dracoLoader)
 
 export default class Objects {
     constructor() {
-        this.realRoom = false
+        this.realRoom = true
     }
     buildRoom(scene) {
         if (this.realRoom) {
@@ -28,7 +32,10 @@ export default class Objects {
             )
         } else {
             const geometry = new THREE.BoxGeometry(32, 16, 32)
-            const material = new THREE.MeshPhysicalMaterial({ color: '#4287f5', side: THREE.BackSide })
+            const material = new THREE.MeshPhysicalMaterial({
+                color: '#4287f5',
+                side: THREE.BackSide
+            })
             const mesh = new THREE.Mesh(geometry, material)
             mesh.position.set(0, 8, 0)
 
@@ -38,13 +45,16 @@ export default class Objects {
 
     buildBall(ball, scene) {
         const geometry = new THREE.SphereGeometry(0.04, 16, 16)
-        const material = new THREE.MeshPhysicalMaterial({ color: '#04f679', wireframe: true })
+        const material = new THREE.MeshPhysicalMaterial({
+            color: '#04f679',
+            wireframe: true
+        })
         ball.mesh = new THREE.Mesh(geometry, material)
         scene.add(ball.mesh)
 
         if (this.realRoom) {
             gltfLoader.load(
-                '/models/baseball/scene.glb',
+                'https://res.cloudinary.com/hack-reactor888/image/upload/v1652594431/myUploads/scene_glnhyg.glb',
                 (gltf) => {
                     scene.remove(ball.mesh)
                     ball.mesh = gltf.scene
@@ -56,7 +66,9 @@ export default class Objects {
 
     buildWall(scene, wall) {
         const geometry = new THREE.BoxGeometry(1, 1, 0.2)
-        const material = new THREE.MeshPhysicalMaterial({ color: '#32a852' })
+        const material = new THREE.MeshPhysicalMaterial({
+            color: '#32a852'
+        })
         const mesh = new THREE.Mesh(geometry, material)
 
         wall.mesh = mesh
@@ -81,7 +93,9 @@ export default class Objects {
         const group = new THREE.Group()
 
         const geometry = new THREE.SphereGeometry(0.025, 16, 16)
-        const material = new THREE.MeshPhysicalMaterial({ color: '#ffffff' })
+        const material = new THREE.MeshPhysicalMaterial({
+            color: '#ffffff'
+        })
 
         const leftGrip = new THREE.Mesh(geometry, material)
         group.add(leftGrip)
