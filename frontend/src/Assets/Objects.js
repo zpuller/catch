@@ -14,6 +14,7 @@ gltfLoader.setDRACOLoader(dracoLoader)
 
 export default class Objects {
     constructor(realRoom) {
+        // TODO fix assets
         // TODO physics in worker
         // TODO constraints when caught
         this.realRoom = realRoom

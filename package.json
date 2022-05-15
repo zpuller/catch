@@ -7,7 +7,7 @@
     "node": "17.9.x"
   },
   "scripts": {
-    "start": "npm-run-all -p fe:watch be:start",
+    "start": "node server.js",
     "dev": "MODE=dev npm-run-all -p fe:watch:dev be:start",
     "fe:watch": "webpack --watch",
     "fe:watch:dev": "webpack --watch --env mode=dev",

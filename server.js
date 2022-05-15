@@ -12,22 +12,30 @@ const PORT = process.env.PORT || 3000
 
 const dist = path.join(__dirname, 'frontend/dist')
 
-const livereload = require('livereload')
-const liveReloadServer = livereload.createServer()
-liveReloadServer.watch(dist)
+let server
 
-const connectLivereload = require('connect-livereload')
+if (mode === 'prod') {
+    server = express()
+        .use(express.static(dist))
+        .listen(PORT, () => console.log(`Listening on ${PORT}`))
+} else {
+    const livereload = require('livereload')
+    const liveReloadServer = livereload.createServer()
+    liveReloadServer.watch(dist)
 
-const server = express()
-    .use(connectLivereload())
-    .use(express.static(dist))
-    .listen(PORT, () => console.log(`Listening on ${PORT}`))
+    const connectLivereload = require('connect-livereload')
 
-liveReloadServer.server.once('connection', () => {
-    setTimeout(() => {
-        liveReloadServer.refresh('/')
-    }, 500)
-})
+    server = express()
+        .use(connectLivereload())
+        .use(express.static(dist))
+        .listen(PORT, () => console.log(`Listening on ${PORT}`))
+
+    liveReloadServer.server.once('connection', () => {
+        setTimeout(() => {
+            liveReloadServer.refresh('/')
+        }, 500)
+    })
+}
 
 const wss = new Server({ server })
 let id = 0
