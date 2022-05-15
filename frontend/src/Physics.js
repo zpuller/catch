@@ -1,47 +1,38 @@
 import * as math from 'mathjs'
 import * as THREE from 'three'
-import * as OIMO from 'oimo'
+import * as CANNON from 'cannon-es'
 
 export default class Physics {
     constructor(pTimeframes, pBall, pWall) {
         this.controllerWorldPosition = new THREE.Vector3()
         this.timeframes = pTimeframes
         this.ball = pBall
-        const friction = 0.99
-        this.airFriction = new OIMO.Vec3(friction, 1, friction)
 
-        this.world = new OIMO.World({
-            timestep: 1 / 60,
-            iterations: 8,
-            broadphase: 2, // 1 brute force, 2 sweep and prune, 3 volume tree
-            worldscale: 1,
-            random: false,
-            info: false, // calculate statistic or not
-            gravity: [0, -9.8, 0]
+        this.world = new CANNON.World({
+            gravity: new CANNON.Vec3(0, -9.8, 0)
         })
 
-        this.floor = this.world.add({
-            size: [32, 4, 32],
-            pos: [0, -2, 0],
+        this.floor = new CANNON.Body({
+            type: CANNON.Body.STATIC,
+            shape: new CANNON.Plane()
         })
+        this.floor.quaternion.setFromEuler(-Math.PI / 2, 0, 0)
+        this.world.addBody(this.floor)
 
         const r = .04
-        this.ball.body = this.world.add({
-            type: 'sphere',
-            size: [r, r, r],
-            pos: [0, 1.6, -0.5],
-            move: true,
-            density: 100
+        this.ball.body = new CANNON.Body({
+            mass: 5,
+            shape: new CANNON.Sphere(r)
         })
+        this.world.addBody(this.ball.body)
 
         this.wall = pWall
-        this.wall.body = this.world.add({
-            type: 'box',
-            size: [1, 1, 0.2],
-            pos: [0, 0.5, -2],
-            move: true,
-            density: 1
+        this.wall.body = new CANNON.Body({
+            mass: 1,
+            shape: new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.1))
         })
+        this.wall.body.position.set(0, 0.5, -2)
+        this.world.addBody(this.wall.body)
     }
 
     linearRegressionQuadratic(positions, frametimes) {
@@ -60,7 +51,7 @@ export default class Physics {
         })
         const theta = this.linearRegressionQuadratic(controller.userData.prevPositions, frametimes)
         const v = theta[1]
-        this.ball.body.linearVelocity.set(v[0], v[1], v[2])
+        this.ball.body.velocity.set(v[0], v[1], v[2])
     }
 
     doCatch(controller) {
@@ -70,16 +61,15 @@ export default class Physics {
 
     resetBall(x, y, z) {
         const b = this.ball.body
-        b.resetPosition(x, y, z)
-        b.resetRotation(0, 0, 0)
+        b.position.set(x, y, z)
+        b.velocity.set(0, 0, 0)
+        b.quaternion.setFromEuler(0, 0, 0)
     }
 
     update(dt, players) {
 
         switch (this.ball.state) {
             case 'free':
-                const l = this.ball.body.linearVelocity
-                l.multiply(this.airFriction)
                 break
 
             case 'held':
@@ -91,16 +81,15 @@ export default class Physics {
                 const con = this.ball.hand == 'left' ? player.leftCon : player.rightCon
                 p.add(con.position)
 
-                this.ball.body.resetPosition(p.x, p.y, p.z)
+                this.ball.body.position.set(p.x, p.y, p.z)
         }
 
-        this.world.timeStep = dt
-        this.world.step()
+        this.world.fixedStep()
 
         this.ball.mesh.position.copy(this.ball.body.position)
-        this.ball.mesh.quaternion.copy(this.ball.body.getQuaternion())
+        this.ball.mesh.quaternion.copy(this.ball.body.quaternion)
 
-        this.wall.mesh.position.copy(this.wall.body.getPosition())
-        this.wall.mesh.quaternion.copy(this.wall.body.getQuaternion())
+        this.wall.mesh.position.copy(this.wall.body.position)
+        this.wall.mesh.quaternion.copy(this.wall.body.quaternion)
     }
 }
