@@ -24,6 +24,8 @@ export default class Physics {
             mass: 5,
             shape: new CANNON.Sphere(r)
         })
+        this.ball.body.linearDamping = .5
+        this.ball.body.angularDamping = .5
         this.world.addBody(this.ball.body)
 
         this.wall = pWall
@@ -51,7 +53,8 @@ export default class Physics {
         })
         const theta = this.linearRegressionQuadratic(controller.userData.prevPositions, frametimes)
         const v = theta[1]
-        this.ball.body.velocity.set(v[0], v[1], v[2])
+        const scalar = 1.5
+        this.ball.body.velocity.set(scalar * v[0], scalar * v[1], scalar * v[2])
     }
 
     doCatch(controller) {
