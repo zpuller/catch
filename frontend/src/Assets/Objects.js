@@ -54,6 +54,15 @@ export default class Objects {
         }
     }
 
+    buildWall(scene, wall) {
+        const geometry = new THREE.BoxGeometry(1, 1, 0.2)
+        const material = new THREE.MeshPhysicalMaterial({ color: '#32a852' })
+        const mesh = new THREE.Mesh(geometry, material)
+
+        wall.mesh = mesh
+        scene.add(mesh)
+    }
+
     buildGlove(group, scene) {
         gltfLoader.load(
             '/models/glove/scene.gltf',
