@@ -35,6 +35,7 @@ const handlers = (game) => {
                 game.ball.state = 'held'
                 game.ball.holding = game.client.id
                 game.ball.hand = this === game.controller1 ? 'left' : 'right'
+                game.ball.body.sleep()
 
                 game.client.emitBallState({
                     state: game.ball.state,
@@ -49,8 +50,9 @@ const handlers = (game) => {
                 game.physics.doThrow(this)
 
                 game.ball.state = 'free'
+                game.ball.body.wakeUp()
 
-                const v = game.ball.body.linearVelocity
+                const v = game.ball.body.velocity
                 game.client.emitBallState({
                     state: game.ball.state,
                     holding: game.ball.holding,
@@ -96,9 +98,6 @@ export default class Game {
         const wall = {}
         objects.buildWall(scene, wall)
         this.physics = new Physics(this.timeframes, this.ball, wall)
-
-
-
 
         this.handledInitialState = false
 
@@ -153,7 +152,7 @@ export default class Game {
 
         if (state.velocity) {
             const v = state.velocity
-            this.ball.body.linearVelocity.set(v.x, v.y, v.z)
+            this.ball.body.velocity.set(v.x, v.y, v.z)
         }
 
         if (state.position) {
@@ -233,7 +232,7 @@ export default class Game {
         this.scene.add(this.ball.mesh)
         this.physics.resetBall(x, y, z)
 
-        const v = this.ball.body.linearVelocity
+        const v = this.ball.body.velocity
         const p = this.ball.body.position
         this.client.emitBallState({
             state: 'free',
