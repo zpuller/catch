@@ -11,24 +11,29 @@ gltfLoader.setDRACOLoader(dracoLoader)
 // let mixer = null
 
 export default class Objects {
+    constructor() {
+        this.realRoom = false
+    }
     buildRoom(scene) {
-        // gltfLoader.load(
-        //     '/models/room/scene.gltf',
-        //     (gltf) => {
-        //         // mixer = new THREE.AnimationMixer(gltf.scene)
-        //         // const action = mixer.clipAction(gltf.animations[0])
-        //         // action.play()
+        if (this.realRoom) {
+            gltfLoader.load(
+                '/models/room/scene.gltf',
+                (gltf) => {
+                    // mixer = new THREE.AnimationMixer(gltf.scene)
+                    // const action = mixer.clipAction(gltf.animations[0])
+                    // action.play()
 
-        //         scene.add(gltf.scene)
-        //     }
-        // )
+                    scene.add(gltf.scene)
+                }
+            )
+        } else {
+            const geometry = new THREE.BoxGeometry(32, 16, 32)
+            const material = new THREE.MeshPhysicalMaterial({ color: '#4287f5', side: THREE.BackSide })
+            const mesh = new THREE.Mesh(geometry, material)
+            mesh.position.set(0, 8, 0)
 
-        const geometry = new THREE.BoxGeometry(32, 16, 32)
-        const material = new THREE.MeshPhysicalMaterial({ color: '#4287f5', side: THREE.BackSide })
-        const mesh = new THREE.Mesh(geometry, material)
-        mesh.position.set(0, 8, 0)
-
-        scene.add(mesh)
+            scene.add(mesh)
+        }
     }
 
     buildBall(ball, scene) {
@@ -37,14 +42,16 @@ export default class Objects {
         ball.mesh = new THREE.Mesh(geometry, material)
         scene.add(ball.mesh)
 
-        gltfLoader.load(
-            '/models/baseball/scene.glb',
-            (gltf) => {
-                scene.remove(ball.mesh)
-                ball.mesh = gltf.scene
-                scene.add(ball.mesh)
-            }
-        )
+        if (this.realRoom) {
+            gltfLoader.load(
+                '/models/baseball/scene.glb',
+                (gltf) => {
+                    scene.remove(ball.mesh)
+                    ball.mesh = gltf.scene
+                    scene.add(ball.mesh)
+                }
+            )
+        }
     }
 
     buildGlove(group, scene) {
