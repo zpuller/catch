@@ -36,7 +36,6 @@ const init = (xr, handlers, player, objects, scene) => {
     const cons = [controller1, controller2]
     cons.forEach(con => {
         player.add(con)
-        // TODO can this be moved to game init?
         con.userData.prevPositions = Array(5).fill(Array(3).fill(0))
 
         con.addEventListener('selectstart', handlers.onSelectStart)

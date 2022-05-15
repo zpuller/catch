@@ -41,32 +41,22 @@ const handlers = (game) => {
                     holding: game.ball.holding,
                     hand: game.ball.hand,
                 })
-
-                // const m = game.ball.mesh
-                // this.add(m)
-                // m.position.set(0.03 * (this === game.controller1 ? 1 : -1), 0, 0.03)
             }
         },
 
         onSqueezeEnd: function () {
             if (game.ball.state == 'held' && game.ball.holding == game.client.id && (game.ball.hand === 'left') === (this === game.controller1)) {
-                // const m = game.ball.mesh
-                // game.scene.add(m)
-                // m.position.copy(this.getWorldPosition(game.controllerWorldPosition))
-
-                console.log(game.physics.body.position)
                 game.physics.doThrow(this)
 
                 game.ball.state = 'free'
 
-                const v = game.physics.body.linearVelocity
+                const v = game.ball.body.linearVelocity
                 game.client.emitBallState({
                     state: game.ball.state,
                     holding: game.ball.holding,
                     hand: game.ball.hand,
                     velocity: { x: v.x, y: v.y, z: v.z }
                 })
-                console.log(game.physics.body.position)
             }
         },
     }
@@ -108,10 +98,6 @@ export default class Game {
         this.handledInitialState = false
 
         this.resetBall(0, 1.6, -0.5)
-
-        window.addEventListener('click', () => {
-            this.resetBall(0, 1.6, -0.5)
-        })
     }
 
     forEachPlayerExceptSelf(f) {
@@ -155,26 +141,27 @@ export default class Game {
 
         const m = this.ball.mesh
         if (this.ball.state === 'held') {
+            this.ball.body.isKinetic = true
             if (id !== this.client.id) {
                 const g = this.playerGroups[id]
-                console.log(g)
                 const left = this.ball.hand === 'left'
                 const grip = g.children[left ? 0 : 1]
-                grip.add(m)
-                m.position.set(0.03 * (left ? 1 : -1), 0, 0.03)
+                // grip.add(m)
+                // m.position.set(0.03 * (left ? 1 : -1), 0, 0.03)
             }
         } else {
-            this.scene.add(m)
+            this.ball.body.isKinetic = false
+            // this.scene.add(m)
         }
 
         if (state.velocity) {
             const v = state.velocity
-            this.ball.velocity.set(v.x, v.y, v.z)
+            this.ball.body.linearVelocity.set(v.x, v.y, v.z)
         }
 
         if (state.position) {
             const p = state.position
-            this.ball.mesh.position.set(p.x, p.y, p.z)
+            this.ball.body.position.set(p.x, p.y, p.z)
         }
     }
 
@@ -249,8 +236,8 @@ export default class Game {
         this.scene.add(this.ball.mesh)
         this.physics.resetBall(x, y, z)
 
-        const v = this.physics.body.linearVelocity
-        const p = this.ball.mesh.position
+        const v = this.ball.body.linearVelocity
+        const p = this.ball.body.position
         this.client.emitBallState({
             state: 'free',
             velocity: { x: v.x, y: v.y, z: v.z },

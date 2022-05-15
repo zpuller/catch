@@ -8,7 +8,6 @@ export default class Physics {
         this.gravity = 0.05
         this.timeframes = pTimeframes
         this.ball = pBall
-        this.ball.velocity = new THREE.Vector3()
         const friction = 0.99
         this.airFriction = new OIMO.Vec3(friction, 1, friction)
 
@@ -16,19 +15,19 @@ export default class Physics {
             timestep: 1 / 60,
             iterations: 8,
             broadphase: 2, // 1 brute force, 2 sweep and prune, 3 volume tree
-            worldscale: 1, // scale full world 
-            random: true,  // randomize sample
-            info: false,   // calculate statistic or not
-            gravity: [0, -2, 0]
+            worldscale: 1,
+            random: true,
+            info: false, // calculate statistic or not
+            gravity: [0, -5, 0]
         })
 
-        const r = 1.2
-        this.body = this.world.add({
-            type: 'sphere', // type of shape : sphere, box, cylinder 
-            size: [r], // size of shape
-            pos: [0, 1.6, -0.5], // start position in degree
-            rot: [0, 0, 90], // start rotation in degree
-            move: true, // dynamic or statique
+        const r = 1.05
+        this.ball.body = this.world.add({
+            type: 'sphere',
+            size: [r],
+            pos: [0, 1.6, -0.5],
+            rot: [0, 0, 90],
+            move: true,
             density: 1,
             friction: 0.4,
             restitution: 0.2,
@@ -62,10 +61,7 @@ export default class Physics {
         })
         const theta = this.linearRegressionQuadratic(controller.userData.prevPositions, frametimes)
         const v = theta[1]
-        console.log(this.body.linearVelocity)
-
-        this.body.linearVelocity.set(v[0], v[1], v[2])
-        console.log(this.body.linearVelocity)
+        this.ball.body.linearVelocity.set(v[0], v[1], v[2])
     }
 
     doCatch(controller) {
@@ -74,7 +70,7 @@ export default class Physics {
     }
 
     resetBall(x, y, z) {
-        const b = this.body
+        const b = this.ball.body
         b.resetPosition(x, y, z)
         b.resetRotation(0, 0, 0)
     }
@@ -83,12 +79,13 @@ export default class Physics {
 
         switch (this.ball.state) {
             case 'free':
-                const l = this.body.linearVelocity
+                const l = this.ball.body.linearVelocity
                 l.multiply(this.airFriction)
 
                 const scale = 0.2
-                this.ball.mesh.rotateX(this.body.linearVelocity.z * scale)
-                this.ball.mesh.rotateZ(this.body.linearVelocity.x * scale * -1)
+                const v = this.ball.body.linearVelocity
+                this.ball.mesh.rotateX(v.z * scale)
+                this.ball.mesh.rotateZ(v.x * scale * -1)
                 break
 
             case 'held':
@@ -100,12 +97,12 @@ export default class Physics {
                 const con = this.ball.hand == 'left' ? player.leftCon : player.rightCon
                 p.add(con.position)
 
-                this.body.resetPosition(p.x, p.y, p.z)
+                this.ball.body.resetPosition(p.x, p.y, p.z)
         }
 
-        this.ball.mesh.position.copy(this.body.getPosition())
+        this.ball.mesh.position.copy(this.ball.body.position)
 
-        this.world.timestep = dt
+        this.world.timeStep = dt
         this.world.step()
     }
 }
