@@ -3,7 +3,7 @@ import * as THREE from 'three'
 import * as CANNON from 'cannon-es'
 
 export default class Physics {
-    constructor(pTimeframes, pBall, pWall) {
+    constructor(pTimeframes, pBall, pWall, pRightHand) {
         this.controllerWorldPosition = new THREE.Vector3()
         this.timeframes = pTimeframes
         this.ball = pBall
@@ -22,7 +22,8 @@ export default class Physics {
         const r = .04
         this.ball.body = new CANNON.Body({
             mass: 5,
-            shape: new CANNON.Sphere(r)
+            shape: new CANNON.Sphere(r),
+            collisionFilterGroup: 2,
         })
         this.ball.body.linearDamping = .5
         this.ball.body.angularDamping = .5
@@ -31,10 +32,19 @@ export default class Physics {
         this.wall = pWall
         this.wall.body = new CANNON.Body({
             mass: 1,
-            shape: new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.1))
+            shape: new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.1)),
         })
         this.wall.body.position.set(0, 0.5, -2)
         this.world.addBody(this.wall.body)
+
+        this.rightHand = pRightHand
+        this.rightHand.body = new CANNON.Body({
+            mass: 5,
+            shape: new CANNON.Sphere(r),
+            collisionFilterGroup: 1,
+            collisionFilterMask: 1
+        })
+        this.world.addBody(this.rightHand.body)
     }
 
     linearRegressionQuadratic(positions, frametimes) {
@@ -69,7 +79,7 @@ export default class Physics {
         b.quaternion.setFromEuler(0, 0, 0)
     }
 
-    update(dt, players) {
+    update(players, leftCon, rightCon) {
 
         switch (this.ball.state) {
             case 'free':
@@ -86,6 +96,8 @@ export default class Physics {
 
                 this.ball.body.position.set(p.x, p.y, p.z)
         }
+
+        this.rightHand.body.position.copy(rightCon.getWorldPosition(this.controllerWorldPosition))
 
         this.world.fixedStep()
 

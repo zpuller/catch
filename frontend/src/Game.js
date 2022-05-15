@@ -97,7 +97,9 @@ export default class Game {
 
         const wall = {}
         objects.buildWall(scene, wall)
-        this.physics = new Physics(this.timeframes, this.ball, wall)
+
+        this.rightHand = {}
+        this.physics = new Physics(this.timeframes, this.ball, wall, this.rightHand)
 
         this.handledInitialState = false
 
@@ -193,8 +195,6 @@ export default class Game {
             this.timeframes[i - 1] = this.timeframes[i]
         })
         this.timeframes[this.timeframes.length - 1] = dt
-
-        return dt
     }
 
     emitPlayerState() {
@@ -242,9 +242,9 @@ export default class Game {
     }
 
     update(inputs) {
-        const dt = this.tick()
+        this.tick()
         this.handleInputs(inputs)
-        this.physics.update(dt, this.players)
+        this.physics.update(this.players, this.controller1, this.controller2)
         this.emitPlayerState()
         this.updateOtherPlayerState()
     }
