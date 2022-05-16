@@ -23,17 +23,17 @@ const buildController = (data) => {
     }
 }
 
-const init = (xr, handlers, player, objects, scene) => {
+const init = (xr, handlers, player, objects) => {
     xr.enabled = true
 
-    const controller1 = xr.getController(0)
-    const controller2 = xr.getController(1)
+    const leftCon = xr.getController(0)
+    const rightCon = xr.getController(1)
 
-    controller2.addEventListener('connected', function (event) {
+    rightCon.addEventListener('connected', function (event) {
         this.add(buildController(event.data))
     })
 
-    const cons = [controller1, controller2]
+    const cons = [leftCon, rightCon]
     cons.forEach(con => {
         player.add(con)
         con.userData.prevPositions = Array(5).fill(Array(3).fill(0))
@@ -49,13 +49,12 @@ const init = (xr, handlers, player, objects, scene) => {
     })
 
     const controllerModelFactory = new XRControllerModelFactory()
-    const [lg, rg] = [xr.getControllerGrip(0), xr.getControllerGrip(1)]
-    objects.buildGlove(lg, scene)
-    rg.add(controllerModelFactory.createControllerModel(rg))
-    player.add(lg)
-    player.add(rg)
+    const [leftGrip, rightGrip] = [xr.getControllerGrip(0), xr.getControllerGrip(1)]
+    rightGrip.add(controllerModelFactory.createControllerModel(rightGrip))
+    player.add(leftGrip)
+    player.add(rightGrip)
 
-    return { controller1, controller2 }
+    return { leftCon, rightCon, leftGrip, rightGrip }
 }
 
 export default { init }

@@ -56,7 +56,7 @@ export default class Objects {
         scene.add(mesh)
     }
 
-    buildGlove(group, scene) {
+    buildGlove(group) {
         gltfLoader.load(
             'https://res.cloudinary.com/hack-reactor888/image/upload/v1652647643/myUploads/glove.glb',
             (gltf) => {

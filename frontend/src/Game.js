@@ -34,7 +34,7 @@ const handlers = (game) => {
             if (game.physics.doCatch(this, this.ball)) {
                 game.ball.state = 'held'
                 game.ball.holding = game.client.id
-                game.ball.hand = this === game.controller1 ? 'left' : 'right'
+                game.ball.hand = this === game.leftHand.con ? 'left' : 'right'
 
                 game.client.emitBallState({
                     state: game.ball.state,
@@ -45,7 +45,7 @@ const handlers = (game) => {
         },
 
         onSqueezeEnd: function () {
-            if (game.ball.state == 'held' && game.ball.holding == game.client.id && (game.ball.hand === 'left') === (this === game.controller1)) {
+            if (game.ball.state == 'held' && game.ball.holding == game.client.id && (game.ball.hand === 'left') === (this === game.leftHand.con)) {
 
                 game.ball.state = 'free'
                 game.scene.add(game.ball.mesh)
@@ -86,9 +86,12 @@ export default class Game {
         this.objects.buildRoom(this.scene)
         this.objects.buildWall(this.scene, this.wall)
 
-        let res = WebXR.init(xr, handlers(this), cameraGroup, this.objects, scene)
-        this.leftHand.con = res.controller1
-        this.rightHand.con = res.controller2
+        const { leftCon, rightCon, leftGrip, rightGrip } = WebXR.init(xr, handlers(this), cameraGroup, this.objects)
+        this.objects.buildGlove(leftGrip)
+        this.leftHand.con = leftCon
+        this.rightHand.con = rightCon
+        this.leftHand.grip = leftGrip
+        this.rightHand.grip = rightGrip
 
         this.physics = new Physics(this.ball, this.wall, this.leftHand, this.rightHand)
 
