@@ -190,7 +190,7 @@ export default class Game {
         }
 
         this.handleController(this.leftHand.con)
-        this.handleController(this.leftHand.con)
+        this.handleController(this.rightHand.con)
     }
 
     emitPlayerState() {
