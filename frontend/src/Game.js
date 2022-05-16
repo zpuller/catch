@@ -20,9 +20,9 @@ const defaultPlayer = () => {
 }
 
 const handlers = (game) => {
+    const data = new THREE.Vector3()
     return {
         onSelectStart: function () {
-            const data = new THREE.Vector3()
             const p = this.getWorldPosition(data)
             game.resetBall(p.x, p.y + 0.5, p.z)
         },
