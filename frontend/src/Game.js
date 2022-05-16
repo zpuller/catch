@@ -159,7 +159,6 @@ export default class Game {
             }
             this.ball.mesh.position.set(0.02 * (left ? 1 : -1), 0, 0.05)
             grip.add(this.ball.mesh)
-            window.ball = this.ball
         } else {
             this.ball.body.wakeUp()
             this.scene.add(this.ball.mesh)

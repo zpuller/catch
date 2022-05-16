@@ -105,6 +105,8 @@ export default class Physics {
                 p.add(con.position)
 
                 this.ball.body.position.set(p.x, p.y, p.z)
+                // TODO send quaternion over the network instead of x, y, z
+                // this.ball.body.rotation.copy()
                 break
         }
 
