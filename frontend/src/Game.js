@@ -35,8 +35,6 @@ const handlers = (game) => {
                 game.ball.state = 'held'
                 game.ball.holding = game.client.id
                 game.ball.hand = this === game.controller1 ? 'left' : 'right'
-                // TODO move this to ball state
-                game.ball.body.sleep()
 
                 game.client.emitBallState({
                     state: game.ball.state,
@@ -52,6 +50,7 @@ const handlers = (game) => {
 
                 game.ball.state = 'free'
                 game.ball.body.wakeUp()
+                game.scene.add(game.ball.mesh)
 
                 const v = game.ball.body.velocity
                 game.client.emitBallState({
@@ -148,10 +147,22 @@ export default class Game {
         this.ball.hand = state.hand
 
         const m = this.ball.mesh
-        if (this.ball.state === 'held' && id !== this.client.id) {
-            const g = this.playerGroups[id]
+        if (this.ball.state === 'held') {
+            this.ball.body.sleep()
             const left = this.ball.hand === 'left'
-            const grip = g.children[left ? 0 : 1]
+            let grip
+            if (id === this.client.id) {
+                grip = left ? this.controller1 : this.controller2
+            } else {
+                const g = this.playerGroups[id]
+                grip = g.children[left ? 0 : 1]
+            }
+            this.ball.mesh.position.set(0.02 * (left ? 1 : -1), 0, 0.05)
+            grip.add(this.ball.mesh)
+            window.ball = this.ball
+        } else {
+            this.ball.body.wakeUp()
+            this.scene.add(this.ball.mesh)
         }
 
         if (state.velocity) {

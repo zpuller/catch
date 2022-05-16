@@ -89,14 +89,15 @@ export default class Physics {
     }
 
     update(players, leftCon, rightCon) {
-
         switch (this.ball.state) {
             case 'free':
+                this.ball.mesh.position.copy(this.ball.body.position)
+                this.ball.mesh.quaternion.copy(this.ball.body.quaternion)
                 break
 
             case 'held':
-                const player = players[this.ball.holding]
                 const p = this.controllerWorldPosition
+                const player = players[this.ball.holding]
                 p.copy(player.player.position)
                 p.y = 0
 
@@ -104,15 +105,13 @@ export default class Physics {
                 p.add(con.position)
 
                 this.ball.body.position.set(p.x, p.y, p.z)
+                break
         }
 
         this.leftHand.body.position.copy(leftCon.getWorldPosition(this.controllerWorldPosition))
         this.rightHand.body.position.copy(rightCon.getWorldPosition(this.controllerWorldPosition))
 
         this.world.fixedStep()
-
-        this.ball.mesh.position.copy(this.ball.body.position)
-        this.ball.mesh.quaternion.copy(this.ball.body.quaternion)
 
         this.wall.mesh.position.copy(this.wall.body.position)
         this.wall.mesh.quaternion.copy(this.wall.body.quaternion)
