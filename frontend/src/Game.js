@@ -77,7 +77,7 @@ export default class Game {
         this.elapsedTime = this.clock.getElapsedTime()
         this.timeframes = Array(5).fill(1)
 
-        const objects = new Objects(mode === 'prod')
+        const objects = new Objects()
         const ball = {
             state: 'free',
             mesh: new THREE.Group()

@@ -12,30 +12,18 @@ const gltfLoader = new GLTFLoader()
 dracoLoader.setDecoderPath('/draco/')
 gltfLoader.setDRACOLoader(dracoLoader)
 
+// TODO real hands (incl. multiplayer)
 export default class Objects {
-    constructor(realRoom) {
-        // TODO real hands (incl. multiplayer)
-        this.realRoom = realRoom
-    }
     buildRoom(scene) {
-        if (this.realRoom) {
-            gltfLoader.load(
-                '/models/room/scene.gltf',
-                (gltf) => {
-                    scene.add(gltf.scene)
-                }
-            )
-        } else {
-            const geometry = new THREE.BoxGeometry(32, 16, 32)
-            const material = new THREE.MeshPhysicalMaterial({
-                color: '#4287f5',
-                side: THREE.BackSide
-            })
-            const mesh = new THREE.Mesh(geometry, material)
-            mesh.position.set(0, 8, 0)
+        const geometry = new THREE.BoxGeometry(32, 16, 32)
+        const material = new THREE.MeshPhysicalMaterial({
+            color: '#4287f5',
+            side: THREE.BackSide
+        })
+        const mesh = new THREE.Mesh(geometry, material)
+        mesh.position.set(0, 8, 0)
 
-            scene.add(mesh)
-        }
+        scene.add(mesh)
     }
 
     buildBall(ball, scene) {
