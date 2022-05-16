@@ -57,7 +57,7 @@ const waitForClientLogin = () => {
     if (client.id === undefined) {
         setTimeout(waitForClientLogin, 100)
     } else {
-        game = new Game(mode, renderer.xr, scene, cameraGroup, client)
+        game = new Game(renderer.xr, scene, cameraGroup, client)
         document.body.appendChild(VRButton.createButton(renderer))
         animate()
     }

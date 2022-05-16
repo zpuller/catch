@@ -65,9 +65,12 @@ const handlers = (game) => {
 }
 
 export default class Game {
-    constructor(mode, xr, scene, cameraGroup, client) {
+    constructor(xr, scene, cameraGroup, client) {
         this.client = client
         this.client.subscribeToEvents(this)
+        this.handledInitialState = false
+
+        this.scene = scene
 
         this.player = cameraGroup
         this.players = {}
@@ -76,33 +79,23 @@ export default class Game {
         this.clock = new THREE.Clock()
         this.elapsedTime = this.clock.getElapsedTime()
         this.timeframes = Array(5).fill(1)
-
-        const objects = new Objects()
-        const ball = {
-            state: 'free',
-            mesh: new THREE.Group()
-        }
-        objects.buildBall(ball, scene)
-        const room = objects.buildRoom(scene)
-
-        this.objects = objects
-        this.ball = ball
-        this.scene = scene
-
-        let res = WebXR.init(xr, handlers(this), cameraGroup, this.objects, scene)
-        this.controller1 = res.controller1
-        this.controller2 = res.controller2
-
         this.controllerWorldPosition = new THREE.Vector3()
 
-        const wall = {}
-        objects.buildWall(scene, wall)
-
+        this.ball = { state: 'free', }
+        this.wall = {}
         this.leftHand = {}
         this.rightHand = {}
-        this.physics = new Physics(this.timeframes, this.ball, wall, this.leftHand, this.rightHand)
 
-        this.handledInitialState = false
+        this.objects = new Objects()
+        this.objects.buildBall(this.ball, this.scene)
+        this.objects.buildRoom(this.scene)
+        this.objects.buildWall(this.scene, this.wall)
+
+        let res = WebXR.init(xr, handlers(this), cameraGroup, this.objects, scene)
+        this.leftHand.con = res.controller1
+        this.rightHand.con = res.controller2
+
+        this.physics = new Physics(this.timeframes, this.ball, this.wall, this.leftHand, this.rightHand)
 
         this.resetBall(0, 1.6, -0.5)
     }
@@ -146,32 +139,37 @@ export default class Game {
         this.ball.holding = id
         this.ball.hand = state.hand
 
-        const m = this.ball.mesh
+        const b = this.ball.body
         if (this.ball.state === 'held') {
-            this.ball.body.sleep()
+            b.sleep()
             const left = this.ball.hand === 'left'
             let grip
             if (id === this.client.id) {
-                grip = left ? this.controller1 : this.controller2
+                grip = left ? this.leftHand.con : this.rightHand.con
             } else {
                 const g = this.playerGroups[id]
                 grip = g.children[left ? 0 : 1]
             }
-            this.ball.mesh.position.set(0.02 * (left ? 1 : -1), 0, 0.05)
-            grip.add(this.ball.mesh)
+            const m = this.ball.mesh
+            m.position.set(0.02 * (left ? 1 : -1), 0, 0.05)
+            grip.add(m)
         } else {
-            this.ball.body.wakeUp()
+            if (id === this.client.id) {
+                return
+            }
+
+            b.wakeUp()
             this.scene.add(this.ball.mesh)
-        }
 
-        if (state.velocity) {
-            const v = state.velocity
-            this.ball.body.velocity.set(v.x, v.y, v.z)
-        }
+            if (state.velocity) {
+                const v = state.velocity
+                b.velocity.set(v.x, v.y, v.z)
+            }
 
-        if (state.position) {
-            const p = state.position
-            this.ball.body.position.set(p.x, p.y, p.z)
+            if (state.position) {
+                const p = state.position
+                b.position.set(p.x, p.y, p.z)
+            }
         }
     }
 
@@ -194,8 +192,8 @@ export default class Game {
             }
         }
 
-        this.handleController(this.controller1)
-        this.handleController(this.controller2)
+        this.handleController(this.leftHand.con)
+        this.handleController(this.leftHand.con)
     }
 
     tick() {
@@ -210,8 +208,8 @@ export default class Game {
     }
 
     emitPlayerState() {
-        const [lp, rp] = [this.controller1.position, this.controller2.position]
-        const [lr, rr] = [this.controller1.rotation, this.controller2.rotation]
+        const [lp, rp] = [this.leftHand.con.position, this.rightHand.con.position]
+        const [lr, rr] = [this.leftHand.con.rotation, this.rightHand.con.rotation]
         const state = {
             player: { position: { x: this.player.position.x, z: this.player.position.z } },
             leftCon: {
@@ -256,7 +254,7 @@ export default class Game {
     update(inputs) {
         this.tick()
         this.handleInputs(inputs)
-        this.physics.update(this.players, this.controller1, this.controller2)
+        this.physics.update(this.players, this.leftHand.con, this.rightHand.con)
         this.emitPlayerState()
         this.updateOtherPlayerState()
     }

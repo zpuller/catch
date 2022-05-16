@@ -7,6 +7,9 @@ export default class Physics {
         this.controllerWorldPosition = new THREE.Vector3()
         this.timeframes = pTimeframes
         this.ball = pBall
+        this.wall = pWall
+        this.leftHand = pLeftHand
+        this.rightHand = pRightHand
 
         this.world = new CANNON.World({
             gravity: new CANNON.Vec3(0, -9.8, 0)
@@ -29,7 +32,6 @@ export default class Physics {
         this.ball.body.angularDamping = .5
         this.world.addBody(this.ball.body)
 
-        this.wall = pWall
         this.wall.body = new CANNON.Body({
             mass: 1,
             shape: new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.1)),
@@ -37,7 +39,6 @@ export default class Physics {
         this.wall.body.position.set(0, 0.5, -2)
         this.world.addBody(this.wall.body)
 
-        this.leftHand = pLeftHand
         this.leftHand.body = new CANNON.Body({
             mass: 5,
             shape: new CANNON.Sphere(r),
@@ -46,7 +47,6 @@ export default class Physics {
         })
         this.world.addBody(this.leftHand.body)
 
-        this.rightHand = pRightHand
         this.rightHand.body = new CANNON.Body({
             mass: 5,
             shape: new CANNON.Sphere(r),
@@ -89,6 +89,14 @@ export default class Physics {
     }
 
     update(players, leftCon, rightCon) {
+        this.leftHand.body.position.copy(leftCon.getWorldPosition(this.controllerWorldPosition))
+        this.rightHand.body.position.copy(rightCon.getWorldPosition(this.controllerWorldPosition))
+
+        this.world.fixedStep()
+
+        this.wall.mesh.position.copy(this.wall.body.position)
+        this.wall.mesh.quaternion.copy(this.wall.body.quaternion)
+
         switch (this.ball.state) {
             case 'free':
                 this.ball.mesh.position.copy(this.ball.body.position)
@@ -109,13 +117,5 @@ export default class Physics {
                 // this.ball.body.rotation.copy()
                 break
         }
-
-        this.leftHand.body.position.copy(leftCon.getWorldPosition(this.controllerWorldPosition))
-        this.rightHand.body.position.copy(rightCon.getWorldPosition(this.controllerWorldPosition))
-
-        this.world.fixedStep()
-
-        this.wall.mesh.position.copy(this.wall.body.position)
-        this.wall.mesh.quaternion.copy(this.wall.body.quaternion)
     }
 }
