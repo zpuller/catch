@@ -220,9 +220,19 @@ export default class Game {
         })
     }
 
+    updateMeshes() {
+        this.wall.mesh.position.copy(this.wall.body.position)
+        this.wall.mesh.quaternion.copy(this.wall.body.quaternion)
+        if (this.ball.state === 'free') {
+            this.ball.mesh.position.copy(this.ball.body.position)
+            this.ball.mesh.quaternion.copy(this.ball.body.quaternion)
+        }
+    }
+
     update(inputs) {
         this.handleInputs(inputs)
         this.physics.update(this.players, this.leftHand.con, this.rightHand.con)
+        this.updateMeshes()
         this.emitPlayerState()
         this.updateOtherPlayerState()
     }

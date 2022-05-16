@@ -133,28 +133,18 @@ export default class Physics {
 
         this.world.fixedStep()
 
-        this.wall.mesh.position.copy(this.wall.body.position)
-        this.wall.mesh.quaternion.copy(this.wall.body.quaternion)
+        if (this.ball.state === 'held') {
+            const p = this.controllerWorldPosition
+            const player = players[this.ball.holding]
+            p.copy(player.player.position)
+            p.y = 0
 
-        switch (this.ball.state) {
-            case 'free':
-                this.ball.mesh.position.copy(this.ball.body.position)
-                this.ball.mesh.quaternion.copy(this.ball.body.quaternion)
-                break
+            const con = this.ball.hand == 'left' ? player.leftCon : player.rightCon
+            p.add(con.position)
 
-            case 'held':
-                const p = this.controllerWorldPosition
-                const player = players[this.ball.holding]
-                p.copy(player.player.position)
-                p.y = 0
-
-                const con = this.ball.hand == 'left' ? player.leftCon : player.rightCon
-                p.add(con.position)
-
-                this.ball.body.position.set(p.x, p.y, p.z)
-                // TODO send quaternion over the network instead of x, y, z
-                // this.ball.body.rotation.copy()
-                break
+            this.ball.body.position.set(p.x, p.y, p.z)
+            // TODO send quaternion over the network instead of x, y, z
+            // this.ball.body.rotation.copy()
         }
     }
 }
