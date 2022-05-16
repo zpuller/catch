@@ -212,10 +212,7 @@ export default class Game {
 
     resetBall(x, y, z) {
         this.scene.add(this.ball.mesh)
-        this.physics.resetBall(x, y, z)
-
-        const v = this.ball.body.velocity
-        const p = this.ball.body.position
+        const { v, p } = this.physics.resetBall(x, y, z)
         this.client.emitBallState({
             state: 'free',
             velocity: { x: v.x, y: v.y, z: v.z },

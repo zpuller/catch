@@ -108,6 +108,10 @@ export default class Physics {
         b.position.set(x, y, z)
         b.velocity.set(0, 0, 0)
         b.quaternion.setFromEuler(0, 0, 0)
+
+        const v = b.velocity
+        const p = b.position
+        return { v, p }
     }
 
     saveDt() {
