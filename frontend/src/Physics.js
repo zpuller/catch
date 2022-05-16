@@ -66,6 +66,8 @@ export default class Physics {
     }
 
     doThrow(controller) {
+        this.ball.body.wakeUp()
+
         const frametimes = Array(5).fill(0)
         frametimes[0] = this.timeframes[0]
         let ks = [...frametimes.keys()]
@@ -76,11 +78,29 @@ export default class Physics {
         const v = theta[1]
         const scalar = 1.5
         this.ball.body.velocity.set(scalar * v[0], scalar * v[1], scalar * v[2])
+
+        return this.ball.body.velocity
     }
 
     doCatch(controller) {
         const distance = controller.getWorldPosition(this.controllerWorldPosition).distanceTo(this.ball.mesh.position)
         return distance < 0.2
+    }
+
+    sleepBall() {
+        this.ball.body.sleep()
+    }
+
+    updateBallState(v, p) {
+        const b = this.ball.body
+        b.wakeUp()
+        if (v) {
+            b.velocity.set(v.x, v.y, v.z)
+        }
+
+        if (p) {
+            b.position.set(p.x, p.y, p.z)
+        }
     }
 
     resetBall(x, y, z) {

@@ -46,13 +46,11 @@ const handlers = (game) => {
 
         onSqueezeEnd: function () {
             if (game.ball.state == 'held' && game.ball.holding == game.client.id && (game.ball.hand === 'left') === (this === game.controller1)) {
-                game.physics.doThrow(this)
 
                 game.ball.state = 'free'
-                game.ball.body.wakeUp()
                 game.scene.add(game.ball.mesh)
 
-                const v = game.ball.body.velocity
+                const v = game.physics.doThrow(this)
                 game.client.emitBallState({
                     state: game.ball.state,
                     holding: game.ball.holding,
@@ -132,13 +130,13 @@ export default class Game {
 
     handleUpdateBallState(state) {
         this.ball.state = state.state
-        const id = state.holding
-        this.ball.holding = id
+        this.ball.holding = state.holding
         this.ball.hand = state.hand
 
-        const b = this.ball.body
+
+        const id = this.ball.holding
         if (this.ball.state === 'held') {
-            b.sleep()
+            this.physics.sleepBall()
             const left = this.ball.hand === 'left'
             let grip
             if (id === this.client.id) {
@@ -151,21 +149,9 @@ export default class Game {
             m.position.set(0.02 * (left ? 1 : -1), 0, 0.05)
             grip.add(m)
         } else {
-            if (id === this.client.id) {
-                return
-            }
-
-            b.wakeUp()
-            this.scene.add(this.ball.mesh)
-
-            if (state.velocity) {
-                const v = state.velocity
-                b.velocity.set(v.x, v.y, v.z)
-            }
-
-            if (state.position) {
-                const p = state.position
-                b.position.set(p.x, p.y, p.z)
+            if (id !== this.client.id) {
+                this.physics.updateBallState(state.velocity, state.position)
+                this.scene.add(this.ball.mesh)
             }
         }
     }
