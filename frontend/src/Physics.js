@@ -3,7 +3,7 @@ import * as THREE from 'three'
 import * as CANNON from 'cannon-es'
 
 export default class Physics {
-    constructor(pTimeframes, pBall, pWall, pRightHand) {
+    constructor(pTimeframes, pBall, pWall, pLeftHand, pRightHand) {
         this.controllerWorldPosition = new THREE.Vector3()
         this.timeframes = pTimeframes
         this.ball = pBall
@@ -36,6 +36,15 @@ export default class Physics {
         })
         this.wall.body.position.set(0, 0.5, -2)
         this.world.addBody(this.wall.body)
+
+        this.leftHand = pLeftHand
+        this.leftHand.body = new CANNON.Body({
+            mass: 5,
+            shape: new CANNON.Sphere(r),
+            collisionFilterGroup: 1,
+            collisionFilterMask: 1
+        })
+        this.world.addBody(this.leftHand.body)
 
         this.rightHand = pRightHand
         this.rightHand.body = new CANNON.Body({
@@ -97,6 +106,7 @@ export default class Physics {
                 this.ball.body.position.set(p.x, p.y, p.z)
         }
 
+        this.leftHand.body.position.copy(leftCon.getWorldPosition(this.controllerWorldPosition))
         this.rightHand.body.position.copy(rightCon.getWorldPosition(this.controllerWorldPosition))
 
         this.world.fixedStep()

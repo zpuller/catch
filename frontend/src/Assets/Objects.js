@@ -15,6 +15,7 @@ gltfLoader.setDRACOLoader(dracoLoader)
 export default class Objects {
     constructor(realRoom) {
         // TODO constraints when caught
+        // TODO real hands (incl. multiplayer)
         this.realRoom = realRoom
     }
     buildRoom(scene) {

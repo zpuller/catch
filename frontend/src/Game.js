@@ -35,6 +35,7 @@ const handlers = (game) => {
                 game.ball.state = 'held'
                 game.ball.holding = game.client.id
                 game.ball.hand = this === game.controller1 ? 'left' : 'right'
+                // TODO move this to ball state
                 game.ball.body.sleep()
 
                 game.client.emitBallState({
@@ -98,8 +99,9 @@ export default class Game {
         const wall = {}
         objects.buildWall(scene, wall)
 
+        this.leftHand = {}
         this.rightHand = {}
-        this.physics = new Physics(this.timeframes, this.ball, wall, this.rightHand)
+        this.physics = new Physics(this.timeframes, this.ball, wall, this.leftHand, this.rightHand)
 
         this.handledInitialState = false
 
