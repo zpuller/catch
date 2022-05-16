@@ -3,9 +3,11 @@ import * as THREE from 'three'
 import * as CANNON from 'cannon-es'
 
 export default class Physics {
-    constructor(pTimeframes, pBall, pWall, pLeftHand, pRightHand) {
+    constructor(pBall, pWall, pLeftHand, pRightHand) {
         this.controllerWorldPosition = new THREE.Vector3()
-        this.timeframes = pTimeframes
+        this.clock = new THREE.Clock()
+        this.elapsedTime = this.clock.getElapsedTime()
+        this.timeframes = Array(5).fill(1)
         this.ball = pBall
         this.wall = pWall
         this.leftHand = pLeftHand
@@ -88,7 +90,20 @@ export default class Physics {
         b.quaternion.setFromEuler(0, 0, 0)
     }
 
+    saveDt() {
+        const prevTime = this.elapsedTime
+        this.elapsedTime = this.clock.getElapsedTime()
+        const dt = this.elapsedTime - prevTime
+        let ks = [...this.timeframes.keys()].slice(1)
+        ks.forEach(i => {
+            this.timeframes[i - 1] = this.timeframes[i]
+        })
+        this.timeframes[this.timeframes.length - 1] = dt
+    }
+
     update(players, leftCon, rightCon) {
+        this.saveDt()
+
         this.leftHand.body.position.copy(leftCon.getWorldPosition(this.controllerWorldPosition))
         this.rightHand.body.position.copy(rightCon.getWorldPosition(this.controllerWorldPosition))
 

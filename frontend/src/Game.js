@@ -76,9 +76,6 @@ export default class Game {
         this.players = {}
         this.playerGroups = {}
 
-        this.clock = new THREE.Clock()
-        this.elapsedTime = this.clock.getElapsedTime()
-        this.timeframes = Array(5).fill(1)
         this.controllerWorldPosition = new THREE.Vector3()
 
         this.ball = { state: 'free', }
@@ -95,7 +92,7 @@ export default class Game {
         this.leftHand.con = res.controller1
         this.rightHand.con = res.controller2
 
-        this.physics = new Physics(this.timeframes, this.ball, this.wall, this.leftHand, this.rightHand)
+        this.physics = new Physics(this.ball, this.wall, this.leftHand, this.rightHand)
 
         this.resetBall(0, 1.6, -0.5)
     }
@@ -196,17 +193,6 @@ export default class Game {
         this.handleController(this.leftHand.con)
     }
 
-    tick() {
-        const prevTime = this.elapsedTime
-        this.elapsedTime = this.clock.getElapsedTime()
-        const dt = this.elapsedTime - prevTime
-        let ks = [...this.timeframes.keys()].slice(1)
-        ks.forEach(i => {
-            this.timeframes[i - 1] = this.timeframes[i]
-        })
-        this.timeframes[this.timeframes.length - 1] = dt
-    }
-
     emitPlayerState() {
         const [lp, rp] = [this.leftHand.con.position, this.rightHand.con.position]
         const [lr, rr] = [this.leftHand.con.rotation, this.rightHand.con.rotation]
@@ -252,7 +238,6 @@ export default class Game {
     }
 
     update(inputs) {
-        this.tick()
         this.handleInputs(inputs)
         this.physics.update(this.players, this.leftHand.con, this.rightHand.con)
         this.emitPlayerState()
