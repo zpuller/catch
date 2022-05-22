@@ -37,6 +37,7 @@
     "ws": "^8.6.0"
   },
   "devDependencies": {
+    "cannon-es-debugger": "^1.0.0",
     "connect-livereload": "^0.6.1",
     "livereload": "^0.9.3",
     "nodemon": "^2.0.16",

@@ -128,8 +128,19 @@ export default class Physics {
     update(players, leftCon, rightCon) {
         this.saveDt()
 
-        this.leftHand.body.position.copy(leftCon.getWorldPosition(this.controllerWorldPosition))
-        this.rightHand.body.position.copy(rightCon.getWorldPosition(this.controllerWorldPosition))
+        {
+            const p = leftCon.getWorldPosition(this.controllerWorldPosition)
+            const b = this.leftHand.body
+            b.position.set(p.x, p.y, p.z)
+            b.velocity.set(0, 0, 0)
+        }
+
+        {
+            const p = rightCon.getWorldPosition(this.controllerWorldPosition)
+            const b = this.rightHand.body
+            b.position.set(p.x, p.y, p.z)
+            b.velocity.set(0, 0, 0)
+        }
 
         this.world.fixedStep()
 

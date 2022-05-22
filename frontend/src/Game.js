@@ -5,6 +5,8 @@ import Objects from './Assets/Objects'
 import Physics from './Physics'
 import WebXR from './WebXR'
 
+import CannonDebugger from 'cannon-es-debugger'
+
 const defaultPlayer = () => {
     return {
         player: { position: { x: 0, z: 0 } },
@@ -81,6 +83,7 @@ export default class Game {
         this.leftHand = {}
         this.rightHand = {}
 
+        // TODO refactors to support many objects
         this.objects = new Objects()
         this.objects.buildBall(this.ball, this.scene)
         this.objects.buildRoom(this.scene)
@@ -94,6 +97,8 @@ export default class Game {
         this.rightHand.grip = rightGrip
 
         this.physics = new Physics(this.ball, this.wall, this.leftHand, this.rightHand)
+
+        this.cannonDebugger = new CannonDebugger(this.scene, this.physics.world)
 
         this.resetBall(0, 1.6, -0.5)
     }
@@ -236,6 +241,7 @@ export default class Game {
         this.handleInputs(inputs)
         this.physics.update(this.players, this.leftHand.con, this.rightHand.con)
         this.updateMeshes()
+        this.cannonDebugger.update()
         this.emitPlayerState()
         this.updateOtherPlayerState()
     }
