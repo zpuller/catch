@@ -7,6 +7,7 @@ import Physics from './Physics'
 import WebXR from './WebXR'
 
 import CannonDebugger from 'cannon-es-debugger'
+import GarbageBin from './Assets/Entities/GarbageBin'
 
 const defaultPlayer = () => {
     return {
@@ -97,8 +98,7 @@ export default class Game {
         this.physics = new Physics(this.ball, this.wall, this.leftHand, this.rightHand)
 
         this.entities = []
-        this.addEntity(new Wall({ x: -1, y: 0.5, z: -2 }))
-        this.addEntity(new Wall({ x: 1, y: 0.5, z: -2 }))
+        this.addEntity(new GarbageBin({ x: 0, y: 0.5, z: -2 }, this.scene))
 
         this.cannonDebugger = new CannonDebugger(this.scene, this.physics.world)
 
@@ -107,8 +107,8 @@ export default class Game {
 
     addEntity(e) {
         this.scene.add(e.mesh)
-        e.bodies.forEach((b) => this.physics.world.addBody(b))
-        e.constraints.forEach((c) => this.physics.world.addConstraint(c))
+        e.bodies.forEach(b => this.physics.world.addBody(b))
+        e.constraints.forEach(c => this.physics.world.addConstraint(c))
         this.entities.push(e)
     }
 
@@ -238,7 +238,7 @@ export default class Game {
     }
 
     updateMeshes() {
-        this.entities.forEach((e) => {
+        this.entities.forEach(e => {
             e.mesh.position.copy(e.bodies[0].position)
             e.mesh.quaternion.copy(e.bodies[0].quaternion)
         })
@@ -253,7 +253,7 @@ export default class Game {
         this.handleInputs(inputs)
         this.physics.update(this.players, this.leftHand.con, this.rightHand.con)
         this.updateMeshes()
-        this.cannonDebugger.update()
+        // this.cannonDebugger.update()
         this.emitPlayerState()
         this.updateOtherPlayerState()
     }

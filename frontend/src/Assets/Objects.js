@@ -8,6 +8,7 @@ import {
 } from 'three/examples/jsm/loaders/DRACOLoader'
 
 const dracoLoader = new DRACOLoader()
+// TODO consolidate
 const gltfLoader = new GLTFLoader()
 dracoLoader.setDecoderPath('/draco/')
 gltfLoader.setDRACOLoader(dracoLoader)
@@ -17,7 +18,7 @@ export default class Objects {
     buildRoom(scene) {
         const geometry = new THREE.BoxGeometry(16, 8, 16)
         const material = new THREE.MeshPhysicalMaterial({
-            color: '#4287f5',
+            color: '#7d7ba4',
             side: THREE.BackSide
         })
         const mesh = new THREE.Mesh(geometry, material)
