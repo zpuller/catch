@@ -15,13 +15,13 @@ gltfLoader.setDRACOLoader(dracoLoader)
 // TODO real hands (incl. multiplayer)
 export default class Objects {
     buildRoom(scene) {
-        const geometry = new THREE.BoxGeometry(32, 16, 32)
+        const geometry = new THREE.BoxGeometry(16, 8, 16)
         const material = new THREE.MeshPhysicalMaterial({
             color: '#4287f5',
             side: THREE.BackSide
         })
         const mesh = new THREE.Mesh(geometry, material)
-        mesh.position.set(0, 8, 0)
+        mesh.position.set(0, 4, 0)
 
         scene.add(mesh)
     }
@@ -43,17 +43,6 @@ export default class Objects {
                 scene.add(ball.mesh)
             }
         )
-    }
-
-    buildWall(scene, wall) {
-        const geometry = new THREE.BoxGeometry(1, 1, 0.2)
-        const material = new THREE.MeshPhysicalMaterial({
-            color: '#32a852'
-        })
-        const mesh = new THREE.Mesh(geometry, material)
-
-        wall.mesh = mesh
-        scene.add(mesh)
     }
 
     buildGlove(group) {

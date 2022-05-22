@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 
 import Objects from './Assets/Objects'
+import Wall from './Assets/Entities/Wall'
 
 import Physics from './Physics'
 import WebXR from './WebXR'
@@ -79,15 +80,12 @@ export default class Game {
         this.controllerWorldPosition = new THREE.Vector3()
 
         this.ball = { state: 'free', }
-        this.wall = {}
         this.leftHand = {}
         this.rightHand = {}
 
-        // TODO refactors to support many objects
         this.objects = new Objects()
         this.objects.buildBall(this.ball, this.scene)
         this.objects.buildRoom(this.scene)
-        this.objects.buildWall(this.scene, this.wall)
 
         const { leftCon, rightCon, leftGrip, rightGrip } = WebXR.init(xr, handlers(this), cameraGroup, this.objects)
         this.objects.buildGlove(leftGrip)
@@ -98,9 +96,19 @@ export default class Game {
 
         this.physics = new Physics(this.ball, this.wall, this.leftHand, this.rightHand)
 
+        this.entities = []
+        this.addEntity(new Wall({ x: -1, y: 0.5, z: -2 }))
+        this.addEntity(new Wall({ x: 1, y: 0.5, z: -2 }))
+
         this.cannonDebugger = new CannonDebugger(this.scene, this.physics.world)
 
         this.resetBall(0, 1.6, -0.5)
+    }
+
+    addEntity(e) {
+        this.scene.add(e.mesh)
+        this.physics.world.addBody(e.body)
+        this.entities.push(e)
     }
 
     forEachPlayerExceptSelf(f) {
@@ -229,8 +237,11 @@ export default class Game {
     }
 
     updateMeshes() {
-        this.wall.mesh.position.copy(this.wall.body.position)
-        this.wall.mesh.quaternion.copy(this.wall.body.quaternion)
+        this.entities.forEach((e) => {
+            e.mesh.position.copy(e.body.position)
+            e.mesh.quaternion.copy(e.body.quaternion)
+        })
+
         if (this.ball.state === 'free') {
             this.ball.mesh.position.copy(this.ball.body.position)
             this.ball.mesh.quaternion.copy(this.ball.body.quaternion)

@@ -19,9 +19,9 @@ export default class Physics {
 
         this.floor = new CANNON.Body({
             type: CANNON.Body.STATIC,
-            shape: new CANNON.Plane()
+            shape: new CANNON.Box(new CANNON.Vec3(8, 1, 8))
         })
-        this.floor.quaternion.setFromEuler(-Math.PI / 2, 0, 0)
+        this.floor.position.set(0, -1, 0)
         this.world.addBody(this.floor)
 
         const r = .04
@@ -33,13 +33,6 @@ export default class Physics {
         this.ball.body.linearDamping = .5
         this.ball.body.angularDamping = .5
         this.world.addBody(this.ball.body)
-
-        this.wall.body = new CANNON.Body({
-            mass: 1,
-            shape: new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.1)),
-        })
-        this.wall.body.position.set(0, 0.5, -2)
-        this.world.addBody(this.wall.body)
 
         this.leftHand.body = new CANNON.Body({
             mass: 5,
