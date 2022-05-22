@@ -107,7 +107,8 @@ export default class Game {
 
     addEntity(e) {
         this.scene.add(e.mesh)
-        this.physics.world.addBody(e.body)
+        e.bodies.forEach((b) => this.physics.world.addBody(b))
+        e.constraints.forEach((c) => this.physics.world.addConstraint(c))
         this.entities.push(e)
     }
 
@@ -238,8 +239,8 @@ export default class Game {
 
     updateMeshes() {
         this.entities.forEach((e) => {
-            e.mesh.position.copy(e.body.position)
-            e.mesh.quaternion.copy(e.body.quaternion)
+            e.mesh.position.copy(e.bodies[0].position)
+            e.mesh.quaternion.copy(e.bodies[0].quaternion)
         })
 
         if (this.ball.state === 'free') {

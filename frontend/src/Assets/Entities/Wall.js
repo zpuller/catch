@@ -9,11 +9,15 @@ const material = new THREE.MeshPhysicalMaterial({
 export default class Wall {
     constructor(position) {
         this.mesh = new THREE.Mesh(geometry, material)
-        this.body = new CANNON.Body({
-            mass: 1,
-            shape: new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.1)),
-        })
-
-        this.body.position.copy(position)
+        this.bodies = [
+            new CANNON.Body({
+                mass: 3,
+                shape: new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.1)),
+                position: new CANNON.Vec3(position.x, position.y, position.z)
+            }),
+        ]
+        this.constraints = [
+            // new CANNON.LockConstraint(this.bodies[0], this.bodies[1])
+        ]
     }
 }
