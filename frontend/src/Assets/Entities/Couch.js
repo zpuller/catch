@@ -36,7 +36,7 @@ export default class Couch {
         this.constraints = []
 
         gltfLoader.load(
-            'models/couch.glb',
+            'https://res.cloudinary.com/hack-reactor888/image/upload/v1653337467/myUploads/couch.glb',
             (gltf) => {
                 const scale = 1.0
                 gltf.scene.scale.set(scale, scale, scale)
