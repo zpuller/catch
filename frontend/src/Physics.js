@@ -16,6 +16,7 @@ export default class Physics {
         this.world = new CANNON.World({
             gravity: new CANNON.Vec3(0, -9.8, 0)
         })
+        this.world.allowSleep = true
 
         this.floor = new CANNON.Body({
             type: CANNON.Body.STATIC,
@@ -38,7 +39,9 @@ export default class Physics {
             mass: 5,
             shape: new CANNON.Sphere(r),
             collisionFilterGroup: 1,
-            collisionFilterMask: 1
+            collisionFilterMask: 1,
+            // sleepSpeedLimit: 1.0,
+            // sleepTimeLimit: 1.0,
         })
         this.world.addBody(this.leftHand.body)
 
@@ -46,7 +49,9 @@ export default class Physics {
             mass: 5,
             shape: new CANNON.Sphere(r),
             collisionFilterGroup: 1,
-            collisionFilterMask: 1
+            collisionFilterMask: 1,
+            // sleepSpeedLimit: 1.0,
+            // sleepTimeLimit: 1.0,
         })
         this.world.addBody(this.rightHand.body)
     }

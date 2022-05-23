@@ -18,33 +18,50 @@ export default class GarbageBin {
         const h = .25
         const t = .01 // thickness
 
+        const m = 5
+
+        const sleepSpeed = 1.0
+        const sleepTime = 1.0
+
         this.bodies = [
             new CANNON.Body({
-                mass: 1,
+                mass: m,
                 shape: new CANNON.Box(new CANNON.Vec3(w, t, w)),
-                position: new CANNON.Vec3(position.x, position.y, position.z)
+                position: new CANNON.Vec3(position.x, position.y, position.z),
+                sleepSpeedLimit: sleepSpeed,
+                sleepTimeLimit: sleepTime,
             }),
             new CANNON.Body({
-                mass: 1,
+                mass: m,
                 shape: new CANNON.Box(new CANNON.Vec3(w, h, t)),
-                position: new CANNON.Vec3(position.x, position.y + h, position.z - w)
+                position: new CANNON.Vec3(position.x, position.y + h, position.z - w),
+                sleepSpeedLimit: sleepSpeed,
+                sleepTimeLimit: sleepTime,
             }),
             new CANNON.Body({
-                mass: 1,
+                mass: m,
                 shape: new CANNON.Box(new CANNON.Vec3(w, h, t)),
-                position: new CANNON.Vec3(position.x, position.y + h, position.z + w)
+                position: new CANNON.Vec3(position.x, position.y + h, position.z + w),
+                sleepSpeedLimit: sleepSpeed,
+                sleepTimeLimit: sleepTime,
             }),
             new CANNON.Body({
-                mass: 1,
+                mass: m,
                 shape: new CANNON.Box(new CANNON.Vec3(t, h, w)),
-                position: new CANNON.Vec3(position.x - w, position.y + h, position.z)
+                position: new CANNON.Vec3(position.x - w, position.y + h, position.z),
+                sleepSpeedLimit: sleepSpeed,
+                sleepTimeLimit: sleepTime,
             }),
             new CANNON.Body({
-                mass: 1,
+                mass: m,
                 shape: new CANNON.Box(new CANNON.Vec3(t, h, w)),
-                position: new CANNON.Vec3(position.x + w, position.y + h, position.z)
+                position: new CANNON.Vec3(position.x + w, position.y + h, position.z),
+                sleepSpeedLimit: sleepSpeed,
+                sleepTimeLimit: sleepTime,
             }),
         ]
+        this.bodies.forEach(b => b.addEventListener("wakeup", e => { this.bodies.forEach(b => b.wakeUp()) }))
+
         const ixs = [...Array(4).keys()]
         this.constraints = ixs.map(i => new CANNON.LockConstraint(this.bodies[i], this.bodies[i + 1]))
 

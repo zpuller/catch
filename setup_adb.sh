@@ -1,3 +1,4 @@
+adb disconnect
 until adb shell ip route
 do
   echo 'no device found, make sure your headset is connected via usb'
