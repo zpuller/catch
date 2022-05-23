@@ -8,9 +8,13 @@ export default class GarbageBin {
         this.mesh = new THREE.Mesh(geometry, material)
 
         // Note: these are all half extents
-        const w = .2
+        const w = .16
         const h = .25
-        const t = .01 // thickness
+        const t = .015 // thickness
+
+        const spread = 1.1 * w
+        const quatAngle = .0261769
+        const quatW = 0.9996573
 
         const m = 5
 
@@ -28,28 +32,32 @@ export default class GarbageBin {
             new CANNON.Body({
                 mass: m,
                 shape: new CANNON.Box(new CANNON.Vec3(w, h, t)),
-                position: new CANNON.Vec3(position.x, position.y + h, position.z - w),
+                position: new CANNON.Vec3(position.x, position.y + h, position.z - spread),
+                quaternion: new CANNON.Quaternion(-1 * quatAngle, 0, 0, quatW),
                 sleepSpeedLimit: sleepSpeed,
                 sleepTimeLimit: sleepTime,
             }),
             new CANNON.Body({
                 mass: m,
                 shape: new CANNON.Box(new CANNON.Vec3(w, h, t)),
-                position: new CANNON.Vec3(position.x, position.y + h, position.z + w),
+                position: new CANNON.Vec3(position.x, position.y + h, position.z + spread),
+                quaternion: new CANNON.Quaternion(quatAngle, 0, 0, quatW),
                 sleepSpeedLimit: sleepSpeed,
                 sleepTimeLimit: sleepTime,
             }),
             new CANNON.Body({
                 mass: m,
                 shape: new CANNON.Box(new CANNON.Vec3(t, h, w)),
-                position: new CANNON.Vec3(position.x - w, position.y + h, position.z),
+                position: new CANNON.Vec3(position.x - spread, position.y + h, position.z),
+                quaternion: new CANNON.Quaternion(0, 0, quatAngle, quatW),
                 sleepSpeedLimit: sleepSpeed,
                 sleepTimeLimit: sleepTime,
             }),
             new CANNON.Body({
                 mass: m,
                 shape: new CANNON.Box(new CANNON.Vec3(t, h, w)),
-                position: new CANNON.Vec3(position.x + w, position.y + h, position.z),
+                position: new CANNON.Vec3(position.x + spread, position.y + h, position.z),
+                quaternion: new CANNON.Quaternion(0, 0, -1 * quatAngle, quatW),
                 sleepSpeedLimit: sleepSpeed,
                 sleepTimeLimit: sleepTime,
             }),
