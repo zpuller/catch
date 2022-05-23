@@ -40,8 +40,6 @@ export default class Physics {
             shape: new CANNON.Sphere(r),
             collisionFilterGroup: 1,
             collisionFilterMask: 1,
-            // sleepSpeedLimit: 1.0,
-            // sleepTimeLimit: 1.0,
         })
         this.world.addBody(this.leftHand.body)
 
@@ -50,8 +48,6 @@ export default class Physics {
             shape: new CANNON.Sphere(r),
             collisionFilterGroup: 1,
             collisionFilterMask: 1,
-            // sleepSpeedLimit: 1.0,
-            // sleepTimeLimit: 1.0,
         })
         this.world.addBody(this.rightHand.body)
     }

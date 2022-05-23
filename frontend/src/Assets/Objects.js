@@ -1,20 +1,11 @@
 import * as THREE from 'three'
 
-import {
-    GLTFLoader
-} from 'three/examples/jsm/loaders/GLTFLoader'
-import {
-    DRACOLoader
-} from 'three/examples/jsm/loaders/DRACOLoader'
-
-const dracoLoader = new DRACOLoader()
-// TODO consolidate
-const gltfLoader = new GLTFLoader()
-dracoLoader.setDecoderPath('/draco/')
-gltfLoader.setDRACOLoader(dracoLoader)
-
 // TODO real hands (incl. multiplayer)
 export default class Objects {
+    constructor(gltfLoader) {
+        this.gltfLoader = gltfLoader
+    }
+
     buildRoom(scene) {
         const geometry = new THREE.BoxGeometry(16, 8, 16)
         const material = new THREE.MeshPhysicalMaterial({
@@ -36,7 +27,7 @@ export default class Objects {
         ball.mesh = new THREE.Mesh(geometry, material)
         scene.add(ball.mesh)
 
-        gltfLoader.load(
+        this.gltfLoader.load(
             'https://res.cloudinary.com/hack-reactor888/image/upload/v1652594431/myUploads/baseball.glb',
             (gltf) => {
                 scene.remove(ball.mesh)
@@ -47,7 +38,7 @@ export default class Objects {
     }
 
     buildGlove(group) {
-        gltfLoader.load(
+        this.gltfLoader.load(
             'https://res.cloudinary.com/hack-reactor888/image/upload/v1652647643/myUploads/glove.glb',
             (gltf) => {
                 gltf.scene.scale.set(0.05, 0.05, 0.05)

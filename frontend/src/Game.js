@@ -1,7 +1,6 @@
 import * as THREE from 'three'
 
 import Objects from './Assets/Objects'
-import Wall from './Assets/Entities/Wall'
 
 import Physics from './Physics'
 import WebXR from './WebXR'
@@ -68,7 +67,7 @@ const handlers = (game) => {
 }
 
 export default class Game {
-    constructor(xr, scene, cameraGroup, client) {
+    constructor(gltfLoader, xr, scene, cameraGroup, client) {
         this.client = client
         this.client.subscribeToEvents(this)
         this.handledInitialState = false
@@ -85,7 +84,7 @@ export default class Game {
         this.leftHand = {}
         this.rightHand = {}
 
-        this.objects = new Objects()
+        this.objects = new Objects(gltfLoader)
         this.objects.buildBall(this.ball, this.scene)
         this.objects.buildRoom(this.scene)
 
@@ -99,8 +98,8 @@ export default class Game {
         this.physics = new Physics(this.ball, this.wall, this.leftHand, this.rightHand)
 
         this.entities = []
-        this.addEntity(new GarbageBin({ x: 0, y: 1.0, z: -2 }, this.scene))
-        this.addEntity(new Couch({ x: 2, y: 0.5, z: -2 }, this.scene))
+        this.addEntity(new GarbageBin({ x: 0, y: 1.0, z: -2 }, this.scene, gltfLoader))
+        this.addEntity(new Couch({ x: 2, y: 0.5, z: -2 }, this.scene, gltfLoader))
 
         this.cannonDebugger = new CannonDebugger(this.scene, this.physics.world)
 

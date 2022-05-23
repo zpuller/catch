@@ -1,14 +1,8 @@
 import * as THREE from 'three'
 import * as CANNON from 'cannon-es'
 
-// TODO consolidate
-import {
-    GLTFLoader
-} from 'three/examples/jsm/loaders/GLTFLoader'
-const gltfLoader = new GLTFLoader()
-
 export default class GarbageBin {
-    constructor(position, scene) {
+    constructor(position, scene, gltfLoader) {
         const geometry = new THREE.BoxGeometry(1, 1, 1)
         const material = new THREE.MeshBasicMaterial({ wireframe: true })
         this.mesh = new THREE.Mesh(geometry, material)

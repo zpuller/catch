@@ -4,6 +4,13 @@ import * as THREE from 'three'
 import { VRButton } from 'three/examples/jsm/webxr/VRButton.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 
+import {
+    GLTFLoader
+} from 'three/examples/jsm/loaders/GLTFLoader'
+import {
+    DRACOLoader
+} from 'three/examples/jsm/loaders/DRACOLoader'
+
 import Client from './Client'
 
 import Camera from './Assets/Camera'
@@ -12,6 +19,11 @@ import Renderer from './Assets/Renderer'
 import Windowing from './Assets/Window'
 
 import Game from './Game'
+
+const dracoLoader = new DRACOLoader()
+const gltfLoader = new GLTFLoader()
+dracoLoader.setDecoderPath('/draco/')
+gltfLoader.setDRACOLoader(dracoLoader)
 
 let cameraGroup
 let renderer, scene, lights, camera
@@ -57,7 +69,7 @@ const waitForClientLogin = () => {
     if (client.id === undefined) {
         setTimeout(waitForClientLogin, 100)
     } else {
-        game = new Game(renderer.xr, scene, cameraGroup, client)
+        game = new Game(gltfLoader, renderer.xr, scene, cameraGroup, client)
         document.body.appendChild(VRButton.createButton(renderer))
         animate()
     }
