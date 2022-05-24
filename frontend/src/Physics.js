@@ -99,6 +99,7 @@ export default class Physics {
 
     resetBall(x, y, z) {
         const b = this.ball.body
+        b.wakeUp()
         b.position.set(x, y, z)
         b.velocity.set(0, 0, 0)
         b.quaternion.setFromEuler(0, 0, 0)

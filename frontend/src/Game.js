@@ -233,6 +233,7 @@ export default class Game {
         const { v, p } = this.physics.resetBall(x, y, z)
         this.client.emitBallState({
             state: 'free',
+            holding: this.client.id,
             velocity: { x: v.x, y: v.y, z: v.z },
             position: { x: p.x, y: p.y, z: p.z },
         })
