@@ -7,13 +7,13 @@ export default class Objects {
     }
 
     buildRoom(scene) {
-        const geometry = new THREE.BoxGeometry(16, 8, 16)
+        const geometry = new THREE.BoxGeometry(16, 4, 16)
         const material = new THREE.MeshPhysicalMaterial({
             color: '#7d7ba4',
             side: THREE.BackSide
         })
         const mesh = new THREE.Mesh(geometry, material)
-        mesh.position.set(0, 4, 0)
+        mesh.position.set(0, 2, 0)
 
         scene.add(mesh)
     }

@@ -8,8 +8,8 @@ export default class Lights {
         const light = new THREE.DirectionalLight(0xffffff);
         light.position.set(-2, 2, -1)
 
-        const plight = new THREE.PointLight(0xffffff, 1, 4, .5)
-        plight.position.set(2, 3, -1)
+        const plight = new THREE.PointLight(0xffffff, 0.5, 5, .9)
+        plight.position.set(2, 2.5, -2)
         group.add(plight)
 
         group.add(light)

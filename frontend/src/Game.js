@@ -8,6 +8,7 @@ import WebXR from './WebXR'
 import CannonDebugger from 'cannon-es-debugger'
 import GarbageBin from './Assets/Entities/GarbageBin'
 import Couch from './Assets/Entities/Couch'
+import Fan from './Assets/Entities/Fan'
 
 const defaultPlayer = () => {
     return {
@@ -98,8 +99,10 @@ export default class Game {
         this.physics = new Physics(this.ball, this.wall, this.leftHand, this.rightHand)
 
         this.entities = []
+        // TODO might want to split into static and dynamic entities
         this.addEntity(new GarbageBin({ x: 0, y: 1.0, z: -2 }, this.scene, gltfLoader))
         this.addEntity(new Couch({ x: 2, y: 0.5, z: -2 }, this.scene, gltfLoader))
+        this.addEntity(new Fan({ x: 2, y: 3, z: -2 }, this.scene, gltfLoader))
 
         this.cannonDebugger = new CannonDebugger(this.scene, this.physics.world)
 
