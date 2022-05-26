@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import Stats from 'three/examples/jsm/libs/stats.module'
 
 import Objects from './Assets/Objects'
 
@@ -7,8 +8,10 @@ import WebXR from './WebXR'
 
 import CannonDebugger from 'cannon-es-debugger'
 import GarbageBin from './Assets/Entities/GarbageBin'
-import Couch from './Assets/Entities/Couch'
-import Fan from './Assets/Entities/Fan'
+import StaticEntities from './Assets/Entities/StaticEntities'
+
+const stats = Stats()
+document.body.appendChild(stats.dom)
 
 const defaultPlayer = () => {
     return {
@@ -98,11 +101,11 @@ export default class Game {
 
         this.physics = new Physics(this.ball, this.wall, this.leftHand, this.rightHand)
 
-        this.entities = []
-        // TODO might want to split into static and dynamic entities
-        this.addEntity(new GarbageBin({ x: 0, y: 1.0, z: -2 }, this.scene, gltfLoader))
-        this.addEntity(new Couch({ x: 2, y: 0.5, z: -2 }, this.scene, gltfLoader))
-        this.addEntity(new Fan({ x: 2, y: 3, z: -2 }, this.scene, gltfLoader))
+        this.dynamicEntities = []
+
+        this.addEntity(new StaticEntities())
+
+        this.addDynamicEntity(new GarbageBin({ x: 0.7, y: 1.0, z: -3 }, this.scene, gltfLoader))
 
         this.cannonDebugger = new CannonDebugger(this.scene, this.physics.world)
 
@@ -110,10 +113,14 @@ export default class Game {
     }
 
     addEntity(e) {
-        this.scene.add(e.mesh)
         e.bodies.forEach(b => this.physics.world.addBody(b))
+    }
+
+    addDynamicEntity(e) {
+        this.addEntity(e)
+        this.scene.add(e.mesh)
         e.constraints.forEach(c => this.physics.world.addConstraint(c))
-        this.entities.push(e)
+        this.dynamicEntities.push(e)
     }
 
     forEachPlayerExceptSelf(f) {
@@ -243,7 +250,7 @@ export default class Game {
     }
 
     updateMeshes() {
-        this.entities.forEach(e => {
+        this.dynamicEntities.forEach(e => {
             e.mesh.position.copy(e.bodies[0].position)
             e.mesh.quaternion.copy(e.bodies[0].quaternion)
         })
@@ -261,5 +268,6 @@ export default class Game {
         // this.cannonDebugger.update()
         this.emitPlayerState()
         this.updateOtherPlayerState()
+        stats.update()
     }
 }

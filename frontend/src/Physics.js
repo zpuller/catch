@@ -18,13 +18,6 @@ export default class Physics {
         })
         this.world.allowSleep = true
 
-        this.floor = new CANNON.Body({
-            type: CANNON.Body.STATIC,
-            shape: new CANNON.Box(new CANNON.Vec3(8, 1, 8))
-        })
-        this.floor.position.set(0, -1, 0)
-        this.world.addBody(this.floor)
-
         const r = .04
         this.ball.body = new CANNON.Body({
             mass: 5,

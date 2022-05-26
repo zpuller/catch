@@ -20,15 +20,20 @@ export default class Objects {
         this.gltfLoader = gltfLoader
     }
 
+    // move to sep. classes
     buildRoom(scene) {
         scene.background = environmentMap
-        // scene.environment = environmentMap
+        scene.environment = environmentMap
 
         this.gltfLoader.load(
-            'models/room.glb',
+            'https://res.cloudinary.com/hack-reactor888/image/upload/v1653628670/zachGame/room_p8hinf.glb',
             (gltf) => {
                 scene.add(gltf.scene)
             }
+        )
+        this.gltfLoader.load(
+            'https://res.cloudinary.com/hack-reactor888/image/upload/v1653628657/zachGame/furniture_y26s1v.glb',
+            (gltf) => { scene.add(gltf.scene) }
         )
     }
 
@@ -40,7 +45,7 @@ export default class Objects {
         scene.add(ball.mesh)
 
         this.gltfLoader.load(
-            'https://res.cloudinary.com/hack-reactor888/image/upload/v1652594431/myUploads/baseball.glb',
+            'https://res.cloudinary.com/hack-reactor888/image/upload/v1652594431/zachGame/baseball.glb',
             (gltf) => {
                 scene.remove(ball.mesh)
                 ball.mesh = gltf.scene
@@ -51,7 +56,7 @@ export default class Objects {
 
     buildGlove(group) {
         this.gltfLoader.load(
-            'https://res.cloudinary.com/hack-reactor888/image/upload/v1652647643/myUploads/glove.glb',
+            'https://res.cloudinary.com/hack-reactor888/image/upload/v1652647643/zachGame/glove.glb',
             (gltf) => {
                 gltf.scene.scale.set(0.05, 0.05, 0.05)
                 gltf.scene.rotateX(Math.PI * -0.5)

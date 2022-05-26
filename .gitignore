@@ -3,3 +3,4 @@ frontend/dist
 frontend/static/
 **/.DS_Store
 .venv
+out.txt

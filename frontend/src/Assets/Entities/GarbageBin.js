@@ -68,9 +68,9 @@ export default class GarbageBin {
         this.constraints = ixs.map(i => new CANNON.LockConstraint(this.bodies[i], this.bodies[i + 1]))
 
         gltfLoader.load(
-            'https://res.cloudinary.com/hack-reactor888/image/upload/v1653337521/myUploads/garbage_bin_fmv5jr.glb',
+            'https://res.cloudinary.com/hack-reactor888/image/upload/v1653628665/zachGame/garbage_bin_wt1tuu.glb',
             (gltf) => {
-                const scale = 0.2
+                const scale = 1
                 gltf.scene.scale.set(scale, scale, scale)
                 scene.remove(this.mesh)
                 this.mesh = gltf.scene
