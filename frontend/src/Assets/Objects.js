@@ -1,5 +1,19 @@
 import * as THREE from 'three'
 
+const cubeTextureLoader = new THREE.CubeTextureLoader()
+
+const envNum = '1'
+const environmentMap = cubeTextureLoader.load([
+    '/textures/environmentMaps/' + envNum + '/px.jpg',
+    '/textures/environmentMaps/' + envNum + '/nx.jpg',
+    '/textures/environmentMaps/' + envNum + '/py.jpg',
+    '/textures/environmentMaps/' + envNum + '/ny.jpg',
+    '/textures/environmentMaps/' + envNum + '/pz.jpg',
+    '/textures/environmentMaps/' + envNum + '/nz.jpg'
+])
+
+environmentMap.encoding = THREE.sRGBEncoding
+
 // TODO real hands (incl. multiplayer)
 export default class Objects {
     constructor(gltfLoader) {
@@ -7,23 +21,21 @@ export default class Objects {
     }
 
     buildRoom(scene) {
-        const geometry = new THREE.BoxGeometry(16, 4, 16)
-        const material = new THREE.MeshPhysicalMaterial({
-            color: '#7d7ba4',
-            side: THREE.BackSide
-        })
-        const mesh = new THREE.Mesh(geometry, material)
-        mesh.position.set(0, 2, 0)
+        scene.background = environmentMap
+        // scene.environment = environmentMap
 
-        scene.add(mesh)
+        this.gltfLoader.load(
+            'models/room.glb',
+            (gltf) => {
+                scene.add(gltf.scene)
+            }
+        )
     }
 
     buildBall(ball, scene) {
         const geometry = new THREE.SphereGeometry(0.04, 16, 16)
-        const material = new THREE.MeshPhysicalMaterial({
-            color: '#04f679',
-            wireframe: true
-        })
+        // TODO consolidate materials
+        const material = new THREE.MeshBasicMaterial({ wireframe: true })
         ball.mesh = new THREE.Mesh(geometry, material)
         scene.add(ball.mesh)
 
@@ -55,9 +67,7 @@ export default class Objects {
         const group = new THREE.Group()
 
         const geometry = new THREE.SphereGeometry(0.025, 16, 16)
-        const material = new THREE.MeshPhysicalMaterial({
-            color: '#ffffff'
-        })
+        const material = new THREE.MeshBasicMaterial({ color: '#ffffff' })
 
         const leftGrip = new THREE.Mesh(geometry, material)
         group.add(leftGrip)

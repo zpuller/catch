@@ -1,4 +1,5 @@
 node_modules
 frontend/dist
-frontend/static/models
+frontend/static/
 **/.DS_Store
+.venv
