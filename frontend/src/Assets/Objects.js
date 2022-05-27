@@ -42,7 +42,7 @@ export default class Objects {
             gltf.scene.children[0].material = m
             scene.add(gltf.scene)
         })
-        this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1653628657/zachGame/furniture_y26s1v.glb', (gltf) => { scene.add(gltf.scene) })
+        this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1653634116/zachGame/furniture_y26s1v.glb', (gltf) => { scene.add(gltf.scene) })
     }
 
     buildBall(ball, scene) {
