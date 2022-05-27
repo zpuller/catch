@@ -4,12 +4,18 @@ const cubeTextureLoader = new THREE.CubeTextureLoader()
 
 const envNum = '1'
 const environmentMap = cubeTextureLoader.load([
-    '/textures/environmentMaps/' + envNum + '/px.jpg',
-    '/textures/environmentMaps/' + envNum + '/nx.jpg',
-    '/textures/environmentMaps/' + envNum + '/py.jpg',
-    '/textures/environmentMaps/' + envNum + '/ny.jpg',
-    '/textures/environmentMaps/' + envNum + '/pz.jpg',
-    '/textures/environmentMaps/' + envNum + '/nz.jpg'
+    'https://res.cloudinary.com/hack-reactor888/image/upload/v1653629023/zachGame/envMaps/px_vgn0hu.jpg',
+    'https://res.cloudinary.com/hack-reactor888/image/upload/v1653629023/zachGame/envMaps/nx_domm6q.jpg',
+    'https://res.cloudinary.com/hack-reactor888/image/upload/v1653629023/zachGame/envMaps/py_dgjjzf.jpg',
+    'https://res.cloudinary.com/hack-reactor888/image/upload/v1653629023/zachGame/envMaps/ny_s7bcwa.jpg',
+    'https://res.cloudinary.com/hack-reactor888/image/upload/v1653629023/zachGame/envMaps/pz_w4b9lw.jpg',
+    'https://res.cloudinary.com/hack-reactor888/image/upload/v1653629023/zachGame/envMaps/nz_uxnx3c.jpg',
+    // '/textures/environmentMaps/' + envNum + '/px.jpg',
+    // '/textures/environmentMaps/' + envNum + '/nx.jpg',
+    // '/textures/environmentMaps/' + envNum + '/py.jpg',
+    // '/textures/environmentMaps/' + envNum + '/ny.jpg',
+    // '/textures/environmentMaps/' + envNum + '/pz.jpg',
+    // '/textures/environmentMaps/' + envNum + '/nz.jpg'
 ])
 
 environmentMap.encoding = THREE.sRGBEncoding
