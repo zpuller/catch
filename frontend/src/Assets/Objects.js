@@ -2,6 +2,11 @@ import * as THREE from 'three'
 
 const cubeTextureLoader = new THREE.CubeTextureLoader()
 
+const video = document.getElementById("vid")
+video.play()
+const texture = new THREE.VideoTexture(video)
+const m = new THREE.MeshBasicMaterial({ map: texture })
+
 const envNum = '1'
 const environmentMap = cubeTextureLoader.load([
     'https://res.cloudinary.com/hack-reactor888/image/upload/v1653629023/zachGame/envMaps/px_vgn0hu.jpg',
@@ -31,7 +36,12 @@ export default class Objects {
         scene.background = environmentMap
         scene.environment = environmentMap
 
-        this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1653628670/zachGame/room_p8hinf.glb', (gltf) => { scene.add(gltf.scene) })
+        this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1653634116/zachGame/room_avs9ju.glb', (gltf) => { scene.add(gltf.scene) })
+        this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1653634116/zachGame/picture_byydt0.glb', (gltf) => { scene.add(gltf.scene) })
+        this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1653634116/zachGame/screen_khzwhi.glb', (gltf) => {
+            gltf.scene.children[0].material = m
+            scene.add(gltf.scene)
+        })
         this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1653628657/zachGame/furniture_y26s1v.glb', (gltf) => { scene.add(gltf.scene) })
     }
 
