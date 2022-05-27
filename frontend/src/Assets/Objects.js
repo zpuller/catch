@@ -25,16 +25,8 @@ export default class Objects {
         scene.background = environmentMap
         scene.environment = environmentMap
 
-        this.gltfLoader.load(
-            'https://res.cloudinary.com/hack-reactor888/image/upload/v1653628670/zachGame/room_p8hinf.glb',
-            (gltf) => {
-                scene.add(gltf.scene)
-            }
-        )
-        this.gltfLoader.load(
-            'https://res.cloudinary.com/hack-reactor888/image/upload/v1653628657/zachGame/furniture_y26s1v.glb',
-            (gltf) => { scene.add(gltf.scene) }
-        )
+        this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1653628670/zachGame/room_p8hinf.glb', (gltf) => { scene.add(gltf.scene) })
+        this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1653628657/zachGame/furniture_y26s1v.glb', (gltf) => { scene.add(gltf.scene) })
     }
 
     buildBall(ball, scene) {

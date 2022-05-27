@@ -189,6 +189,7 @@ export default class Game {
         controller.userData.prevPositions.push(controller.getWorldPosition(this.controllerWorldPosition).toArray())
     }
 
+    // TODO improve movement
     handleInputs(inputs) {
         if (inputs) {
             for (const source of inputs) {
