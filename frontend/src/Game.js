@@ -40,9 +40,17 @@ const handlers = (game) => {
 
         onSqueezeStart: function () {
             if (game.physics.doCatch(this, this.ball)) {
+
+                const left = this === game.leftHand.con
+
                 game.ball.state = 'held'
                 game.ball.holding = game.client.id
-                game.ball.hand = this === game.leftHand.con ? 'left' : 'right'
+                game.ball.hand = left ? 'left' : 'right'
+
+                game.physics.sleepBall()
+                const m = game.ball.mesh
+                m.position.set(0.02 * (left ? 1 : -1), 0, 0.05)
+                this.add(m)
 
                 game.client.emitBallState({
                     state: game.ball.state,
