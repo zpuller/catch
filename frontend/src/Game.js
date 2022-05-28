@@ -32,10 +32,15 @@ const handlers = (game) => {
     return {
         onSelectStart: function () {
             const p = this.getWorldPosition(data)
-            game.resetBall(p.x, p.y + 0.5, p.z)
+            // game.resetBall(p.x, p.y + 0.5, p.z)
+            game.pointingTeleport = true
+            game.scene.add(game.rayIntersectMesh)
         },
 
         onSelectEnd: function () {
+            game.player.position.copy(game.rayIntersectMesh.position)
+            game.pointingTeleport = false
+            game.scene.remove(game.rayIntersectMesh)
         },
 
         onSqueezeStart: function () {
@@ -118,6 +123,12 @@ export default class Game {
         this.cannonDebugger = new CannonDebugger(this.scene, this.physics.world)
 
         this.resetBall(0, 1.6, -0.5)
+
+        this.raycaster = new THREE.Raycaster()
+        this.rayOrigin = new THREE.Vector3()
+        this.rayDest = new THREE.Vector3()
+        this.rayDirection = new THREE.Vector3()
+        this.rayIntersectMesh = new THREE.Mesh(new THREE.SphereGeometry(0.1), new THREE.MeshBasicMaterial({ wireframe: true }))
     }
 
     addEntity(e) {
@@ -270,8 +281,28 @@ export default class Game {
         }
     }
 
+    updateRaycaster() {
+        if (!this.pointingTeleport) {
+            return
+        }
+
+        const c = this.rightHand.con
+        if (c.children.length === 0) {
+            return
+        }
+        const origin = c.getWorldPosition(this.rayOrigin)
+        const dest = c.children[0].getWorldPosition(this.rayDest)
+        this.raycaster.set(origin, this.rayDirection.subVectors(dest, origin).normalize())
+        const i = this.raycaster.intersectObject(this.objects.floor)
+        if (i.length > 0) {
+            const p = i[0].point
+            this.rayIntersectMesh.position.copy(p)
+        }
+    }
+
     update(inputs) {
         this.handleInputs(inputs)
+        this.updateRaycaster()
         this.physics.update(this.players, this.leftHand.con, this.rightHand.con)
         this.updateMeshes()
         // this.cannonDebugger.update()

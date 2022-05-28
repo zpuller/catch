@@ -36,7 +36,14 @@ export default class Objects {
         scene.background = environmentMap
         scene.environment = environmentMap
 
-        this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1653634116/zachGame/room_avs9ju.glb', (gltf) => { scene.add(gltf.scene) })
+        this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1653634116/zachGame/room_avs9ju.glb', (gltf) => {
+            scene.add(gltf.scene)
+            gltf.scene.traverse(o => {
+                if (o.name === "Plane") {
+                    this.floor = o
+                }
+            })
+        })
         this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1653634116/zachGame/picture_byydt0.glb', (gltf) => { scene.add(gltf.scene) })
         this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1653634116/zachGame/screen_khzwhi.glb', (gltf) => {
             gltf.scene.children[0].material = m

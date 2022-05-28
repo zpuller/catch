@@ -30,7 +30,9 @@ const init = (xr, handlers, player, objects) => {
     const rightCon = xr.getController(1)
 
     rightCon.addEventListener('connected', function (event) {
-        this.add(buildController(event.data))
+        const c = buildController(event.data)
+        c.position.set(0, 0, -.1)
+        this.add(c)
     })
 
     const cons = [leftCon, rightCon]
