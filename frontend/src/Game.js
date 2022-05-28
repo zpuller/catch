@@ -43,9 +43,12 @@ const handlers = (game) => {
         },
 
         onSelectEnd: function () {
-            game.player.position.copy(game.rayIntersectMesh.position)
-            game.pointingTeleport = false
-            game.scene.remove(game.rayIntersectMesh)
+            const left = this === game.leftHand.con
+            if (!left) {
+                game.player.position.copy(game.rayIntersectMesh.position)
+                game.pointingTeleport = false
+                game.scene.remove(game.rayIntersectMesh)
+            }
         },
 
         onSqueezeStart: function () {
