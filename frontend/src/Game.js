@@ -31,10 +31,15 @@ const handlers = (game) => {
     const data = new THREE.Vector3()
     return {
         onSelectStart: function () {
-            const p = this.getWorldPosition(data)
-            // game.resetBall(p.x, p.y + 0.5, p.z)
-            game.pointingTeleport = true
-            game.scene.add(game.rayIntersectMesh)
+            const left = this === game.leftHand.con
+            if (left) {
+                const p = this.getWorldPosition(data)
+                game.resetBall(p.x, p.y + 0.5, p.z)
+            }
+            else {
+                game.pointingTeleport = true
+                game.scene.add(game.rayIntersectMesh)
+            }
         },
 
         onSelectEnd: function () {
