@@ -36,7 +36,7 @@ const init = (xr, handlers, player, objects) => {
     const cons = [leftCon, rightCon]
     cons.forEach(con => {
         player.add(con)
-        con.userData.prevPositions = Array(5).fill(Array(3).fill(0))
+        con.userData.prevPositions = Array(10).fill(Array(3).fill(0))
 
         con.addEventListener('selectstart', handlers.onSelectStart)
         con.addEventListener('selectend', handlers.onSelectEnd)

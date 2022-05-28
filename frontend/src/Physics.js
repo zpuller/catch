@@ -7,7 +7,7 @@ export default class Physics {
         this.controllerWorldPosition = new THREE.Vector3()
         this.clock = new THREE.Clock()
         this.elapsedTime = this.clock.getElapsedTime()
-        this.timeframes = Array(5).fill(1)
+        this.timeframes = Array(10).fill(1)
         this.ball = pBall
         this.wall = pWall
         this.leftHand = pLeftHand
@@ -46,7 +46,7 @@ export default class Physics {
     }
 
     linearRegressionQuadratic(positions, frametimes) {
-        const X = frametimes.map((t) => [1, t, t * t]);
+        const X = frametimes.map((t) => [1, t]);
         const Xt = math.transpose(X);
         const theta = math.multiply(math.multiply(math.inv(math.multiply(Xt, X)), Xt), positions);
         return theta;
@@ -55,7 +55,7 @@ export default class Physics {
     doThrow(controller) {
         this.ball.body.wakeUp()
 
-        const frametimes = Array(5).fill(0)
+        const frametimes = Array(10).fill(0)
         frametimes[0] = this.timeframes[0]
         let ks = [...frametimes.keys()]
         ks.slice(1).forEach((i) => {
@@ -63,7 +63,7 @@ export default class Physics {
         })
         const theta = this.linearRegressionQuadratic(controller.userData.prevPositions, frametimes)
         const v = theta[1]
-        const scalar = 1.5
+        const scalar = 2
         this.ball.body.velocity.set(scalar * v[0], scalar * v[1], scalar * v[2])
 
         return this.ball.body.velocity
