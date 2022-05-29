@@ -1,20 +1,22 @@
 import * as THREE from 'three'
 
-const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
+const clamp = (num, min, max) => Math.min(Math.max(num, min), max)
+
+const round2 = (num) => String(Math.round(num * 100) / 100)
 
 export default class Gui extends THREE.Group {
     constructor() {
         super()
 
         const c = document.getElementById('gui')
-        let ctx = c.getContext("2d")
         c.width = 512
         c.height = 512
-        ctx.font = "30px Arial"
-        ctx.fillStyle = 'white'
-        ctx.strokeStyle = 'white'
-        ctx.fillText("Hello World", 10, 50)
-        ctx.strokeRect(1, 1, 510, 510)
+
+        this.ctx = c.getContext("2d")
+        this.ctx.strokeStyle = 'white'
+        this.ctx.fillStyle = 'white'
+        this.ctx.strokeRect(1, 1, c.width - 2, c.height - 2)
+        this.ctx.font = "30px Arial"
 
         this.baseMaterial = new THREE.MeshStandardMaterial({
             color: 0x1fa3ef,
@@ -35,19 +37,15 @@ export default class Gui extends THREE.Group {
         this.rayDirection = new THREE.Vector3()
     }
 
+    drawText(s) {
+        this.ctx.fillStyle = 'black'
+        this.ctx.fillRect(10, 56, 492, -40)
+        this.ctx.fillStyle = 'white'
+        this.ctx.fillText(s, 10, 50)
+        this.baseMaterial.emissiveMap.needsUpdate = true
+    }
+
     update(c) {
-        const cv = document.getElementById('gui')
-        let ctx = cv.getContext("2d")
-        ctx.moveTo(0, 512)
-        ctx.lineTo(512, 0)
-        ctx.stroke()
-
-        const mt = ctx.measureText('Hello World')
-        ctx.fillStyle = 'black'
-        ctx.fillRect(10, 51, mt.width, -40)
-        ctx.fillStyle = 'white'
-        ctx.fillText("new text", 10, 50)
-
         if (c.children.length === 0) {
             return
         }
@@ -56,7 +54,8 @@ export default class Gui extends THREE.Group {
         this.raycaster.set(origin, this.rayDirection.subVectors(dest, origin).normalize())
         const i = this.raycaster.intersectObject(this.mesh)
         if (i.length > 0) {
-            // console.log(i[0].uv)
+            const uv = i[0].uv
+            this.drawText(`${round2(uv.x)}, ${round2(uv.y)}`)
         }
     }
 }
