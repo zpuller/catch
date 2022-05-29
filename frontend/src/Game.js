@@ -138,6 +138,9 @@ export default class Game {
         this.rayDest = new THREE.Vector3()
         this.rayDirection = new THREE.Vector3()
         this.rayIntersectMesh = new THREE.Mesh(new THREE.SphereGeometry(0.1), new THREE.MeshBasicMaterial({ wireframe: true }))
+        this.rayCurve = new THREE.Mesh()
+        this.rayCurveMat = new THREE.LineBasicMaterial({ color: '#ffffff' })
+        this.rayCurveGeo = new THREE.BufferGeometry()
     }
 
     addEntity(e) {
@@ -293,11 +296,12 @@ export default class Game {
     }
 
     updateRaycaster() {
+        const c = this.rightHand.con
+        c.remove(this.rayCurve)
         if (!this.pointingTeleport) {
             return
         }
 
-        const c = this.rightHand.con
         if (c.children.length === 0) {
             return
         }
@@ -308,6 +312,15 @@ export default class Game {
         if (i.length > 0) {
             const p = i[0].point
             this.rayIntersectMesh.position.copy(p)
+
+            const distance = origin.distanceTo(p)
+            const path = new THREE.Path()
+            path.quadraticCurveTo(distance / 2, 1, distance, 0)
+            const points = path.getPoints()
+            this.rayCurveGeo.setFromPoints(points.map(p => new THREE.Vector3(0, p.y, -p.x)))
+
+            this.rayCurve = new THREE.Line(this.rayCurveGeo, this.rayCurveMat)
+            c.add(this.rayCurve)
         }
     }
 
