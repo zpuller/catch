@@ -10,6 +10,8 @@ import CannonDebugger from 'cannon-es-debugger'
 import GarbageBin from './Assets/Entities/GarbageBin'
 import StaticEntities from './Assets/Entities/StaticEntities'
 
+import Gui from './Gui'
+
 const stats = Stats()
 document.body.appendChild(stats.dom)
 
@@ -152,6 +154,9 @@ export default class Game {
         this.rayCurve = new THREE.Line(this.rayCurveGeo, this.rayCurveMat)
         this.rayCurve.visible = false
         this.rayTarget = rightCon.children[0]
+
+        this.gui = new Gui()
+        this.scene.add(this.gui)
     }
 
     addEntity(e) {
@@ -342,6 +347,7 @@ export default class Game {
 
     update(inputs) {
         this.handleInputs(inputs)
+        this.gui.update(this.rightHand.con)
         this.updateRaycaster()
         this.physics.update(this.players, this.leftHand.con, this.rightHand.con)
         this.updateMeshes()
