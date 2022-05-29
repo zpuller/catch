@@ -40,8 +40,8 @@ if (mode === 'prod') {
 const wss = new Server({ server })
 let id = 0
 
-const state = { players: [] }
-const playersPriv = []
+const state = { players: {} }
+const playersPriv = {}
 
 const defaultPlayer = () => {
     return {
@@ -60,18 +60,18 @@ const defaultPlayer = () => {
 }
 
 const broadcastState = () => {
-    playersPriv.forEach(p => p.conn.send(JSON.stringify({ op: 'update_state', state })))
+    Object.values(playersPriv).forEach(p => p.conn.send(JSON.stringify({ op: 'update_state', state })))
 }
 
 const broadcastBallState = (state) => {
-    playersPriv.forEach(p => p.conn.send(JSON.stringify({ op: 'update_ball_state', state })))
+    Object.values(playersPriv).forEach(p => p.conn.send(JSON.stringify({ op: 'update_ball_state', state })))
 }
 
 const registerNewPlayer = (ws) => {
     ws.send(JSON.stringify({ 'op': 'set_id', 'id': ws.id }))
-    playersPriv.filter(p => p).forEach(p => p.conn.send(JSON.stringify({ op: 'player_joined', id: ws.id })))
-    state.players.push(defaultPlayer())
-    playersPriv.push({ 'conn': ws })
+    Object.values(playersPriv).forEach(p => p.conn.send(JSON.stringify({ op: 'player_joined', id: ws.id })))
+    state.players[ws.id] = defaultPlayer()
+    playersPriv[ws.id] = { 'conn': ws }
     broadcastState()
 }
 
@@ -87,7 +87,7 @@ const disconnectPlayer = (id) => {
     delete state.players[id]
     delete playersPriv[id]
 
-    playersPriv.filter(p => p).forEach(p => p.conn.send(JSON.stringify({ op: 'player_disconnected', id })))
+    Object.values(playersPriv).forEach(p => p.conn.send(JSON.stringify({ op: 'player_disconnected', id })))
 }
 
 wss.on('connection', (ws) => {

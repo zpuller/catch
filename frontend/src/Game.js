@@ -27,6 +27,7 @@ const defaultPlayer = () => {
     }
 }
 
+// TODO lefty support
 const handlers = (game) => {
     const data = new THREE.Vector3()
     return {
@@ -151,7 +152,7 @@ export default class Game {
     }
 
     forEachPlayerExceptSelf(f) {
-        Object.keys(this.players).filter(id => id != this.client.id && this.players[id]).forEach(f)
+        Object.keys(this.players).filter(id => id != this.client.id).forEach(f)
     }
 
     handlePlayerJoined(id) {
@@ -164,14 +165,16 @@ export default class Game {
 
     handlePlayerDisconnected(id) {
         this.scene.remove(this.playerGroups[id])
+        delete this.players[id]
+        delete this.playerGroups[id]
     }
 
     handleUpdateState(state) {
-        state.players.forEach((p, id) => {
+        for (const [id, p] of Object.entries(state.players)) {
             if (id !== this.client.id) {
                 this.players[id] = p
             }
-        })
+        }
 
         if (!this.handledInitialState) {
             this.handledInitialState = true
