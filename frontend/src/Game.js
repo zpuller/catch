@@ -10,7 +10,7 @@ import CannonDebugger from 'cannon-es-debugger'
 import GarbageBin from './Assets/Entities/GarbageBin'
 import StaticEntities from './Assets/Entities/StaticEntities'
 
-import Gui from './Gui'
+// import Gui from './Gui'
 import Teleport from './Teleport'
 
 const stats = Stats()
@@ -130,10 +130,10 @@ export default class Game {
 
         this.teleport = new Teleport(scene, this.rightHand.con, this.objects, this.player)
 
-        this.gui = new Gui()
-        this.gui.addSlider(this.teleport.controlPoint, 'x', 0, 2)
-        this.gui.addSlider(this.teleport.controlPoint, 'y', 0, 2)
-        this.leftHand.con.add(this.gui)
+        // this.gui = new Gui()
+        // this.gui.addSlider(this.teleport.controlPoint, 'x', 0, 2)
+        // this.gui.addSlider(this.teleport.controlPoint, 'y', 0, 2)
+        // this.leftHand.con.add(this.gui)
     }
 
     addEntity(e) {
@@ -296,7 +296,7 @@ export default class Game {
 
     update(inputs) {
         this.handleInputs(inputs)
-        this.gui.update(this.rightHand.con)
+        // this.gui.update(this.rightHand.con)
         this.teleport.update(this.rightHand.con)
         this.physics.update(this.players, this.leftHand.con, this.rightHand.con)
         this.updateMeshes()
