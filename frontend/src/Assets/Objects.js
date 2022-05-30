@@ -4,10 +4,16 @@ const cubeTextureLoader = new THREE.CubeTextureLoader()
 
 const video = document.getElementById("vid")
 video.play()
-const texture = new THREE.VideoTexture(video)
-const m = new THREE.MeshBasicMaterial({ map: texture })
+const videoTexture = new THREE.VideoTexture(video)
+const videoMesh = new THREE.MeshBasicMaterial({ map: videoTexture })
 
-const envNum = '1'
+const gripGeometry = new THREE.SphereGeometry(0.025, 16, 16)
+const gripMaterial = new THREE.MeshBasicMaterial({ color: '#ffffff' })
+
+const ballGeometry = new THREE.SphereGeometry(0.04, 16, 16)
+const ballMaterial = new THREE.MeshBasicMaterial({ wireframe: true })
+
+// const envNum = '1'
 const environmentMap = cubeTextureLoader.load([
     'https://res.cloudinary.com/hack-reactor888/image/upload/v1653629023/zachGame/envMaps/px_vgn0hu.jpg',
     'https://res.cloudinary.com/hack-reactor888/image/upload/v1653629023/zachGame/envMaps/nx_domm6q.jpg',
@@ -51,7 +57,7 @@ export default class Objects {
         })
         this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1653634116/zachGame/screen_khzwhi.glb', (gltf) => {
             gltf.scene.matrixAutoUpdate = false
-            gltf.scene.children[0].material = m
+            gltf.scene.children[0].material = videoMesh
             scene.add(gltf.scene)
         })
         this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1653634116/zachGame/furniture_y26s1v.glb', (gltf) => {
@@ -61,10 +67,7 @@ export default class Objects {
     }
 
     buildBall(ball, scene) {
-        const geometry = new THREE.SphereGeometry(0.04, 16, 16)
-        // TODO consolidate materials
-        const material = new THREE.MeshBasicMaterial({ wireframe: true })
-        ball.mesh = new THREE.Mesh(geometry, material)
+        ball.mesh = new THREE.Mesh(ballGeometry, ballMaterial)
         scene.add(ball.mesh)
 
         this.gltfLoader.load(
@@ -94,13 +97,9 @@ export default class Objects {
     buildNewPlayer() {
         const group = new THREE.Group()
 
-        const geometry = new THREE.SphereGeometry(0.025, 16, 16)
-        const material = new THREE.MeshBasicMaterial({ color: '#ffffff' })
-
-        const leftGrip = new THREE.Mesh(geometry, material)
+        const leftGrip = new THREE.Mesh(gripGeometry, gripMaterial)
+        const rightGrip = new THREE.Mesh(gripGeometry, gripMaterial)
         group.add(leftGrip)
-
-        const rightGrip = new THREE.Mesh(geometry, material)
         group.add(rightGrip)
 
         return group

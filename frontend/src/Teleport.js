@@ -48,6 +48,7 @@ export default class Teleport {
         if (c.children.length === 0) {
             return
         }
+        // TODO maybe combine some logic here with Gui
         const origin = c.getWorldPosition(this.origin)
         const dest = c.children[0].getWorldPosition(this.dest)
         this.raycaster.set(origin, this.direction.subVectors(dest, origin).normalize())
