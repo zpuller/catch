@@ -1,54 +1,74 @@
 import * as THREE from 'three'
+import ControllerRaycaster from './ControllerRaycaster'
 
 const clamp = (num, min, max) => Math.min(Math.max(num, min), max)
 
 const round = (num, places = 2) => String(Math.round(num * Math.pow(10, places)) / Math.pow(10, places))
+
+const canvasMaterial = canvas => new THREE.MeshStandardMaterial({
+    color: 0x1fa3ef,
+    transparent: true,
+    opacity: 0.5,
+    emissive: 0xffffff,
+    emissiveMap: new THREE.CanvasTexture(canvas),
+})
+
+const initCanvas = conf => {
+    const { id, w, h } = conf
+    const canvas = document.getElementById(id)
+    canvas.width = w
+    canvas.height = h
+
+    return canvas
+}
+
+const initCtx = canvas => {
+    const ctx = canvas.getContext('2d')
+    ctx.strokeStyle = 'white'
+    ctx.fillStyle = 'white'
+    ctx.strokeRect(1, 1, canvas.width - 2, canvas.height - 2)
+
+    return ctx
+}
 
 export default class Gui extends THREE.Group {
     constructor() {
         super()
 
         this.numPages = 2
+        this.borderWidth = 20
+        this.rowHeight = 128
 
-        this.mainScreenCanvas = document.getElementById('gui')
-        this.mainScreenCanvas.width = 512
-        this.mainScreenCanvas.height = this.mainScreenCanvas.width * this.numPages
+        const cdim = 512
+        {
+            const w = cdim
+            const h = w * this.numPages
 
-        this.ctx = this.mainScreenCanvas.getContext('2d')
-        this.ctx.strokeStyle = 'white'
-        this.ctx.fillStyle = 'white'
-        this.ctx.strokeRect(1, 1, this.mainScreenCanvas.width - 2, this.mainScreenCanvas.height - 2)
-        this.ctx.font = '30px Arial'
+            this.mainScreenCanvas = initCanvas({ id: 'gui', w, h })
+            this.ctx = initCtx(this.mainScreenCanvas)
+            this.ctx.font = '30px Arial'
+        }
+
+        {
+
+        }
 
         const scrollWidthFraction = .12
+        {
+            const w = cdim * scrollWidthFraction
+            const h = cdim
 
-        // TODO DRY
-        this.scrollCanvas = document.getElementById('scroll')
-        this.scrollCanvas.width = this.mainScreenCanvas.width * scrollWidthFraction
-        this.scrollCanvas.height = this.mainScreenCanvas.width
-        this.scrollCtx = this.scrollCanvas.getContext('2d')
-        this.scrollCtx.strokeStyle = 'white'
-        this.scrollCtx.fillStyle = 'white'
-        this.scrollCtx.strokeRect(1, 1, this.scrollCanvas.width - 2, this.scrollCanvas.height - 2)
-        this.scrollCtx.fillRect(0, 0, this.scrollCanvas.width, this.scrollCanvas.width)
+            this.scrollCanvas = initCanvas({ id: 'scroll', w, h })
+            this.scrollCtx = initCtx(this.scrollCanvas)
+            this.scrollCtx.fillRect(0, 0, this.scrollCanvas.width, this.scrollCanvas.width)
+        }
 
-        this.baseMaterial = new THREE.MeshStandardMaterial({
-            color: 0x1fa3ef,
-            transparent: true,
-            opacity: 0.5,
-            emissive: 0xffffff,
-            emissiveMap: new THREE.CanvasTexture(this.mainScreenCanvas),
-        })
-        this.scrollMaterial = new THREE.MeshStandardMaterial({
-            color: 0x1fa3ef,
-            transparent: true,
-            opacity: 0.5,
-            emissive: 0xffffff,
-            emissiveMap: new THREE.CanvasTexture(this.scrollCanvas),
-        })
-        const dim = 0.25
-        this.mainScreen = new THREE.Mesh(new THREE.PlaneGeometry(dim, dim), this.baseMaterial)
-        this.scrollBar = new THREE.Mesh(new THREE.PlaneGeometry(dim * scrollWidthFraction, dim), this.scrollMaterial)
+        this.baseMaterial = canvasMaterial(this.mainScreenCanvas)
+        this.scrollMaterial = canvasMaterial(this.scrollCanvas)
+
+        const gdim = 0.25
+        this.mainScreen = new THREE.Mesh(new THREE.PlaneGeometry(gdim, gdim), this.baseMaterial)
+        this.scrollBar = new THREE.Mesh(new THREE.PlaneGeometry(gdim * scrollWidthFraction, gdim), this.scrollMaterial)
         this.scrollBar.position.x = 0.15
 
         this.add(this.mainScreen)
@@ -58,17 +78,9 @@ export default class Gui extends THREE.Group {
         this.rotateY(Math.PI * .25)
         this.rotateZ(Math.PI * -.25)
 
-        this.raycaster = new THREE.Raycaster()
-        this.raycaster.near = 0.1
-        this.raycaster.far = 0.5
-        this.rayOrigin = new THREE.Vector3()
-        this.rayDest = new THREE.Vector3()
-        this.rayDirection = new THREE.Vector3()
+        this.raycaster = new ControllerRaycaster(0.1, 0.5)
 
         this.scroll(0)
-
-        this.borderWidth = 20
-        this.rowHeight = 128
 
         this.sliders = []
     }
@@ -130,13 +142,10 @@ export default class Gui extends THREE.Group {
         this.ctx.fillText(s, 10, (rowNum * this.rowHeight) + 50)
     }
 
-    updateMenu(c) {
-        const origin = c.getWorldPosition(this.rayOrigin)
-        const dest = c.children[0].getWorldPosition(this.rayDest)
-        this.raycaster.set(origin, this.rayDirection.subVectors(dest, origin).normalize())
-        const i = this.raycaster.intersectObject(this.mainScreen)
-        if (i.length > 0) {
-            const uv = i[0].uv
+    updateMenu(con) {
+        const i = this.raycaster.intersects(con, this.mainScreen)
+        if (i) {
+            const uv = i.uv
             const y = (1 - uv.y) * this.mainScreenCanvas.height
             const rowNum = Math.trunc(y / this.rowHeight)
             if (rowNum < this.sliders.length && y > this.rowHeight * (rowNum + 0.5) && y < this.rowHeight * (rowNum + 1)) {
@@ -155,13 +164,10 @@ export default class Gui extends THREE.Group {
         }
     }
 
-    updateScrollbar(c) {
-        const origin = c.getWorldPosition(this.rayOrigin)
-        const dest = c.children[0].getWorldPosition(this.rayDest)
-        this.raycaster.set(origin, this.rayDirection.subVectors(dest, origin).normalize())
-        const i = this.raycaster.intersectObject(this.scrollBar)
-        if (i.length > 0) {
-            const uv = i[0].uv
+    updateScrollbar(con) {
+        const i = this.raycaster.intersects(con, this.scrollBar)
+        if (i) {
+            const uv = i.uv
             this.scroll(clamp(1.5 * (1 - uv.y) - 0.25, 0, 1))
         }
     }

@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import ControllerRaycaster from './ControllerRaycaster'
 
 export default class Teleport {
     constructor(scene, con, objects, player) {
@@ -6,10 +7,8 @@ export default class Teleport {
         this.objects = objects
         this.player = player
 
-        this.raycaster = new THREE.Raycaster()
+        this.raycaster = new ControllerRaycaster()
         this.origin = new THREE.Vector3()
-        this.dest = new THREE.Vector3()
-        this.direction = new THREE.Vector3()
         const opacity = 0.6
         this.intersectionMesh = new THREE.Mesh(new THREE.SphereGeometry(0.025), new THREE.MeshBasicMaterial({ transparent: true, opacity: opacity }))
         this.curveMat = new THREE.LineBasicMaterial({ color: '#ffffff', transparent: true, opacity: opacity })
@@ -40,23 +39,21 @@ export default class Teleport {
         this.curve.visible = false
     }
 
-    update(c) {
+    update(con) {
         if (!this.pointingTeleport) {
             return
         }
 
-        if (c.children.length === 0) {
+        if (con.children.length === 0) {
             return
         }
         // TODO maybe combine some logic here with Gui
-        const origin = c.getWorldPosition(this.origin)
-        const dest = c.children[0].getWorldPosition(this.dest)
-        this.raycaster.set(origin, this.direction.subVectors(dest, origin).normalize())
-        const i = this.raycaster.intersectObject(this.objects.floor)
-        if (i.length > 0) {
-            const p = i[0].point
+        const i = this.raycaster.intersects(con, this.objects.floor)
+        if (i) {
+            const p = i.point
             this.intersectionMesh.position.copy(p)
 
+            const origin = con.getWorldPosition(this.origin)
             const distance = origin.distanceTo(p)
             const path = new THREE.Path()
             path.quadraticCurveTo(this.controlPoint.x * distance, this.controlPoint.y * distance, distance, 0)
