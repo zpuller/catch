@@ -27,14 +27,22 @@ export default class Gui extends THREE.Group {
             emissive: 0xffffff,
             emissiveMap: new THREE.CanvasTexture(this.c),
         })
+        this.scrollMaterial = new THREE.MeshStandardMaterial({
+            color: 0x1fa3ef,
+            transparent: true,
+            opacity: 0.5,
+        })
         this.mesh = new THREE.Mesh(new THREE.PlaneGeometry(.25, .25), this.baseMaterial)
-        console.log(this.mesh.geometry.attributes)
-        this.position.set(0, 1.6, -0.5)
-        // this.position.set(.1, .1, .1)
-        // this.rotateY(Math.PI * .25)
-        // this.rotateZ(Math.PI * .25)
-        this.add(this.mesh)
+        this.scrollBar = new THREE.Mesh(new THREE.PlaneGeometry(.03, .25), this.scrollMaterial)
+        this.scrollBar.position.x = 0.15
 
+        this.add(this.mesh)
+        this.add(this.scrollBar)
+
+        this.position.set(0, 1.6, -0.5)
+        this.position.set(.1, .1, .1)
+        this.rotateY(Math.PI * .25)
+        this.rotateZ(Math.PI * -.25)
 
         this.raycaster = new THREE.Raycaster()
         this.raycaster.near = 0.1
@@ -71,10 +79,7 @@ export default class Gui extends THREE.Group {
         this.baseMaterial.emissiveMap.needsUpdate = true
     }
 
-    update(c) {
-        if (c.children.length === 0) {
-            return
-        }
+    updateMenu(c) {
         const origin = c.getWorldPosition(this.rayOrigin)
         const dest = c.children[0].getWorldPosition(this.rayDest)
         this.raycaster.set(origin, this.rayDirection.subVectors(dest, origin).normalize())
@@ -82,7 +87,25 @@ export default class Gui extends THREE.Group {
         if (i.length > 0) {
             const uv = i[0].uv
             this.drawText(`${round2(uv.x)}, ${round2(uv.y)}`)
-            this.scroll(clamp(1.5 * uv.x - 0.25, 0, 1))
         }
+    }
+
+    updateScrollbar(c) {
+        const origin = c.getWorldPosition(this.rayOrigin)
+        const dest = c.children[0].getWorldPosition(this.rayDest)
+        this.raycaster.set(origin, this.rayDirection.subVectors(dest, origin).normalize())
+        const i = this.raycaster.intersectObject(this.scrollBar)
+        if (i.length > 0) {
+            const uv = i[0].uv
+            this.scroll(clamp(1.5 * (1 - uv.y) - 0.25, 0, 1))
+        }
+    }
+
+    update(c) {
+        if (c.children.length === 0) {
+            return
+        }
+        this.updateMenu(c)
+        this.updateScrollbar(c)
     }
 }

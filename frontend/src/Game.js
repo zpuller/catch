@@ -156,7 +156,7 @@ export default class Game {
         this.rayTarget = rightCon.children[0]
 
         this.gui = new Gui()
-        this.scene.add(this.gui)
+        this.leftHand.con.add(this.gui)
     }
 
     addEntity(e) {
