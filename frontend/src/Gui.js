@@ -8,34 +8,50 @@ export default class Gui extends THREE.Group {
     constructor() {
         super()
 
-        this.c = document.getElementById('gui')
-        this.numPages = 1
-        this.c.width = 512
-        this.c.height = this.c.width * this.numPages
+        this.numPages = 2
 
-        this.ctx = this.c.getContext("2d")
+        this.mainScreenCanvas = document.getElementById('gui')
+        this.mainScreenCanvas.width = 512
+        this.mainScreenCanvas.height = this.mainScreenCanvas.width * this.numPages
+
+        this.ctx = this.mainScreenCanvas.getContext('2d')
         this.ctx.strokeStyle = 'white'
         this.ctx.fillStyle = 'white'
-        this.ctx.strokeRect(1, 1, this.c.width - 2, this.c.height - 2)
-        this.ctx.font = "30px Arial"
+        this.ctx.strokeRect(1, 1, this.mainScreenCanvas.width - 2, this.mainScreenCanvas.height - 2)
+        this.ctx.font = '30px Arial'
+
+        const scrollWidthFraction = .12
+
+        // TODO DRY
+        this.scrollCanvas = document.getElementById('scroll')
+        this.scrollCanvas.width = this.mainScreenCanvas.width * scrollWidthFraction
+        this.scrollCanvas.height = this.mainScreenCanvas.width
+        this.scrollCtx = this.scrollCanvas.getContext('2d')
+        this.scrollCtx.strokeStyle = 'white'
+        this.scrollCtx.fillStyle = 'white'
+        this.scrollCtx.strokeRect(1, 1, this.scrollCanvas.width - 2, this.scrollCanvas.height - 2)
+        this.scrollCtx.fillRect(0, 0, this.scrollCanvas.width, this.scrollCanvas.width)
 
         this.baseMaterial = new THREE.MeshStandardMaterial({
             color: 0x1fa3ef,
             transparent: true,
             opacity: 0.5,
             emissive: 0xffffff,
-            emissiveMap: new THREE.CanvasTexture(this.c),
+            emissiveMap: new THREE.CanvasTexture(this.mainScreenCanvas),
         })
         this.scrollMaterial = new THREE.MeshStandardMaterial({
             color: 0x1fa3ef,
             transparent: true,
             opacity: 0.5,
+            emissive: 0xffffff,
+            emissiveMap: new THREE.CanvasTexture(this.scrollCanvas),
         })
-        this.mesh = new THREE.Mesh(new THREE.PlaneGeometry(.25, .25), this.baseMaterial)
-        this.scrollBar = new THREE.Mesh(new THREE.PlaneGeometry(.03, .25), this.scrollMaterial)
+        const dim = 0.25
+        this.mainScreen = new THREE.Mesh(new THREE.PlaneGeometry(dim, dim), this.baseMaterial)
+        this.scrollBar = new THREE.Mesh(new THREE.PlaneGeometry(dim * scrollWidthFraction, dim), this.scrollMaterial)
         this.scrollBar.position.x = 0.15
 
-        this.add(this.mesh)
+        this.add(this.mainScreen)
         this.add(this.scrollBar)
 
         this.position.set(.1, .1, .1)
@@ -65,9 +81,8 @@ export default class Gui extends THREE.Group {
         })
     }
 
-    // TODO add some visual to scroll bar
     scroll(x) {
-        const uv = this.mesh.geometry.attributes.uv
+        const uv = this.mainScreen.geometry.attributes.uv
         const invPage = 1 - (1 / this.numPages)
         // this is top half
         uv.array[5] = invPage * (1 - x)
@@ -77,11 +92,22 @@ export default class Gui extends THREE.Group {
         uv.array[1] = 1 - (invPage * x)
         uv.array[3] = 1 - (invPage * x)
         uv.needsUpdate = true
+
+        this.drawScroll(x)
+    }
+
+    drawScroll(x) {
+        this.scrollCtx.fillStyle = 'black'
+        this.scrollCtx.fillRect(0, 0, this.scrollCanvas.width, this.scrollCanvas.height)
+        this.scrollCtx.fillStyle = 'white'
+        this.scrollCtx.strokeRect(1, 1, this.scrollCanvas.width - 2, this.scrollCanvas.height - 2)
+
+        this.scrollCtx.fillRect(0, (this.scrollCanvas.height - this.scrollCanvas.width) * x, this.scrollCanvas.width, this.scrollCanvas.width)
     }
 
     clearRect(rowNum) {
         this.ctx.fillStyle = 'black'
-        this.ctx.fillRect(10, this.rowHeight * (rowNum + 0.5), this.c.width - this.borderWidth, this.rowHeight * 0.5)
+        this.ctx.fillRect(10, this.rowHeight * (rowNum + 0.5), this.mainScreenCanvas.width - this.borderWidth, this.rowHeight * 0.5)
         this.ctx.fillStyle = 'white'
     }
 
@@ -92,27 +118,26 @@ export default class Gui extends THREE.Group {
 
     drawSlider(rowNum, x) {
         this.clearRect(rowNum)
-        this.ctx.fillRect(this.borderWidth, this.rowHeight * (rowNum + 0.5 + 0.25) - 1, this.c.width - 2 * this.borderWidth, 2)
+        this.ctx.fillRect(this.borderWidth, this.rowHeight * (rowNum + 0.5 + 0.25) - 1, this.mainScreenCanvas.width - 2 * this.borderWidth, 2)
         this.ctx.beginPath()
-        this.drawCircle(this.borderWidth + x * (this.c.width - 2 * this.borderWidth), (rowNum + 0.5 + 0.25) * this.rowHeight - 1, 10)
+        this.drawCircle(this.borderWidth + x * (this.mainScreenCanvas.width - 2 * this.borderWidth), (rowNum + 0.5 + 0.25) * this.rowHeight - 1, 10)
     }
 
     drawText(rowNum, s) {
         this.ctx.fillStyle = 'black'
-        this.ctx.fillRect(10, rowNum * this.rowHeight + 10, this.c.width - this.borderWidth, this.rowHeight * 0.5 - 10)
+        this.ctx.fillRect(10, rowNum * this.rowHeight + 10, this.mainScreenCanvas.width - this.borderWidth, this.rowHeight * 0.5 - 10)
         this.ctx.fillStyle = 'white'
         this.ctx.fillText(s, 10, (rowNum * this.rowHeight) + 50)
-        this.baseMaterial.emissiveMap.needsUpdate = true
     }
 
     updateMenu(c) {
         const origin = c.getWorldPosition(this.rayOrigin)
         const dest = c.children[0].getWorldPosition(this.rayDest)
         this.raycaster.set(origin, this.rayDirection.subVectors(dest, origin).normalize())
-        const i = this.raycaster.intersectObject(this.mesh)
+        const i = this.raycaster.intersectObject(this.mainScreen)
         if (i.length > 0) {
             const uv = i[0].uv
-            const y = (1 - uv.y) * this.c.height
+            const y = (1 - uv.y) * this.mainScreenCanvas.height
             const rowNum = Math.trunc(y / this.rowHeight)
             if (rowNum < this.sliders.length && y > this.rowHeight * (rowNum + 0.5) && y < this.rowHeight * (rowNum + 1)) {
                 const s = this.sliders[rowNum]
@@ -147,5 +172,7 @@ export default class Gui extends THREE.Group {
         }
         this.updateMenu(c)
         this.updateScrollbar(c)
+        this.baseMaterial.emissiveMap.needsUpdate = true
+        this.scrollMaterial.emissiveMap.needsUpdate = true
     }
 }
