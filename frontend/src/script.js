@@ -52,7 +52,7 @@ const init = () => {
     cameraGroup.add(camera)
 
     controls = new OrbitControls(camera, canvas)
-    controls.target.set(0, 1, -2)
+    controls.target.set(0, 1.6, -1)
     controls.enableDamping = true
 
     scene = new THREE.Scene()

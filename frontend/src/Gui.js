@@ -8,26 +8,33 @@ export default class Gui extends THREE.Group {
     constructor() {
         super()
 
-        const c = document.getElementById('gui')
-        c.width = 512
-        c.height = 512
+        this.c = document.getElementById('gui')
+        this.c.width = 512
+        this.c.height = 1024
 
-        this.ctx = c.getContext("2d")
+        this.ctx = this.c.getContext("2d")
         this.ctx.strokeStyle = 'white'
         this.ctx.fillStyle = 'white'
-        this.ctx.strokeRect(1, 1, c.width - 2, c.height - 2)
+        this.ctx.strokeRect(1, 1, this.c.width - 2, this.c.height - 2)
         this.ctx.font = "30px Arial"
+
+        this.drawRect()
 
         this.baseMaterial = new THREE.MeshStandardMaterial({
             color: 0x1fa3ef,
             transparent: true,
             opacity: 0.5,
             emissive: 0xffffff,
-            emissiveMap: new THREE.CanvasTexture(c),
+            emissiveMap: new THREE.CanvasTexture(this.c),
         })
-        this.mesh = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), this.baseMaterial)
-        this.position.set(0, 1, -2)
+        this.mesh = new THREE.Mesh(new THREE.PlaneGeometry(.25, .25), this.baseMaterial)
+        console.log(this.mesh.geometry.attributes)
+        this.position.set(0, 1.6, -0.5)
+        // this.position.set(.1, .1, .1)
+        // this.rotateY(Math.PI * .25)
+        // this.rotateZ(Math.PI * .25)
         this.add(this.mesh)
+
 
         this.raycaster = new THREE.Raycaster()
         this.raycaster.near = 0.1
@@ -35,6 +42,25 @@ export default class Gui extends THREE.Group {
         this.rayOrigin = new THREE.Vector3()
         this.rayDest = new THREE.Vector3()
         this.rayDirection = new THREE.Vector3()
+
+        this.scroll(0)
+    }
+
+    scroll(x) {
+        const uv = this.mesh.geometry.attributes.uv
+        // this is top half
+        uv.array[5] = 0.5 * (1 - x)
+        uv.array[7] = 0.5 * (1 - x)
+
+        // this is bottom half
+        uv.array[1] = 1 - (0.5 * x)
+        uv.array[3] = 1 - (0.5 * x)
+        uv.needsUpdate = true
+    }
+
+    drawRect() {
+        this.ctx.fillStyle = 'white'
+        this.ctx.fillRect(10, 64 + 10, this.c.width - 20, 64 - 20)
     }
 
     drawText(s) {
@@ -56,6 +82,7 @@ export default class Gui extends THREE.Group {
         if (i.length > 0) {
             const uv = i[0].uv
             this.drawText(`${round2(uv.x)}, ${round2(uv.y)}`)
+            this.scroll(clamp(1.5 * uv.x - 0.25, 0, 1))
         }
     }
 }
