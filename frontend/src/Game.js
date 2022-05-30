@@ -299,7 +299,7 @@ export default class Game {
         this.teleport.update(this.rightHand.con)
         this.physics.update(this.players, this.leftHand.con, this.rightHand.con)
         this.updateMeshes()
-        // this.cannonDebugger.update()
+        this.cannonDebugger.update()
         this.emitPlayerState()
         this.updateOtherPlayerState()
         stats.update()
