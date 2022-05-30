@@ -11,6 +11,7 @@ import GarbageBin from './Assets/Entities/GarbageBin'
 import StaticEntities from './Assets/Entities/StaticEntities'
 
 import Gui from './Gui'
+import Teleport from './Teleport'
 
 const stats = Stats()
 document.body.appendChild(stats.dom)
@@ -40,22 +41,14 @@ const handlers = (game) => {
                 game.resetBall(p.x, p.y + 0.5, p.z)
             }
             else {
-                game.pointingTeleport = true
-                game.scene.add(game.rayIntersectMesh)
-                this.add(game.rayCurve)
-                game.rayCurve.visible = true
-                this.children[0].visible = false
+                game.teleport.startPoint(this)
             }
         },
 
         onSelectEnd: function () {
             const left = this === game.leftHand.con
             if (!left) {
-                game.player.position.copy(game.rayIntersectMesh.position)
-                game.pointingTeleport = false
-                game.scene.remove(game.rayIntersectMesh)
-                this.children[0].visible = true
-                game.rayCurve.visible = false
+                game.teleport.go(this)
             }
         },
 
@@ -140,29 +133,11 @@ export default class Game {
 
         this.resetBall(0, 1.6, -0.5)
 
-        this.raycaster = new THREE.Raycaster()
-        this.rayOrigin = new THREE.Vector3()
-        this.rayDest = new THREE.Vector3()
-        this.rayDirection = new THREE.Vector3()
-        const opacity = 0.6
-        this.rayIntersectMesh = new THREE.Mesh(new THREE.SphereGeometry(0.025), new THREE.MeshBasicMaterial({ transparent: true, opacity: opacity }))
-        this.rayCurveMat = new THREE.LineBasicMaterial({ color: '#ffffff', transparent: true, opacity: opacity })
-        this.rayCurveVertices = 64
-        this.rayCurveGeo = new THREE.BufferGeometry()
-        this.rayCurveGeo.setAttribute('position', new THREE.Float32BufferAttribute(Array(this.rayCurveVertices * 3).fill(0), 3))
-        this.rayCurveGeo.setDrawRange(0, this.rayCurveVertices)
-        this.rayCurve = new THREE.Line(this.rayCurveGeo, this.rayCurveMat)
-        this.rayCurve.visible = false
-        this.rayTarget = rightCon.children[0]
+        this.teleport = new Teleport(scene, this.rightHand.con, this.objects, this.player)
 
-
-        this.testMesh = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.1, 0.1), new THREE.MeshBasicMaterial({ wireframe: true }))
-        this.testMesh.position.set(0, 1, -2)
-        this.scene.add(this.testMesh)
         this.gui = new Gui()
-        this.debugObj = { x: 0, f: 0 }
-        this.gui.addSlider(this.debugObj, 'x', 0, 4, .1)
-        this.gui.addSlider(this.debugObj, 'f')
+        this.gui.addSlider(this.teleport.controlPoint, 'x', 0, 2)
+        this.gui.addSlider(this.teleport.controlPoint, 'y', 0, 2)
         this.leftHand.con.add(this.gui)
     }
 
@@ -318,51 +293,15 @@ export default class Game {
         }
     }
 
-    updateRaycaster() {
-        const c = this.rightHand.con
-        if (!this.pointingTeleport) {
-            return
-        }
-
-        if (c.children.length === 0) {
-            return
-        }
-        const origin = c.getWorldPosition(this.rayOrigin)
-        const dest = c.children[0].getWorldPosition(this.rayDest)
-        this.raycaster.set(origin, this.rayDirection.subVectors(dest, origin).normalize())
-        const i = this.raycaster.intersectObject(this.objects.floor)
-        if (i.length > 0) {
-            const p = i[0].point
-            this.rayIntersectMesh.position.copy(p)
-
-            const distance = origin.distanceTo(p)
-            const path = new THREE.Path()
-            path.quadraticCurveTo(distance / 2, 1, distance, 0)
-            const points = path.getPoints(this.rayCurveVertices - 1)
-            const positions = this.rayCurveGeo.attributes.position.array
-            for (let i = 0; i < this.rayCurveVertices; ++i) {
-                positions[3 * i] = 0
-                positions[3 * i + 1] = points[i].y
-                positions[3 * i + 2] = -points[i].x
-            }
-            this.rayCurveGeo.attributes.position.needsUpdate = true
-            this.rayCurve.visible = true
-        } else {
-            this.rayCurve.visible = false
-        }
-    }
-
     update(inputs) {
         this.handleInputs(inputs)
         this.gui.update(this.rightHand.con)
-        this.updateRaycaster()
+        this.teleport.update(this.rightHand.con)
         this.physics.update(this.players, this.leftHand.con, this.rightHand.con)
         this.updateMeshes()
         // this.cannonDebugger.update()
         this.emitPlayerState()
         this.updateOtherPlayerState()
         stats.update()
-
-        this.testMesh.position.set(0, this.debugObj.x, -2)
     }
 }
