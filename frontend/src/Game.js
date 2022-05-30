@@ -110,7 +110,7 @@ export default class Game {
         this.objects.buildRoom(this.scene)
 
         const { leftCon, rightCon, leftGrip, rightGrip } = WebXR.init(xr, handlers(this), cameraGroup, this.objects)
-        this.objects.buildGlove(leftGrip)
+        // this.objects.buildGlove(leftGrip)
         this.leftHand.con = leftCon
         this.rightHand.con = rightCon
         this.leftHand.grip = leftGrip

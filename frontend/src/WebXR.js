@@ -25,16 +25,16 @@ const init = (xr, handlers, player, objects) => {
     const leftCon = xr.getController(0)
     const rightCon = xr.getController(1)
 
-    rightCon.addEventListener('connected', function (event) {
-        const c = buildController(event.data)
-        c.position.set(0, 0, -.1)
-        this.add(c)
-    })
-
     const cons = [leftCon, rightCon]
     cons.forEach(con => {
         player.add(con)
         con.userData.prevPositions = Array(10).fill(Array(3).fill(0))
+
+        con.addEventListener('connected', function (event) {
+            const c = buildController(event.data)
+            c.position.set(0, 0, -.1)
+            this.add(c)
+        })
 
         con.addEventListener('selectstart', handlers.onSelectStart)
         con.addEventListener('selectend', handlers.onSelectEnd)
@@ -48,6 +48,7 @@ const init = (xr, handlers, player, objects) => {
 
     const controllerModelFactory = new XRControllerModelFactory()
     const [leftGrip, rightGrip] = [xr.getControllerGrip(0), xr.getControllerGrip(1)]
+    leftGrip.add(controllerModelFactory.createControllerModel(rightGrip))
     rightGrip.add(controllerModelFactory.createControllerModel(rightGrip))
     player.add(leftGrip)
     player.add(rightGrip)
