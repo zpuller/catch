@@ -18,8 +18,6 @@ export default class Gui extends THREE.Group {
         this.ctx.strokeRect(1, 1, this.c.width - 2, this.c.height - 2)
         this.ctx.font = "30px Arial"
 
-        this.drawRect()
-
         this.baseMaterial = new THREE.MeshStandardMaterial({
             color: 0x1fa3ef,
             transparent: true,
@@ -52,6 +50,7 @@ export default class Gui extends THREE.Group {
         this.rayDirection = new THREE.Vector3()
 
         this.scroll(0)
+        this.addSlider(0)
     }
 
     scroll(x) {
@@ -66,9 +65,18 @@ export default class Gui extends THREE.Group {
         uv.needsUpdate = true
     }
 
-    drawRect() {
+    clearRect() {
+        this.ctx.fillStyle = 'black'
+        this.ctx.fillRect(10, 128 + 64, this.c.width - 20, 64)
         this.ctx.fillStyle = 'white'
-        this.ctx.fillRect(10, 64 + 10, this.c.width - 20, 64 - 20)
+    }
+
+    addSlider(x) {
+        this.clearRect()
+        this.ctx.fillRect(20, 128 + 64 + 31, this.c.width - 40, 2)
+        this.ctx.beginPath()
+        this.ctx.arc(20 + x * (this.c.width - 40), 128 + 64 + 31, 10, 0, 2 * Math.PI)
+        this.ctx.fill()
     }
 
     drawText(s) {
@@ -87,6 +95,7 @@ export default class Gui extends THREE.Group {
         if (i.length > 0) {
             const uv = i[0].uv
             this.drawText(`${round2(uv.x)}, ${round2(uv.y)}`)
+            this.addSlider(uv.x)
         }
     }
 
@@ -106,6 +115,6 @@ export default class Gui extends THREE.Group {
             return
         }
         this.updateMenu(c)
-        this.updateScrollbar(c)
+        // this.updateScrollbar(c)
     }
 }
