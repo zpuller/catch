@@ -155,7 +155,14 @@ export default class Game {
         this.rayCurve.visible = false
         this.rayTarget = rightCon.children[0]
 
+
+        this.testMesh = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.1, 0.1), new THREE.MeshBasicMaterial({ wireframe: true }))
+        this.testMesh.position.set(0, 1, -2)
+        this.scene.add(this.testMesh)
         this.gui = new Gui()
+        this.debugObj = { x: 0, f: 0 }
+        this.gui.addSlider(this.debugObj, 'x', 0, 4, .1)
+        this.gui.addSlider(this.debugObj, 'f')
         this.leftHand.con.add(this.gui)
     }
 
@@ -355,5 +362,7 @@ export default class Game {
         this.emitPlayerState()
         this.updateOtherPlayerState()
         stats.update()
+
+        this.testMesh.position.set(0, this.debugObj.x, -2)
     }
 }

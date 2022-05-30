@@ -2,15 +2,16 @@ import * as THREE from 'three'
 
 const clamp = (num, min, max) => Math.min(Math.max(num, min), max)
 
-const round2 = (num) => String(Math.round(num * 100) / 100)
+const round = (num, places = 2) => String(Math.round(num * Math.pow(10, places)) / Math.pow(10, places))
 
 export default class Gui extends THREE.Group {
     constructor() {
         super()
 
         this.c = document.getElementById('gui')
+        this.numPages = 1
         this.c.width = 512
-        this.c.height = 1024
+        this.c.height = this.c.width * this.numPages
 
         this.ctx = this.c.getContext("2d")
         this.ctx.strokeStyle = 'white'
@@ -37,7 +38,6 @@ export default class Gui extends THREE.Group {
         this.add(this.mesh)
         this.add(this.scrollBar)
 
-        this.position.set(0, 1.6, -0.5)
         this.position.set(.1, .1, .1)
         this.rotateY(Math.PI * .25)
         this.rotateZ(Math.PI * -.25)
@@ -50,40 +50,57 @@ export default class Gui extends THREE.Group {
         this.rayDirection = new THREE.Vector3()
 
         this.scroll(0)
-        this.addSlider(0)
+
+        this.borderWidth = 20
+        this.rowHeight = 128
+
+        this.sliders = []
+    }
+
+    addSlider(obj, prop, min = 0, max = 1, step = null) {
+        this.sliders.push({ obj, prop, min, max, step })
+        this.sliders.forEach((s, i) => {
+            this.drawSlider(i, 0)
+            this.drawText(i, `${s.prop}: ${round(s.min, 4)}`)
+        })
     }
 
     scroll(x) {
         const uv = this.mesh.geometry.attributes.uv
+        const invPage = 1 - (1 / this.numPages)
         // this is top half
-        uv.array[5] = 0.5 * (1 - x)
-        uv.array[7] = 0.5 * (1 - x)
+        uv.array[5] = invPage * (1 - x)
+        uv.array[7] = invPage * (1 - x)
 
         // this is bottom half
-        uv.array[1] = 1 - (0.5 * x)
-        uv.array[3] = 1 - (0.5 * x)
+        uv.array[1] = 1 - (invPage * x)
+        uv.array[3] = 1 - (invPage * x)
         uv.needsUpdate = true
     }
 
-    clearRect() {
+    clearRect(rowNum) {
         this.ctx.fillStyle = 'black'
-        this.ctx.fillRect(10, 128 + 64, this.c.width - 20, 64)
+        this.ctx.fillRect(10, this.rowHeight * (rowNum + 0.5), this.c.width - this.borderWidth, this.rowHeight * 0.5)
         this.ctx.fillStyle = 'white'
     }
 
-    addSlider(x) {
-        this.clearRect()
-        this.ctx.fillRect(20, 128 + 64 + 31, this.c.width - 40, 2)
-        this.ctx.beginPath()
-        this.ctx.arc(20 + x * (this.c.width - 40), 128 + 64 + 31, 10, 0, 2 * Math.PI)
+    drawCircle(x, y, r) {
+        this.ctx.arc(x, y, r, 0, 2 * Math.PI)
         this.ctx.fill()
     }
 
-    drawText(s) {
+    drawSlider(rowNum, x) {
+        this.clearRect(rowNum)
+        this.ctx.fillRect(this.borderWidth, this.rowHeight * (rowNum + 0.5 + 0.25) - 1, this.c.width - 2 * this.borderWidth, 2)
+        this.ctx.beginPath()
+        this.drawCircle(this.borderWidth + x * (this.c.width - 2 * this.borderWidth), (rowNum + 0.5 + 0.25) * this.rowHeight - 1, 10)
+    }
+
+    drawText(rowNum, s) {
         this.ctx.fillStyle = 'black'
-        this.ctx.fillRect(10, 56, 492, -40)
+        this.ctx.fillRect(10, rowNum * this.rowHeight + 10, this.c.width - this.borderWidth, this.rowHeight * 0.5 - 10)
         this.ctx.fillStyle = 'white'
-        this.ctx.fillText(s, 10, 50)
+        this.ctx.fillText(s, 10, (rowNum * this.rowHeight) + 50)
         this.baseMaterial.emissiveMap.needsUpdate = true
     }
 
@@ -94,8 +111,21 @@ export default class Gui extends THREE.Group {
         const i = this.raycaster.intersectObject(this.mesh)
         if (i.length > 0) {
             const uv = i[0].uv
-            this.drawText(`${round2(uv.x)}, ${round2(uv.y)}`)
-            this.addSlider(uv.x)
+            const y = (1 - uv.y) * this.c.height
+            const rowNum = Math.trunc(y / this.rowHeight)
+            if (rowNum < this.sliders.length && y > this.rowHeight * (rowNum + 0.5) && y < this.rowHeight * (rowNum + 1)) {
+                const s = this.sliders[rowNum]
+
+                let x = uv.x
+                x = s.min + x * (s.max - s.min)
+                x = s.step ? s.step * Math.trunc(x / s.step) : x
+
+                s.obj[s.prop] = x
+                this.drawSlider(rowNum, (x - s.min) / (s.max - s.min))
+                this.drawText(rowNum, `${s.prop}: ${round(x, 4)}`)
+
+                console.log(s.obj)
+            }
         }
     }
 
@@ -115,6 +145,6 @@ export default class Gui extends THREE.Group {
             return
         }
         this.updateMenu(c)
-        // this.updateScrollbar(c)
+        this.updateScrollbar(c)
     }
 }
