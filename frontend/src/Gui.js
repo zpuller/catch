@@ -65,6 +65,7 @@ export default class Gui extends THREE.Group {
         })
     }
 
+    // TODO add some visual to scroll bar
     scroll(x) {
         const uv = this.mesh.geometry.attributes.uv
         const invPage = 1 - (1 / this.numPages)

@@ -47,14 +47,15 @@ const defaultPlayer = () => {
     return {
         player: {
             position: { x: 0, z: 0 },
+            quaternion: [],
         },
         leftCon: {
             position: { x: 0, y: 0, z: 0 },
-            rotation: { x: 0, y: 0, z: 0 }
+            quaternion: [],
         },
         rightCon: {
             position: { x: 0, y: 0, z: 0 },
-            rotation: { x: 0, y: 0, z: 0 }
+            quaternion: [],
         },
     }
 }

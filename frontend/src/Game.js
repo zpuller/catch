@@ -18,14 +18,17 @@ document.body.appendChild(stats.dom)
 
 const defaultPlayer = () => {
     return {
-        player: { position: { x: 0, z: 0 } },
+        player: {
+            position: { x: 0, z: 0 },
+            quaternion: [],
+        },
         leftCon: {
             position: { x: 0, y: 0, z: 0 },
-            rotation: { x: 0, y: 0, z: 0 }
+            quaternion: [],
         },
         rightCon: {
             position: { x: 0, y: 0, z: 0 },
-            rotation: { x: 0, y: 0, z: 0 }
+            quaternion: [],
         }
     }
 }
@@ -171,11 +174,7 @@ export default class Game {
     }
 
     handleUpdateState(state) {
-        for (const [id, p] of Object.entries(state.players)) {
-            if (id !== this.client.id) {
-                this.players[id] = p
-            }
-        }
+        this.players = state.players
 
         if (!this.handledInitialState) {
             this.handledInitialState = true
@@ -227,8 +226,12 @@ export default class Game {
                 // console.log(source.handedness)
                 let a = source.gamepad.axes
                 let [x, z] = [a[2], a[3]]
-                this.player.position.x += .01 * x
-                this.player.position.z += .01 * z
+                if (source.handedness == 'left') {
+                    this.player.position.x += .01 * x
+                    this.player.position.z += .01 * z
+                } else {
+                    this.player.rotateY(-.01 * x)
+                }
                 // for (const button of source.gamepad.buttons) {
                 //     console.log(button)
                 // }
@@ -239,18 +242,22 @@ export default class Game {
         this.handleController(this.rightHand.con)
     }
 
+    // TODO easier to use array serialization for positions
     emitPlayerState() {
         const [lp, rp] = [this.leftHand.con.position, this.rightHand.con.position]
-        const [lr, rr] = [this.leftHand.con.rotation, this.rightHand.con.rotation]
+        const [lq, rq] = [this.leftHand.con.quaternion, this.rightHand.con.quaternion]
         const state = {
-            player: { position: { x: this.player.position.x, z: this.player.position.z } },
+            player: {
+                position: { x: this.player.position.x, z: this.player.position.z },
+                quaternion: this.player.quaternion.toArray(),
+            },
             leftCon: {
                 position: { x: lp.x, y: lp.y, z: lp.z },
-                rotation: { x: lr.x, y: lr.y, z: lr.z },
+                quaternion: lq.toArray(),
             },
             rightCon: {
                 position: { x: rp.x, y: rp.y, z: rp.z },
-                rotation: { x: rr.x, y: rr.y, z: rr.z },
+                quaternion: rq.toArray(),
             }
         }
         this.players[this.client.id] = state
@@ -263,10 +270,14 @@ export default class Game {
             const p = this.players[id]
             const g = this.playerGroups[id]
             g.position.set(p.player.position.x, 0, p.player.position.z)
+            g.quaternion.fromArray(p.player.quaternion)
 
             const [lp, rp] = [p.leftCon.position, p.rightCon.position]
+            const [lq, rq] = [p.leftCon.quaternion, p.rightCon.quaternion]
             g.children[0].position.set(lp.x, lp.y, lp.z)
+            g.children[0].quaternion.fromArray(lq)
             g.children[1].position.set(rp.x, rp.y, rp.z)
+            g.children[1].quaternion.fromArray(rq)
         })
     }
 

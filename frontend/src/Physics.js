@@ -1,10 +1,13 @@
 import * as math from 'mathjs'
 import * as THREE from 'three'
 import * as CANNON from 'cannon-es'
+import { Matrix4 } from 'three'
 
 export default class Physics {
     constructor(pBall, pWall, pLeftHand, pRightHand) {
-        this.controllerWorldPosition = new THREE.Vector3()
+        this.vec3Buffer = new THREE.Vector3()
+        this.quaternionBuffer = new THREE.Quaternion()
+        this.scaleOne = new THREE.Vector3(1, 1, 1)
         this.clock = new THREE.Clock()
         this.elapsedTime = this.clock.getElapsedTime()
         this.timeframes = Array(10).fill(1)
@@ -70,7 +73,7 @@ export default class Physics {
     }
 
     doCatch(controller) {
-        const distance = controller.getWorldPosition(this.controllerWorldPosition).distanceTo(this.ball.mesh.position)
+        const distance = controller.getWorldPosition(this.vec3Buffer).distanceTo(this.ball.mesh.position)
         return distance < 0.2
     }
 
@@ -117,14 +120,14 @@ export default class Physics {
         this.saveDt()
 
         {
-            const p = leftCon.getWorldPosition(this.controllerWorldPosition)
+            const p = leftCon.getWorldPosition(this.vec3Buffer)
             const b = this.leftHand.body
             b.position.set(p.x, p.y, p.z)
             b.velocity.set(0, 0, 0)
         }
 
         {
-            const p = rightCon.getWorldPosition(this.controllerWorldPosition)
+            const p = rightCon.getWorldPosition(this.vec3Buffer)
             const b = this.rightHand.body
             b.position.set(p.x, p.y, p.z)
             b.velocity.set(0, 0, 0)
@@ -132,18 +135,25 @@ export default class Physics {
 
         this.world.fixedStep()
 
+        this.scaleOne.set(1, 1, 1)
         if (this.ball.state === 'held') {
-            const p = this.controllerWorldPosition
+            const p = this.vec3Buffer
+            const q = this.quaternionBuffer
             const player = players[this.ball.holding]
-            p.copy(player.player.position)
-            p.y = 0
+            const pp = player.player.position
+            p.set(pp.x, 0, pp.z)
+            const pTransform = new Matrix4().compose(p, q.fromArray(player.player.quaternion), this.scaleOne)
 
             const con = this.ball.hand == 'left' ? player.leftCon : player.rightCon
-            p.add(con.position)
+            const cp = con.position
+            p.set(cp.x, cp.y, cp.z)
+            const cTransform = new Matrix4().compose(p, q.fromArray(con.quaternion), this.scaleOne)
+
+            const transform = pTransform.multiply(cTransform)
+            transform.decompose(p, q, this.scaleOne)
 
             this.ball.body.position.set(p.x, p.y, p.z)
-            // TODO send quaternion over the network instead of x, y, z
-            // this.ball.body.rotation.copy()
+            this.ball.body.quaternion.set(q.x, q.y, q.z, q.w)
         }
     }
 }
