@@ -43,20 +43,12 @@ let id = 0
 const state = { players: {} }
 const playersPriv = {}
 
+const defaultEntity = () => { return { position: [], quaternion: [], } }
 const defaultPlayer = () => {
     return {
-        player: {
-            position: { x: 0, z: 0 },
-            quaternion: [],
-        },
-        leftCon: {
-            position: { x: 0, y: 0, z: 0 },
-            quaternion: [],
-        },
-        rightCon: {
-            position: { x: 0, y: 0, z: 0 },
-            quaternion: [],
-        },
+        player: defaultEntity(),
+        leftCon: defaultEntity(),
+        rightCon: defaultEntity(),
     }
 }
 

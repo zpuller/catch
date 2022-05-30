@@ -141,19 +141,19 @@ export default class Physics {
             const q = this.quaternionBuffer
             const player = players[this.ball.holding]
             const pp = player.player.position
-            p.set(pp.x, 0, pp.z)
+            p.fromArray(pp)
             const pTransform = new Matrix4().compose(p, q.fromArray(player.player.quaternion), this.scaleOne)
 
             const con = this.ball.hand == 'left' ? player.leftCon : player.rightCon
             const cp = con.position
-            p.set(cp.x, cp.y, cp.z)
+            p.fromArray(cp)
             const cTransform = new Matrix4().compose(p, q.fromArray(con.quaternion), this.scaleOne)
 
             const transform = pTransform.multiply(cTransform)
             transform.decompose(p, q, this.scaleOne)
 
-            this.ball.body.position.set(p.x, p.y, p.z)
-            this.ball.body.quaternion.set(q.x, q.y, q.z, q.w)
+            this.ball.body.position.copy(p)
+            this.ball.body.quaternion.copy(q)
         }
     }
 }

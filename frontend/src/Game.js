@@ -16,20 +16,12 @@ import Teleport from './Teleport'
 const stats = Stats()
 document.body.appendChild(stats.dom)
 
+const defaultEntity = () => { return { position: [], quaternion: [], } }
 const defaultPlayer = () => {
     return {
-        player: {
-            position: { x: 0, z: 0 },
-            quaternion: [],
-        },
-        leftCon: {
-            position: { x: 0, y: 0, z: 0 },
-            quaternion: [],
-        },
-        rightCon: {
-            position: { x: 0, y: 0, z: 0 },
-            quaternion: [],
-        }
+        player: defaultEntity(),
+        leftCon: defaultEntity(),
+        rightCon: defaultEntity(),
     }
 }
 
@@ -219,7 +211,6 @@ export default class Game {
         controller.userData.prevPositions.push(controller.getWorldPosition(this.controllerWorldPosition).toArray())
     }
 
-    // TODO improve movement
     handleInputs(inputs) {
         if (inputs) {
             for (const source of inputs) {
@@ -242,21 +233,20 @@ export default class Game {
         this.handleController(this.rightHand.con)
     }
 
-    // TODO easier to use array serialization for positions
     emitPlayerState() {
         const [lp, rp] = [this.leftHand.con.position, this.rightHand.con.position]
         const [lq, rq] = [this.leftHand.con.quaternion, this.rightHand.con.quaternion]
         const state = {
             player: {
-                position: { x: this.player.position.x, z: this.player.position.z },
+                position: this.player.position.toArray(),
                 quaternion: this.player.quaternion.toArray(),
             },
             leftCon: {
-                position: { x: lp.x, y: lp.y, z: lp.z },
+                position: lp.toArray(),
                 quaternion: lq.toArray(),
             },
             rightCon: {
-                position: { x: rp.x, y: rp.y, z: rp.z },
+                position: rp.toArray(),
                 quaternion: rq.toArray(),
             }
         }
@@ -269,14 +259,14 @@ export default class Game {
         this.forEachPlayerExceptSelf(id => {
             const p = this.players[id]
             const g = this.playerGroups[id]
-            g.position.set(p.player.position.x, 0, p.player.position.z)
+            g.position.fromArray(p.player.position)
             g.quaternion.fromArray(p.player.quaternion)
 
             const [lp, rp] = [p.leftCon.position, p.rightCon.position]
             const [lq, rq] = [p.leftCon.quaternion, p.rightCon.quaternion]
-            g.children[0].position.set(lp.x, lp.y, lp.z)
+            g.children[0].position.fromArray(lp)
             g.children[0].quaternion.fromArray(lq)
-            g.children[1].position.set(rp.x, rp.y, rp.z)
+            g.children[1].position.fromArray(rp)
             g.children[1].quaternion.fromArray(rq)
         })
     }
