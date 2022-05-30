@@ -47,7 +47,6 @@ export default class Teleport {
         if (con.children.length === 0) {
             return
         }
-        // TODO maybe combine some logic here with Gui
         const i = this.raycaster.intersects(con, this.objects.floor)
         if (i) {
             const p = i.point
