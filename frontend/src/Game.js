@@ -99,7 +99,7 @@ export default class Game {
         this.players = {}
         this.playerGroups = {}
 
-        this.controllerWorldPosition = new THREE.Vector3()
+        this.positionBuffer = new THREE.Vector3()
 
         this.ball = { state: 'free', }
         this.leftHand = {}
@@ -208,7 +208,7 @@ export default class Game {
 
     handleController(controller) {
         controller.userData.prevPositions = controller.userData.prevPositions.slice(1)
-        controller.userData.prevPositions.push(controller.getWorldPosition(this.controllerWorldPosition).toArray())
+        controller.userData.prevPositions.push(controller.getWorldPosition(this.positionBuffer).toArray())
     }
 
     handleInputs(inputs) {
@@ -216,10 +216,12 @@ export default class Game {
             for (const source of inputs) {
                 // console.log(source.handedness)
                 let a = source.gamepad.axes
-                let [x, z] = [a[2], a[3]]
+                const [x, z] = [a[2], a[3]]
+                const p = this.positionBuffer
+                p.set(x, 0, z)
+                p.applyQuaternion(this.player.quaternion)
                 if (source.handedness == 'left') {
-                    this.player.position.x += .01 * x
-                    this.player.position.z += .01 * z
+                    this.player.position.addScaledVector(p, .01)
                 } else {
                     this.player.rotateY(-.01 * x)
                 }
