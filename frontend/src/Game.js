@@ -12,6 +12,7 @@ import StaticEntities from './Assets/Entities/StaticEntities'
 
 // import Gui from './Gui'
 import Teleport from './Teleport'
+import Hands from './Assets/Entities/Hands'
 
 const stats = Stats()
 document.body.appendChild(stats.dom)
@@ -25,26 +26,27 @@ const defaultPlayer = () => {
     }
 }
 
+// TODO touch squeeze could be point, and press squeeze is catch
 // TODO lefty support
 const handlers = (game) => {
     const data = new THREE.Vector3()
     return {
         onSelectStart: function () {
             const left = this === game.leftHand.con
-            if (left) {
-                const p = this.getWorldPosition(data)
-                game.resetBall(p.x, p.y + 0.5, p.z)
-            }
-            else {
-                game.teleport.startPoint(this)
-            }
+            // if (left) {
+            const p = this.getWorldPosition(data)
+            game.resetBall(p.x, p.y + 0.5, p.z)
+            // }
+            // else {
+            // game.teleport.startPoint(this)
+            // }
         },
 
         onSelectEnd: function () {
-            const left = this === game.leftHand.con
-            if (!left) {
-                game.teleport.go(this)
-            }
+            // const left = this === game.leftHand.con
+            // if (!left) {
+            // game.teleport.go(this)
+            // }
         },
 
         onSqueezeStart: function () {
@@ -58,7 +60,7 @@ const handlers = (game) => {
 
                 game.physics.sleepBall()
                 const m = game.ball.mesh
-                m.position.set(0.02 * (left ? 1 : -1), 0, 0.05)
+                m.position.set(game.debugObj.x * (left ? 1 : -1), game.debugObj.y, game.debugObj.z)
                 this.add(m)
 
                 game.client.emitBallState({
@@ -109,7 +111,9 @@ export default class Game {
         this.objects.buildBall(this.ball, this.scene)
         this.objects.buildRoom(this.scene)
 
-        const { leftCon, rightCon, leftGrip, rightGrip } = WebXR.init(xr, handlers(this), cameraGroup, this.objects)
+        this.hands = new Hands(gltfLoader)
+
+        const { leftCon, rightCon, leftGrip, rightGrip } = WebXR.init(xr, handlers(this), cameraGroup, this.objects, this.hands)
         // this.objects.buildGlove(leftGrip)
         this.leftHand.con = leftCon
         this.rightHand.con = rightCon
@@ -130,9 +134,17 @@ export default class Game {
 
         this.teleport = new Teleport(scene, this.rightHand.con, this.objects, this.player)
 
+        this.debugObj = {
+            x: .03,
+            y: -.017,
+            z: .03,
+            c: .4,
+        }
         // this.gui = new Gui()
-        // this.gui.addSlider(this.teleport.controlPoint, 'x', 0, 2)
-        // this.gui.addSlider(this.teleport.controlPoint, 'y', 0, 2)
+        // this.gui.addSlider(this.debugObj, 'x', 0, .1)
+        // this.gui.addSlider(this.debugObj, 'y', -.1, .1)
+        // this.gui.addSlider(this.debugObj, 'z', 0, .1)
+        // this.gui.addSlider(this.debugObj, 'c')
         // this.leftHand.con.add(this.gui)
     }
 
@@ -196,7 +208,7 @@ export default class Game {
                 grip = g.children[left ? 0 : 1]
             }
             const m = this.ball.mesh
-            m.position.set(0.02 * (left ? 1 : -1), 0, 0.05)
+            m.position.set(this.debugObj.x * (left ? 1 : -1), this.debugObj.y, this.debugObj.z)
             grip.add(m)
         } else {
             if (id !== this.client.id) {
@@ -225,9 +237,16 @@ export default class Game {
                 } else {
                     this.player.rotateY(-.01 * x)
                 }
-                // for (const button of source.gamepad.buttons) {
-                //     console.log(button)
-                // }
+                const squeeze = source.gamepad.buttons[1]
+                const select = source.gamepad.buttons[0]
+                const c = this.debugObj.c
+                if (source.handedness === 'left') {
+                    this.hands.clenchLeft(squeeze.value * c)
+                    this.hands.clenchLeftIndex(select.value * c)
+                } else {
+                    this.hands.clenchRight(squeeze.value * c)
+                    this.hands.clenchRightIndex(select.value * c)
+                }
             }
         }
 

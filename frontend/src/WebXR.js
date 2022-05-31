@@ -9,7 +9,7 @@ const buildController = (data) => {
             const pointGeometry = new THREE.BufferGeometry();
             pointGeometry.setAttribute('position', new THREE.Float32BufferAttribute([0, 0, .1, 0, 0, - .4], 3));
             pointGeometry.setAttribute('color', new THREE.Float32BufferAttribute([0.5, 0.5, 0.5, 0, 0, 0], 3));
-            const pointMaterial = new THREE.LineBasicMaterial({ vertexColors: true, blending: THREE.AdditiveBlending });
+            const pointMaterial = new THREE.LineBasicMaterial({ vertexColors: true, blending: THREE.AdditiveBlending, transparent: true, opacity: 0 });
             return new THREE.Line(pointGeometry, pointMaterial);
 
         case 'gaze':
@@ -19,7 +19,7 @@ const buildController = (data) => {
     }
 }
 
-const init = (xr, handlers, player, objects) => {
+const init = (xr, handlers, player, objects, hands) => {
     xr.enabled = true
 
     const leftCon = xr.getController(0)
@@ -48,8 +48,10 @@ const init = (xr, handlers, player, objects) => {
 
     const controllerModelFactory = new XRControllerModelFactory()
     const [leftGrip, rightGrip] = [xr.getControllerGrip(0), xr.getControllerGrip(1)]
-    leftGrip.add(controllerModelFactory.createControllerModel(rightGrip))
-    rightGrip.add(controllerModelFactory.createControllerModel(rightGrip))
+    // leftGrip.add(controllerModelFactory.createControllerModel(rightGrip))
+    // rightGrip.add(controllerModelFactory.createControllerModel(rightGrip))
+    hands.left(leftGrip)
+    hands.right(rightGrip)
     player.add(leftGrip)
     player.add(rightGrip)
 

@@ -78,7 +78,7 @@ export default class Gui extends THREE.Group {
         this.rotateY(Math.PI * .25)
         this.rotateZ(Math.PI * -.25)
 
-        this.raycaster = new ControllerRaycaster(0.1, 0.5)
+        this.raycaster = new ControllerRaycaster(0.1, 0.11)
 
         this.scroll(0)
 
@@ -158,8 +158,6 @@ export default class Gui extends THREE.Group {
                 s.obj[s.prop] = x
                 this.drawSlider(rowNum, (x - s.min) / (s.max - s.min))
                 this.drawText(rowNum, `${s.prop}: ${round(x, 4)}`)
-
-                console.log(s.obj)
             }
         }
     }

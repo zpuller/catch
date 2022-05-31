@@ -31,7 +31,6 @@ const environmentMap = cubeTextureLoader.load([
 
 environmentMap.encoding = THREE.sRGBEncoding
 
-// TODO real hands (incl. multiplayer)
 export default class Objects {
     constructor(gltfLoader) {
         this.gltfLoader = gltfLoader
