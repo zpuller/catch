@@ -56,13 +56,12 @@ export default class Hands {
         this.rightGroups = makeBoneGroups()
     }
 
-    // TODO upload models
     left(group) {
-        this.gltfLoader.load('/models/left_hand.glb', onLoad(group, this.leftGroups))
+        this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1654183534/zachGame/left_hand_kbzjgf.glb', onLoad(group, this.leftGroups))
     }
 
     right(group) {
-        this.gltfLoader.load('/models/right_hand.glb', onLoad(group, this.rightGroups))
+        this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1654183534/zachGame/right_hand_dmld80.glb', onLoad(group, this.rightGroups))
     }
 
     clenchLeft(x) {
