@@ -3,11 +3,8 @@ import * as THREE from 'three'
 import * as CANNON from 'cannon-es'
 import { Matrix4 } from 'three'
 
-// TODO extract utils
-const clamp = (n, min = 0, max = 1) => Math.min(Math.max(n, 0), 1)
-
 export default class Physics {
-    constructor(pBall, pWall, pLeftHand, pRightHand) {
+    constructor(pBall, pWall, pLeftHand, pRightHand, handlers) {
         this.vec3Buffer = new THREE.Vector3()
         this.quaternionBuffer = new THREE.Quaternion()
         this.scaleOne = new THREE.Vector3(1, 1, 1)
@@ -32,34 +29,22 @@ export default class Physics {
         })
         this.ball.body.linearDamping = .5
         this.ball.body.angularDamping = .5
-        this.ball.body.addEventListener('collide', () => {
-            const b = this.ball
-            const gain = clamp(b.body.velocity.length() / 5)
-            if (b.sound) {
-                b.sound.gain.gain.value = gain
-                if (b.sound.isPlaying) {
-                    b.sound.stop()
-                }
-                b.sound.play()
-            }
-        })
+        this.ball.body.addEventListener('collide', handlers.ball)
         this.world.addBody(this.ball.body)
 
-        this.leftHand.body = new CANNON.Body({
-            mass: 5,
-            shape: new CANNON.Sphere(r),
-            collisionFilterGroup: 1,
-            collisionFilterMask: 1,
-        })
-        this.world.addBody(this.leftHand.body)
+        this.addHand(this.leftHand)
+        this.addHand(this.rightHand)
+    }
 
-        this.rightHand.body = new CANNON.Body({
+    addHand(hand) {
+        const r = 0.04
+        hand.body = new CANNON.Body({
             mass: 5,
             shape: new CANNON.Sphere(r),
             collisionFilterGroup: 1,
             collisionFilterMask: 1,
         })
-        this.world.addBody(this.rightHand.body)
+        this.world.addBody(hand.body)
     }
 
     linearRegressionQuadratic(positions, frametimes) {

@@ -10,10 +10,11 @@ import CannonDebugger from 'cannon-es-debugger'
 import GarbageBin from './Assets/Entities/GarbageBin'
 import StaticEntities from './Assets/Entities/StaticEntities'
 
-// import Gui from './Gui'
+import Gui from './Gui'
 import Teleport from './Teleport'
 import Hands from './Assets/Entities/Hands'
 import GameAudio from './GameAudio'
+import Utils from './Utils'
 
 const stats = Stats()
 document.body.appendChild(stats.dom)
@@ -122,28 +123,42 @@ export default class Game {
         this.leftHand.grip = leftGrip
         this.rightHand.grip = rightGrip
 
-        this.physics = new Physics(this.ball, this.wall, this.leftHand, this.rightHand)
 
-        this.dynamicEntities = []
-
+        const ballHandler = () => {
+            const b = this.ball
+            const gain = Utils.clamp(b.body.velocity.length() / 5)
+            if (b.sound) {
+                b.sound.gain.gain.value = gain
+                if (b.sound.isPlaying) {
+                    b.sound.stop()
+                }
+                b.sound.play()
+            }
+        }
+        // TODO this could theoretically trigger before the assets are loaded
         const tvHandler = () => {
             if (this.objects.screen.broken) {
                 return
             }
             this.objects.screen.broken = true
             this.objects.screen?.sound?.play()
-            // TODO clean
-            const video = document.getElementById("vid")
-            video.pause()
+            this.objects.video.pause()
             this.scene.remove(this.objects.screen)
             this.scene.add(this.objects.screenBroken)
         }
-        const staticEntityHandlers = { tv: tvHandler }
-        this.addEntity(new StaticEntities(staticEntityHandlers))
+        const physicsHandlers = { ball: ballHandler, tv: tvHandler }
+
+        this.physics = new Physics(this.ball, this.wall, this.leftHand, this.rightHand, physicsHandlers)
+
+        this.dynamicEntities = []
+        this.addEntity(new StaticEntities(physicsHandlers))
 
         this.addDynamicEntity(new GarbageBin({ x: 0.7, y: 1.0, z: -3 }, this.scene, gltfLoader))
 
-        this.cannonDebugger = new CannonDebugger(this.scene, this.physics.world)
+        this.cannonDebuggerEnabled = false
+        if (this.cannonDebuggerEnabled) {
+            this.cannonDebugger = new CannonDebugger(this.scene, this.physics.world)
+        }
 
         this.resetBall(0, 1.6, -0.5)
 
@@ -155,12 +170,15 @@ export default class Game {
             z: .03,
             c: .4,
         }
-        // this.gui = new Gui()
-        // this.gui.addSlider(this.debugObj, 'x', 0, .1)
-        // this.gui.addSlider(this.debugObj, 'y', -.1, .1)
-        // this.gui.addSlider(this.debugObj, 'z', 0, .1)
-        // this.gui.addSlider(this.debugObj, 'c')
-        // this.leftHand.con.add(this.gui)
+        this.guiEnabled = false
+        if (this.guiEnabled) {
+            this.gui = new Gui()
+            this.gui.addSlider(this.debugObj, 'x', 0, .1)
+            this.gui.addSlider(this.debugObj, 'y', -.1, .1)
+            this.gui.addSlider(this.debugObj, 'z', 0, .1)
+            this.gui.addSlider(this.debugObj, 'c')
+            this.leftHand.con.add(this.gui)
+        }
     }
 
     addEntity(e) {
@@ -252,6 +270,7 @@ export default class Game {
                 } else {
                     this.player.rotateY(-.01 * x)
                 }
+                // TODO log all button presses, and assign keyboard alternatives to point to shared handlers
                 const squeeze = source.gamepad.buttons[1]
                 const select = source.gamepad.buttons[0]
                 const c = this.debugObj.c
@@ -332,11 +351,15 @@ export default class Game {
 
     update(inputs) {
         this.handleInputs(inputs)
-        // this.gui.update(this.rightHand.con)
+        if (this.guiEnabled) {
+            this.gui.update(this.rightHand.con)
+        }
         this.teleport.update(this.rightHand.con)
         this.physics.update(this.players, this.leftHand.con, this.rightHand.con)
         this.updateMeshes()
-        // this.cannonDebugger.update()
+        if (this.cannonDebuggerEnabled) {
+            this.cannonDebugger.update()
+        }
         this.emitPlayerState()
         this.updateOtherPlayerState()
         stats.update()

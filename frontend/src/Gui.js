@@ -1,7 +1,6 @@
 import * as THREE from 'three'
 import ControllerRaycaster from './ControllerRaycaster'
-
-const clamp = (num, min, max) => Math.min(Math.max(num, min), max)
+import Utils from './Utils'
 
 const round = (num, places = 2) => String(Math.round(num * Math.pow(10, places)) / Math.pow(10, places))
 
@@ -47,10 +46,6 @@ export default class Gui extends THREE.Group {
             this.mainScreenCanvas = initCanvas({ id: 'gui', w, h })
             this.ctx = initCtx(this.mainScreenCanvas)
             this.ctx.font = '30px Arial'
-        }
-
-        {
-
         }
 
         const scrollWidthFraction = .12
@@ -166,7 +161,7 @@ export default class Gui extends THREE.Group {
         const i = this.raycaster.intersects(con, this.scrollBar)
         if (i) {
             const uv = i.uv
-            this.scroll(clamp(1.5 * (1 - uv.y) - 0.25, 0, 1))
+            this.scroll(Utils.clamp(1.5 * (1 - uv.y) - 0.25))
         }
     }
 

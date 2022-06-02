@@ -34,6 +34,7 @@ environmentMap.encoding = THREE.sRGBEncoding
 export default class Objects {
     constructor(gltfLoader) {
         this.gltfLoader = gltfLoader
+        this.video = video
     }
 
     // move to sep. classes
@@ -62,7 +63,7 @@ export default class Objects {
             this.screen.add(tvSound)
             scene.add(gltf.scene)
         })
-        this.gltfLoader.load('models/screen_broken.glb', gltf => {
+        this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1654148966/zachGame/screen_broken_byifr2.glb', gltf => {
             this.screenBroken = gltf.scene
         })
         this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1653634116/zachGame/furniture_y26s1v.glb', (gltf) => {

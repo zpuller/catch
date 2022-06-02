@@ -4,6 +4,7 @@ const MiniCSSExtractPlugin = require('mini-css-extract-plugin')
 const path = require('path');
 const { DefinePlugin } = require('webpack');
 
+// TODO figure out how to actually configure prod vs dev
 module.exports = (env) => {
     return {
         mode: 'development',
