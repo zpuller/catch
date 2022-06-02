@@ -13,6 +13,7 @@ import StaticEntities from './Assets/Entities/StaticEntities'
 // import Gui from './Gui'
 import Teleport from './Teleport'
 import Hands from './Assets/Entities/Hands'
+import GameAudio from './GameAudio'
 
 const stats = Stats()
 document.body.appendChild(stats.dom)
@@ -90,7 +91,7 @@ const handlers = (game) => {
 }
 
 export default class Game {
-    constructor(gltfLoader, xr, scene, cameraGroup, client) {
+    constructor(gltfLoader, xr, scene, cameraGroup, client, camera) {
         this.client = client
         this.client.subscribeToEvents(this)
         this.handledInitialState = false
@@ -107,8 +108,9 @@ export default class Game {
         this.leftHand = {}
         this.rightHand = {}
 
+        const sound = new GameAudio(camera)
         this.objects = new Objects(gltfLoader)
-        this.objects.buildBall(this.ball, this.scene)
+        this.objects.buildBall(this.ball, this.scene, sound)
         this.objects.buildRoom(this.scene)
 
         this.hands = new Hands(gltfLoader)

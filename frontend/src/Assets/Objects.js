@@ -65,7 +65,7 @@ export default class Objects {
         })
     }
 
-    buildBall(ball, scene) {
+    buildBall(ball, scene, sound) {
         ball.mesh = new THREE.Mesh(ballGeometry, ballMaterial)
         scene.add(ball.mesh)
 
@@ -75,6 +75,8 @@ export default class Objects {
                 scene.remove(ball.mesh)
                 ball.mesh = gltf.scene
                 scene.add(ball.mesh)
+                ball.mesh.add(sound)
+                ball.sound = sound
             }
         )
     }
