@@ -108,10 +108,10 @@ export default class Game {
         this.leftHand = {}
         this.rightHand = {}
 
-        const sound = new GameAudio(camera)
+        const sounds = new GameAudio(camera)
         this.objects = new Objects(gltfLoader)
-        this.objects.buildBall(this.ball, this.scene, sound)
-        this.objects.buildRoom(this.scene)
+        this.objects.buildBall(this.ball, this.scene, sounds.ball)
+        this.objects.buildRoom(this.scene, sounds.tv)
 
         this.hands = new Hands(gltfLoader)
 
@@ -126,7 +126,20 @@ export default class Game {
 
         this.dynamicEntities = []
 
-        this.addEntity(new StaticEntities())
+        const tvHandler = () => {
+            if (this.objects.screen.broken) {
+                return
+            }
+            this.objects.screen.broken = true
+            this.objects.screen?.sound?.play()
+            // TODO clean
+            const video = document.getElementById("vid")
+            video.pause()
+            this.scene.remove(this.objects.screen)
+            this.scene.add(this.objects.screenBroken)
+        }
+        const staticEntityHandlers = { tv: tvHandler }
+        this.addEntity(new StaticEntities(staticEntityHandlers))
 
         this.addDynamicEntity(new GarbageBin({ x: 0.7, y: 1.0, z: -3 }, this.scene, gltfLoader))
 

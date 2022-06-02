@@ -37,7 +37,7 @@ export default class Objects {
     }
 
     // move to sep. classes
-    buildRoom(scene) {
+    buildRoom(scene, tvSound) {
         scene.background = environmentMap
         scene.environment = environmentMap
 
@@ -57,7 +57,13 @@ export default class Objects {
         this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1653634116/zachGame/screen_khzwhi.glb', (gltf) => {
             gltf.scene.matrixAutoUpdate = false
             gltf.scene.children[0].material = videoMesh
+            this.screen = gltf.scene
+            this.screen.sound = tvSound
+            this.screen.add(tvSound)
             scene.add(gltf.scene)
+        })
+        this.gltfLoader.load('models/screen_broken.glb', gltf => {
+            this.screenBroken = gltf.scene
         })
         this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1653634116/zachGame/furniture_y26s1v.glb', (gltf) => {
             gltf.scene.matrixAutoUpdate = false
