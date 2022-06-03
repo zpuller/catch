@@ -32,6 +32,7 @@ const defaultPlayer = () => {
 }
 
 // TODO touch squeeze could be point, and press squeeze is catch
+// TODO make gui work better, make it toggleable
 // TODO lefty support
 const handlers = (game) => {
     const data = new THREE.Vector3()
@@ -65,7 +66,7 @@ const handlers = (game) => {
 
                 game.physics.sleepBall()
                 const m = game.ball.mesh
-                m.position.set(game.debugObj.x * (left ? 1 : -1), game.debugObj.y, game.debugObj.z)
+                m.position.set(game.handParams.x * (left ? 1 : -1), game.handParams.y, game.handParams.z)
                 this.add(m)
 
                 game.client.emitBallState({
@@ -120,6 +121,7 @@ export default class Game {
         this.hands = new Hands(gltfLoader)
 
         const { leftCon, rightCon, leftGrip, rightGrip } = WebXR.init(xr, handlers(this), cameraGroup, this.objects, this.hands)
+        // TODO this could be optional/an object to pick up
         // this.objects.buildGlove(leftGrip)
         this.leftHand.con = leftCon
         this.rightHand.con = rightCon
@@ -170,8 +172,7 @@ export default class Game {
 
         this.teleport = new Teleport(scene, this.rightHand.con, this.objects, this.player)
 
-        // TODO move these to constants
-        this.debugObj = {
+        this.handParams = {
             x: .03,
             y: -.017,
             z: .03,
@@ -181,10 +182,6 @@ export default class Game {
             this.guiEnabled = false
             if (this.guiEnabled) {
                 this.gui = new Gui()
-                this.gui.addSlider(this.debugObj, 'x', 0, .1)
-                this.gui.addSlider(this.debugObj, 'y', -.1, .1)
-                this.gui.addSlider(this.debugObj, 'z', 0, .1)
-                this.gui.addSlider(this.debugObj, 'c')
                 this.leftHand.con.add(this.gui)
             }
         }
@@ -267,7 +264,7 @@ export default class Game {
                 grip = g.children[left ? 0 : 1]
             }
             const m = this.ball.mesh
-            m.position.set(this.debugObj.x * (left ? 1 : -1), this.debugObj.y, this.debugObj.z)
+            m.position.set(this.handParams.x * (left ? 1 : -1), this.handParams.y, this.handParams.z)
             grip.add(m)
         } else {
             if (id !== this.client.id) {
@@ -324,7 +321,7 @@ export default class Game {
                 }
                 const squeeze = source.gamepad.buttons[1]
                 const select = source.gamepad.buttons[0]
-                const c = this.debugObj.c
+                const c = this.handParams.c
                 if (source.handedness === 'left') {
                     this.hands.clenchLeft(squeeze.value * c)
                     this.hands.clenchLeftIndex(select.value * c)
