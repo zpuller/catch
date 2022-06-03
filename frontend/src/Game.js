@@ -170,6 +170,7 @@ export default class Game {
 
         this.teleport = new Teleport(scene, this.rightHand.con, this.objects, this.player)
 
+        // TODO move these to constants
         this.debugObj = {
             x: .03,
             y: -.017,
@@ -187,6 +188,23 @@ export default class Game {
                 this.leftHand.con.add(this.gui)
             }
         }
+
+        window.addEventListener('keypress', e => {
+            if (e.key === 'a') {
+                this.aPressed = true
+            }
+            if (e.key === 'b') {
+                this.bPressed = true
+            }
+        })
+        window.addEventListener('keyup', e => {
+            if (e.key === 'a') {
+                this.aPressed = false
+            }
+            if (e.key === 'b') {
+                this.bPressed = false
+            }
+        })
     }
 
     addEntity(e) {
@@ -278,7 +296,32 @@ export default class Game {
                 } else {
                     this.player.rotateY(-.01 * x)
                 }
-                // TODO log all button presses, and assign keyboard alternatives to point to shared handlers
+                const b = source.gamepad.buttons
+                if (b[0].pressed) {
+                    console.log('trigger')
+                }
+                if (b[1].pressed) {
+                    console.log('squeeze')
+                }
+                if (b[3].touched) {
+                    console.log('joystick touched')
+                    console.log(b[3].value)
+                }
+                if (b[3].pressed) {
+                    console.log('joystick pressed')
+                }
+                if (b[4].touched) {
+                    console.log('a touched')
+                }
+                if (b[4].pressed || this.aPressed) {
+                    console.log('a pressed')
+                }
+                if (b[5].touched) {
+                    console.log('b touched')
+                }
+                if (b[5].pressed || this.bPressed) {
+                    console.log('b pressed')
+                }
                 const squeeze = source.gamepad.buttons[1]
                 const select = source.gamepad.buttons[0]
                 const c = this.debugObj.c
