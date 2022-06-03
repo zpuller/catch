@@ -16,8 +16,11 @@ import Hands from './Assets/Entities/Hands'
 import GameAudio from './Assets/GameAudio'
 import Utils from './Utils'
 
-const stats = Stats()
-document.body.appendChild(stats.dom)
+let stats
+if (MODE === 'dev') {
+    stats = Stats()
+    document.body.appendChild(stats.dom)
+}
 
 const defaultEntity = () => { return { position: [], quaternion: [], } }
 const defaultPlayer = () => {
@@ -155,10 +158,13 @@ export default class Game {
 
         this.addDynamicEntity(new GarbageBin({ x: 0.7, y: 1.0, z: -3 }, this.scene, gltfLoader))
 
-        this.cannonDebuggerEnabled = false
-        if (this.cannonDebuggerEnabled) {
-            this.cannonDebugger = new CannonDebugger(this.scene, this.physics.world)
+        if (MODE === 'dev') {
+            this.cannonDebuggerEnabled = false
+            if (this.cannonDebuggerEnabled) {
+                this.cannonDebugger = new CannonDebugger(this.scene, this.physics.world)
+            }
         }
+
 
         this.resetBall(0, 1.6, -0.5)
 
@@ -170,14 +176,16 @@ export default class Game {
             z: .03,
             c: .4,
         }
-        this.guiEnabled = false
-        if (this.guiEnabled) {
-            this.gui = new Gui()
-            this.gui.addSlider(this.debugObj, 'x', 0, .1)
-            this.gui.addSlider(this.debugObj, 'y', -.1, .1)
-            this.gui.addSlider(this.debugObj, 'z', 0, .1)
-            this.gui.addSlider(this.debugObj, 'c')
-            this.leftHand.con.add(this.gui)
+        if (MODE === 'dev') {
+            this.guiEnabled = false
+            if (this.guiEnabled) {
+                this.gui = new Gui()
+                this.gui.addSlider(this.debugObj, 'x', 0, .1)
+                this.gui.addSlider(this.debugObj, 'y', -.1, .1)
+                this.gui.addSlider(this.debugObj, 'z', 0, .1)
+                this.gui.addSlider(this.debugObj, 'c')
+                this.leftHand.con.add(this.gui)
+            }
         }
     }
 
@@ -351,17 +359,19 @@ export default class Game {
 
     update(inputs) {
         this.handleInputs(inputs)
-        if (this.guiEnabled) {
-            this.gui.update(this.rightHand.con)
-        }
         this.teleport.update(this.rightHand.con)
         this.physics.update(this.players, this.leftHand.con, this.rightHand.con)
         this.updateMeshes()
-        if (this.cannonDebuggerEnabled) {
-            this.cannonDebugger.update()
-        }
         this.emitPlayerState()
         this.updateOtherPlayerState()
-        stats.update()
+        if (MODE === 'dev') {
+            stats.update()
+            if (this.guiEnabled) {
+                this.gui.update(this.rightHand.con)
+            }
+            if (this.cannonDebuggerEnabled) {
+                this.cannonDebugger.update()
+            }
+        }
     }
 }
