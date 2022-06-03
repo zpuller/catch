@@ -22,10 +22,14 @@ export default class Physics {
         this.world.allowSleep = true
 
         const r = .04
+        const sleepSpeed = 1.0
+        const sleepTime = 1.0
         this.ball.body = new CANNON.Body({
             mass: 5,
             shape: new CANNON.Sphere(r),
             collisionFilterGroup: 2,
+            sleepSpeedLimit: sleepSpeed,
+            sleepTimeLimit: sleepTime,
         })
         this.ball.body.linearDamping = .5
         this.ball.body.angularDamping = .5
