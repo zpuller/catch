@@ -1,6 +1,5 @@
 import * as THREE from 'three'
 
-// TODO move to Assets
 export default class GameAudio {
     constructor(camera) {
         this.camera = camera

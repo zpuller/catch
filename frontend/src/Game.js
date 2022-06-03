@@ -13,7 +13,7 @@ import StaticEntities from './Assets/Entities/StaticEntities'
 import Gui from './Gui'
 import Teleport from './Teleport'
 import Hands from './Assets/Entities/Hands'
-import GameAudio from './GameAudio'
+import GameAudio from './Assets/GameAudio'
 import Utils from './Utils'
 
 const stats = Stats()
