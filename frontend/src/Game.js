@@ -186,22 +186,16 @@ export default class Game {
             }
         }
 
-        window.addEventListener('keypress', e => {
+        const toggle = pressed => e => {
             if (e.key === 'a') {
-                this.aPressed = true
+                this.aPressed = pressed
             }
             if (e.key === 'b') {
-                this.bPressed = true
+                this.bPressed = pressed
             }
-        })
-        window.addEventListener('keyup', e => {
-            if (e.key === 'a') {
-                this.aPressed = false
-            }
-            if (e.key === 'b') {
-                this.bPressed = false
-            }
-        })
+        }
+        window.addEventListener('keypress', toggle(true))
+        window.addEventListener('keyup', toggle(false))
     }
 
     addEntity(e) {
