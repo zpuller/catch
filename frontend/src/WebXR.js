@@ -19,7 +19,7 @@ const buildController = (data) => {
     }
 }
 
-const init = (xr, handlers, player, objects, hands) => {
+const init = (xr, handlers, player, hands) => {
     xr.enabled = true
 
     const leftCon = xr.getController(0)

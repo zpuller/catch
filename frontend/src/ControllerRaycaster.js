@@ -3,11 +3,11 @@ import * as THREE from 'three'
 export default class ControllerRaycaster {
     constructor(near, far) {
         this.raycaster = new THREE.Raycaster()
-        if (near) {
+        if (near !== undefined) {
             this.raycaster.near = near
         }
-        if (far) {
-            this.raycaster.far = 0.5
+        if (far !== undefined) {
+            this.raycaster.far = far
         }
 
         this.origin = new THREE.Vector3()

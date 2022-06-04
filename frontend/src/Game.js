@@ -31,8 +31,6 @@ const defaultPlayer = () => {
     }
 }
 
-// TODO touch squeeze could be point, and press squeeze is catch
-// TODO make gui work better, make it toggleable
 // TODO lefty support
 const handlers = (game) => {
     const data = new THREE.Vector3()
@@ -118,7 +116,7 @@ export default class Game {
 
         this.hands = new Hands(gltfLoader)
 
-        const { leftCon, rightCon, leftGrip, rightGrip } = WebXR.init(xr, handlers(this), cameraGroup, this.objects, this.hands)
+        const { leftCon, rightCon, leftGrip, rightGrip } = WebXR.init(xr, handlers(this), cameraGroup, this.hands)
         // TODO this could be optional/an object to pick up
         // this.objects.buildGlove(leftGrip)
         this.leftHand.con = leftCon
@@ -176,10 +174,17 @@ export default class Game {
             z: .03,
             c: .4,
         }
+
+        this.debugObj = {
+            x: 0,
+            y: 0,
+        }
         if (MODE === 'dev') {
-            this.guiEnabled = false
+            this.guiEnabled = true
             if (this.guiEnabled) {
                 this.gui = new Gui()
+                this.gui.addSlider(this.debugObj, 'x')
+                this.gui.addSlider(this.debugObj, 'y')
                 this.leftHand.con.add(this.gui)
             }
         }
@@ -191,9 +196,17 @@ export default class Game {
             if (e.key === 'b') {
                 this.bPressed = pressed
             }
+            if (e.key === 's') {
+                this.sPressed = pressed
+            }
         }
         window.addEventListener('keypress', toggle(true))
         window.addEventListener('keyup', toggle(false))
+
+        this.wasPressed = {
+            'left': Array(8).fill(false),
+            'right': Array(8).fill(false),
+        }
     }
 
     addEntity(e) {
@@ -274,13 +287,13 @@ export default class Game {
     handleInputs(inputs) {
         if (inputs) {
             for (const source of inputs) {
-                // console.log(source.handedness)
+                const h = source.handedness
                 let a = source.gamepad.axes
                 const [x, z] = [a[2], a[3]]
                 const p = this.positionBuffer
                 p.set(x, 0, z)
                 p.applyQuaternion(this.player.quaternion)
-                if (source.handedness == 'left') {
+                if (h == 'left') {
                     this.player.position.addScaledVector(p, .01)
                 } else {
                     this.player.rotateY(-.01 * x)
@@ -294,25 +307,38 @@ export default class Game {
                 }
                 if (b[3].touched) {
                     console.log('joystick touched')
-                    console.log(b[3].value)
                 }
-                if (b[3].pressed) {
+                if (b[3].pressed || this.sPressed) {
                     console.log('joystick pressed')
+                    if (!this.wasPressed[h][3]) {
+                    }
                 }
+                this.wasPressed[h][3] = b[3].pressed || this.sPressed
                 if (b[4].touched) {
                     console.log('a touched')
                 }
                 if (b[4].pressed || this.aPressed) {
                     console.log('a pressed')
-                    const p = this.rightHand.con.getWorldPosition(this.positionBuffer)
-                    this.resetBall(p.x, p.y + 0.5, p.z)
+                    if (!this.wasPressed[h][4]) {
+                        const p = this.rightHand.con.getWorldPosition(this.positionBuffer)
+                        this.resetBall(p.x, p.y + 0.5, p.z)
+                    }
                 }
+                this.wasPressed[h][4] = b[4].pressed || this.aPressed
                 if (b[5].touched) {
                     console.log('b touched')
                 }
+                // TODO this could all be better organized
                 if (b[5].pressed || this.bPressed) {
                     console.log('b pressed')
+                    if (h === 'right' && !this.wasPressed[h][5]) {
+                        if (MODE === 'dev') {
+                            this.gui.toggle()
+                        }
+                    }
                 }
+                this.wasPressed[h][5] = b[5].pressed || this.bPressed
+
                 const squeeze = source.gamepad.buttons[1]
                 const select = source.gamepad.buttons[0]
                 const c = this.handParams.c
@@ -391,6 +417,10 @@ export default class Game {
         }
     }
 
+    getRight(inputs) {
+        return inputs[inputs[0].handedness === 'right' ? 0 : 1]
+    }
+
     update(inputs) {
         this.handleInputs(inputs)
         this.teleport.update(this.rightHand.con)
@@ -401,7 +431,7 @@ export default class Game {
         if (MODE === 'dev') {
             stats.update()
             if (this.guiEnabled) {
-                this.gui.update(this.rightHand.con)
+                this.gui.update(this.rightHand.con, inputs && this.getRight(inputs))
             }
             if (this.cannonDebuggerEnabled) {
                 this.cannonDebugger.update()

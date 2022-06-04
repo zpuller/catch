@@ -73,11 +73,20 @@ export default class Gui extends THREE.Group {
         this.rotateY(Math.PI * .25)
         this.rotateZ(Math.PI * -.25)
 
-        this.raycaster = new ControllerRaycaster(0.1, 0.11)
+        this.raycaster = new ControllerRaycaster(0, 0.1)
 
         this.scroll(0)
 
         this.sliders = []
+
+        this.enabled = true
+
+        this.wasPressed = false
+    }
+
+    toggle() {
+        this.enabled = !this.enabled
+        this.visible = !this.visible
     }
 
     addSlider(obj, prop, min = 0, max = 1, step = null) {
@@ -137,9 +146,10 @@ export default class Gui extends THREE.Group {
         this.ctx.fillText(s, 10, (rowNum * this.rowHeight) + 50)
     }
 
-    updateMenu(con) {
+    updateMenu(con, source) {
         const i = this.raycaster.intersects(con, this.mainScreen)
         if (i) {
+            this.vibrateOnce(source)
             const uv = i.uv
             const y = (1 - uv.y) * this.mainScreenCanvas.height
             const rowNum = Math.trunc(y / this.rowHeight)
@@ -155,22 +165,37 @@ export default class Gui extends THREE.Group {
                 this.drawText(rowNum, `${s.prop}: ${round(x, 4)}`)
             }
         }
+        return i
     }
 
-    updateScrollbar(con) {
+    updateScrollbar(con, source) {
         const i = this.raycaster.intersects(con, this.scrollBar)
         if (i) {
+            this.vibrateOnce(source)
             const uv = i.uv
             this.scroll(Utils.clamp(1.5 * (1 - uv.y) - 0.25))
         }
+        return i
     }
 
-    update(c) {
-        if (c.children.length === 0) {
+    vibrateOnce(source) {
+        if (!this.wasPressed) {
+            const h = source.gamepad.hapticActuators
+            if (h) {
+                h[0].pulse(1.0, 50)
+            }
+        }
+    }
+
+    // TODO can we replace some if statements with function assignments?
+    update(con, source) {
+        if (!this.enabled) {
             return
         }
-        this.updateMenu(c)
-        this.updateScrollbar(c)
+        if (con.children.length === 0) {
+            return
+        }
+        this.wasPressed = this.updateMenu(con, source) || this.updateScrollbar(con, source)
         this.baseMaterial.emissiveMap.needsUpdate = true
         this.scrollMaterial.emissiveMap.needsUpdate = true
     }
