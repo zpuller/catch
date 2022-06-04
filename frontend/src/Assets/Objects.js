@@ -66,7 +66,7 @@ export default class Objects {
         this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1654148966/zachGame/screen_broken_byifr2.glb', gltf => {
             this.screenBroken = gltf.scene
         })
-        this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1653634116/zachGame/furniture_y26s1v.glb', (gltf) => {
+        this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1654377423/zachGame/furniture_ovjm6e.glb', (gltf) => {
             gltf.scene.matrixAutoUpdate = false
             scene.add(gltf.scene)
         })
