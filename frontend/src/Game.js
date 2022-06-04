@@ -39,20 +39,18 @@ const handlers = (game) => {
     return {
         onSelectStart: function () {
             const left = this === game.leftHand.con
-            // if (left) {
-            const p = this.getWorldPosition(data)
-            game.resetBall(p.x, p.y + 0.5, p.z)
-            // }
-            // else {
-            // game.teleport.startPoint(this)
-            // }
+            if (left) {
+            } else {
+                game.teleport.startPoint(this)
+            }
         },
 
         onSelectEnd: function () {
-            // const left = this === game.leftHand.con
-            // if (!left) {
-            // game.teleport.go(this)
-            // }
+            const left = this === game.leftHand.con
+            if (left) {
+            } else {
+                game.teleport.go(this)
+            }
         },
 
         onSqueezeStart: function () {
@@ -306,6 +304,8 @@ export default class Game {
                 }
                 if (b[4].pressed || this.aPressed) {
                     console.log('a pressed')
+                    const p = this.rightHand.con.getWorldPosition(this.positionBuffer)
+                    this.resetBall(p.x, p.y + 0.5, p.z)
                 }
                 if (b[5].touched) {
                     console.log('b touched')
