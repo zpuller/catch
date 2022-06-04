@@ -79,13 +79,12 @@ export default class Gui extends THREE.Group {
 
         this.sliders = []
 
-        this.enabled = true
+        this.visible = false
 
         this.wasPressed = false
     }
 
     toggle() {
-        this.enabled = !this.enabled
         this.visible = !this.visible
     }
 
@@ -189,7 +188,7 @@ export default class Gui extends THREE.Group {
 
     // TODO can we replace some if statements with function assignments?
     update(con, source) {
-        if (!this.enabled) {
+        if (!this.visible) {
             return
         }
         if (con.children.length === 0) {

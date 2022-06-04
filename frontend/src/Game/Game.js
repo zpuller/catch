@@ -15,6 +15,7 @@ import Teleport from './Teleport'
 import Hands from '../Assets/Entities/Hands'
 import GameAudio from '../Assets/GameAudio'
 import Utils from '../Utils'
+import Inputs from './Inputs'
 
 let stats
 if (MODE === 'dev') {
@@ -28,66 +29,6 @@ const defaultPlayer = () => {
         player: defaultEntity(),
         leftCon: defaultEntity(),
         rightCon: defaultEntity(),
-    }
-}
-
-// TODO lefty support
-const handlers = (game) => {
-    const data = new THREE.Vector3()
-    return {
-        onSelectStart: function () {
-            const left = this === game.leftHand.con
-            if (left) {
-            } else {
-                game.teleport.startPoint(this)
-            }
-        },
-
-        onSelectEnd: function () {
-            const left = this === game.leftHand.con
-            if (left) {
-            } else {
-                game.teleport.go(this)
-            }
-        },
-
-        onSqueezeStart: function () {
-            if (game.physics.doCatch(this, this.ball)) {
-
-                const left = this === game.leftHand.con
-
-                game.ball.state = 'held'
-                game.ball.holding = game.client.id
-                game.ball.hand = left ? 'left' : 'right'
-
-                game.physics.sleepBall()
-                const m = game.ball.mesh
-                m.position.set(game.handParams.x * (left ? 1 : -1), game.handParams.y, game.handParams.z)
-                this.add(m)
-
-                game.client.emitBallState({
-                    state: game.ball.state,
-                    holding: game.ball.holding,
-                    hand: game.ball.hand,
-                })
-            }
-        },
-
-        onSqueezeEnd: function () {
-            if (game.ball.state == 'held' && game.ball.holding == game.client.id && (game.ball.hand === 'left') === (this === game.leftHand.con)) {
-
-                game.ball.state = 'free'
-                game.scene.add(game.ball.mesh)
-
-                const v = game.physics.doThrow(this)
-                game.client.emitBallState({
-                    state: game.ball.state,
-                    holding: game.ball.holding,
-                    hand: game.ball.hand,
-                    velocity: { x: v.x, y: v.y, z: v.z }
-                })
-            }
-        },
     }
 }
 
@@ -116,7 +57,9 @@ export default class Game {
 
         this.hands = new Hands(gltfLoader)
 
-        const { leftCon, rightCon, leftGrip, rightGrip } = WebXR.init(xr, handlers(this), cameraGroup, this.hands)
+        this.inputs = new Inputs(this)
+
+        const { leftCon, rightCon, leftGrip, rightGrip } = WebXR.init(xr, this.inputs.leftConEventHandlers, this.inputs.rightConEventHandlers, cameraGroup, this.hands)
         // TODO this could be optional/an object to pick up
         // this.objects.buildGlove(leftGrip)
         this.leftHand.con = leftCon
@@ -187,25 +130,6 @@ export default class Game {
                 this.gui.addSlider(this.debugObj, 'y')
                 this.leftHand.con.add(this.gui)
             }
-        }
-
-        const toggle = pressed => e => {
-            if (e.key === 'a') {
-                this.aPressed = pressed
-            }
-            if (e.key === 'b') {
-                this.bPressed = pressed
-            }
-            if (e.key === 's') {
-                this.sPressed = pressed
-            }
-        }
-        window.addEventListener('keypress', toggle(true))
-        window.addEventListener('keyup', toggle(false))
-
-        this.wasPressed = {
-            'left': Array(8).fill(false),
-            'right': Array(8).fill(false),
         }
     }
 
@@ -284,113 +208,69 @@ export default class Game {
         controller.userData.prevPositions.push(controller.getWorldPosition(this.positionBuffer).toArray())
     }
 
-    handleLeftInput(source) {
-        const h = 'left'
-        const a = source.gamepad.axes
-        const [x, z] = [a[2], a[3]]
+    movePlayer(x, z) {
         const p = this.positionBuffer
         p.set(x, 0, z)
         p.applyQuaternion(this.player.quaternion)
         this.player.position.addScaledVector(p, .01)
-        const b = source.gamepad.buttons
-        const c = this.handParams.c
-        this.hands.clenchLeft(b[1].value * c)
-
-        if (b[0].pressed) {
-            console.log(h, 'trigger')
-        }
-        if (b[1].pressed) {
-            console.log(h, 'squeeze')
-        }
-        if (b[3].touched) {
-            console.log(h, 'joystick touched')
-        }
-        if (b[3].pressed || this.sPressed) {
-            console.log(h, 'joystick pressed')
-            if (!this.wasPressed[h][3]) {
-            }
-        }
-        this.wasPressed[h][3] = b[3].pressed || this.sPressed
-        if (b[4].touched) {
-            console.log(h, 'a touched')
-        }
-        if (b[4].pressed || this.aPressed) {
-            console.log(h, 'a pressed')
-            if (!this.wasPressed[h][4]) {
-            }
-        }
-        this.wasPressed[h][4] = b[4].pressed || this.aPressed
-        if (b[5].touched) {
-            console.log(h, 'b touched')
-        }
-        if (b[5].pressed || this.bPressed) {
-            console.log(h, 'b pressed')
-        }
-        this.wasPressed[h][5] = b[5].pressed || this.bPressed
     }
 
-    handleRightInput(source) {
-        const h = 'right'
-        const a = source.gamepad.axes
-        const [x, z] = [a[2], a[3]]
+    clenchLeftHand(x) {
+        this.hands.clenchLeft(x * this.handParams.c)
+    }
+
+    clenchRightHand(x) {
+        this.hands.clenchRight(x * this.handParams.c)
+    }
+
+    rotatePlayer(x) {
         this.player.rotateY(-.01 * x)
-        const b = source.gamepad.buttons
-        const c = this.handParams.c
-        this.hands.clenchRight(b[1].value * c)
-
-        if (b[0].pressed) {
-            console.log(h, 'trigger')
-        }
-        if (b[1].pressed) {
-            console.log(h, 'squeeze')
-        }
-        if (b[3].touched) {
-            console.log(h, 'joystick touched')
-        }
-        if (b[3].pressed || this.sPressed) {
-            console.log(h, 'joystick pressed')
-            if (!this.wasPressed[h][3]) {
-            }
-        }
-        this.wasPressed[h][3] = b[3].pressed || this.sPressed
-        if (b[4].touched) {
-            console.log(h, 'a touched')
-        }
-        if (b[4].pressed || this.aPressed) {
-            console.log(h, 'a pressed')
-            if (!this.wasPressed[h][4]) {
-                const p = this.rightHand.con.getWorldPosition(this.positionBuffer)
-                this.resetBall(p.x, p.y + 0.5, p.z)
-            }
-        }
-        this.wasPressed[h][4] = b[4].pressed || this.aPressed
-        if (b[5].touched) {
-            console.log(h, 'b touched')
-        }
-        if (b[5].pressed || this.bPressed) {
-            console.log(h, 'b pressed')
-            if (!this.wasPressed[h][5]) {
-                if (MODE === 'dev') {
-                    this.gui.toggle()
-                }
-            }
-        }
-        this.wasPressed[h][5] = b[5].pressed || this.bPressed
     }
 
-    handleInputs(inputs) {
-        if (inputs) {
-            for (const source of inputs) {
-                if (source.handedness === 'left') {
-                    this.handleLeftInput(source)
-                } else {
-                    this.handleRightInput(source)
-                }
-            }
-        }
+    resetBallAboveRightCon() {
+        const p = this.rightHand.con.getWorldPosition(this.positionBuffer)
+        this.resetBall(p.x, p.y + 0.5, p.z)
+    }
 
-        this.handleController(this.leftHand.con)
-        this.handleController(this.rightHand.con)
+    toggleGui() {
+        if (MODE === 'dev') {
+            this.gui.toggle()
+        }
+    }
+
+    tryCatch(con, left) {
+        if (this.physics.doCatch(con, this.ball)) {
+            this.ball.state = 'held'
+            this.ball.holding = this.client.id
+            this.ball.hand = left ? 'left' : 'right'
+
+            this.physics.sleepBall()
+            const m = this.ball.mesh
+            m.position.set(this.handParams.x * (left ? 1 : -1), this.handParams.y, this.handParams.z)
+            con.add(m)
+
+            this.client.emitBallState({
+                state: this.ball.state,
+                holding: this.ball.holding,
+                hand: this.ball.hand,
+            })
+        }
+    }
+
+    tryThrow(con) {
+        if (this.ball.state == 'held' && this.ball.holding == this.client.id && (this.ball.hand === 'left') === (con === this.leftHand.con)) {
+
+            this.ball.state = 'free'
+            this.scene.add(this.ball.mesh)
+
+            const v = this.physics.doThrow(con)
+            this.client.emitBallState({
+                state: this.ball.state,
+                holding: this.ball.holding,
+                hand: this.ball.hand,
+                velocity: { x: v.x, y: v.y, z: v.z }
+            })
+        }
     }
 
     emitPlayerState() {
@@ -459,12 +339,17 @@ export default class Game {
     }
 
     update(inputs) {
-        this.handleInputs(inputs)
+        this.inputs.handleInputs(inputs)
+        this.handleController(this.leftHand.con)
+        this.handleController(this.rightHand.con)
+
         this.teleport.update(this.rightHand.con)
         this.physics.update(this.players, this.leftHand.con, this.rightHand.con)
         this.updateMeshes()
+
         this.emitPlayerState()
         this.updateOtherPlayerState()
+
         if (MODE === 'dev') {
             stats.update()
             if (this.guiEnabled) {

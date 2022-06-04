@@ -19,7 +19,7 @@ const buildController = (data) => {
     }
 }
 
-const init = (xr, handlers, player, hands) => {
+const init = (xr, leftHandlers, rightHandlers, player, hands) => {
     xr.enabled = true
 
     const leftCon = xr.getController(0)
@@ -36,17 +36,22 @@ const init = (xr, handlers, player, hands) => {
             this.add(c)
         })
 
-        con.addEventListener('selectstart', handlers.onSelectStart)
-        con.addEventListener('selectend', handlers.onSelectEnd)
-        con.addEventListener('squeezestart', handlers.onSqueezeStart)
-        con.addEventListener('squeezeend', handlers.onSqueezeEnd)
-
         con.addEventListener('disconnected', function () {
             this.remove(this.children[0])
         })
     })
 
-    const controllerModelFactory = new XRControllerModelFactory()
+    leftCon.addEventListener('selectstart', leftHandlers.onSelectStart)
+    leftCon.addEventListener('selectend', leftHandlers.onSelectEnd)
+    leftCon.addEventListener('squeezestart', leftHandlers.onSqueezeStart)
+    leftCon.addEventListener('squeezeend', leftHandlers.onSqueezeEnd)
+
+    rightCon.addEventListener('selectstart', rightHandlers.onSelectStart)
+    rightCon.addEventListener('selectend', rightHandlers.onSelectEnd)
+    rightCon.addEventListener('squeezestart', rightHandlers.onSqueezeStart)
+    rightCon.addEventListener('squeezeend', rightHandlers.onSqueezeEnd)
+
+    // const controllerModelFactory = new XRControllerModelFactory()
     const [leftGrip, rightGrip] = [xr.getControllerGrip(0), xr.getControllerGrip(1)]
     // leftGrip.add(controllerModelFactory.createControllerModel(rightGrip))
     // rightGrip.add(controllerModelFactory.createControllerModel(rightGrip))
