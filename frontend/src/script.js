@@ -18,7 +18,7 @@ import Lights from './Assets/Lights'
 import Renderer from './Assets/Renderer'
 import Windowing from './Assets/Window'
 
-import Game from './Game'
+import Game from './Game/Game'
 
 const dracoLoader = new DRACOLoader()
 const gltfLoader = new GLTFLoader()

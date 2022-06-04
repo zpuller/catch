@@ -1,20 +1,20 @@
 import * as THREE from 'three'
 import Stats from 'three/examples/jsm/libs/stats.module'
 
-import Objects from './Assets/Objects'
+import Objects from '../Assets/Objects'
 
 import Physics from './Physics'
-import WebXR from './WebXR'
+import WebXR from '../WebXR'
 
 import CannonDebugger from 'cannon-es-debugger'
-import GarbageBin from './Assets/Entities/GarbageBin'
-import StaticEntities from './Assets/Entities/StaticEntities'
+import GarbageBin from '../Assets/Entities/GarbageBin'
+import StaticEntities from '../Assets/Entities/StaticEntities'
 
 import Gui from './Gui'
 import Teleport from './Teleport'
-import Hands from './Assets/Entities/Hands'
-import GameAudio from './Assets/GameAudio'
-import Utils from './Utils'
+import Hands from '../Assets/Entities/Hands'
+import GameAudio from '../Assets/GameAudio'
+import Utils from '../Utils'
 
 let stats
 if (MODE === 'dev') {

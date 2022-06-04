@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import ControllerRaycaster from './ControllerRaycaster'
-import Utils from './Utils'
+import Utils from '../Utils'
 
 const round = (num, places = 2) => String(Math.round(num * Math.pow(10, places)) / Math.pow(10, places))
 
