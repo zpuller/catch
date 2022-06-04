@@ -82,10 +82,13 @@ export default class Gui extends THREE.Group {
         this.visible = false
 
         this.wasPressed = false
+
+        this.update = () => { }
     }
 
     toggle() {
         this.visible = !this.visible
+        this.update = this.visible ? this.updateImpl : () => { }
     }
 
     addSlider(obj, prop, min = 0, max = 1, step = null) {
@@ -186,14 +189,7 @@ export default class Gui extends THREE.Group {
         }
     }
 
-    // TODO can we replace some if statements with function assignments?
-    update(con, source) {
-        if (!this.visible) {
-            return
-        }
-        if (con.children.length === 0) {
-            return
-        }
+    updateImpl(con, source) {
         this.wasPressed = this.updateMenu(con, source) || this.updateScrollbar(con, source)
         this.baseMaterial.emissiveMap.needsUpdate = true
         this.scrollMaterial.emissiveMap.needsUpdate = true

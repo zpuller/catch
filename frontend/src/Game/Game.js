@@ -33,7 +33,7 @@ const defaultPlayer = () => {
 }
 
 export default class Game {
-    constructor(gltfLoader, xr, scene, cameraGroup, client, camera) {
+    constructor(gltfLoader, xr, scene, cameraGroup, client, camera, onInputsConnected) {
         this.client = client
         this.client.subscribeToEvents(this)
         this.handledInitialState = false
@@ -58,8 +58,15 @@ export default class Game {
         this.hands = new Hands(gltfLoader)
 
         this.inputs = new Inputs(this)
-
-        const { leftCon, rightCon, leftGrip, rightGrip } = WebXR.init(xr, this.inputs.leftConEventHandlers, this.inputs.rightConEventHandlers, cameraGroup, this.hands)
+        const webXRConf = {
+            xr,
+            leftHandlers: this.inputs.leftConEventHandlers,
+            rightHandlers: this.inputs.rightConEventHandlers,
+            player: cameraGroup,
+            hands: this.hands,
+            onInputsConnected,
+        }
+        const { leftCon, rightCon, leftGrip, rightGrip } = WebXR.init(webXRConf)
         // TODO this could be optional/an object to pick up
         // this.objects.buildGlove(leftGrip)
         this.leftHand.con = leftCon
@@ -97,7 +104,7 @@ export default class Game {
         this.dynamicEntities = []
         this.addEntity(new StaticEntities(physicsHandlers))
 
-        this.addDynamicEntity(new GarbageBin({ x: 0.7, y: 1.0, z: -3 }, this.scene, gltfLoader))
+        this.addDynamicEntity(new GarbageBin({ x: 0.7, y: 0.0, z: -3 }, this.scene, gltfLoader))
 
         if (MODE === 'dev') {
             this.cannonDebuggerEnabled = false

@@ -134,13 +134,11 @@ export default class Inputs {
     }
 
     handleInputs(inputs) {
-        if (inputs) {
-            for (const source of inputs) {
-                if (source.handedness === 'left') {
-                    this.handleLeftInput(source)
-                } else {
-                    this.handleRightInput(source)
-                }
+        for (const source of inputs) {
+            if (source.handedness === 'left') {
+                this.handleLeftInput(source)
+            } else {
+                this.handleRightInput(source)
             }
         }
     }

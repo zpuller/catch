@@ -19,7 +19,10 @@ const buildController = (data) => {
     }
 }
 
-const init = (xr, leftHandlers, rightHandlers, player, hands) => {
+let numInputs = 0
+
+const init = (conf) => {
+    const { xr, leftHandlers, rightHandlers, player, hands, onInputsConnected } = conf
     xr.enabled = true
 
     const leftCon = xr.getController(0)
@@ -34,6 +37,9 @@ const init = (xr, leftHandlers, rightHandlers, player, hands) => {
             const c = buildController(event.data)
             c.position.set(0, 0, -.1)
             this.add(c)
+            if (++numInputs == 2) {
+                onInputsConnected()
+            }
         })
 
         con.addEventListener('disconnected', function () {

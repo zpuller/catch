@@ -54,6 +54,7 @@ export default class GarbageBin {
                 gltf.scene.scale.set(scale, scale, scale)
                 scene.remove(this.mesh)
                 this.mesh = gltf.scene
+                this.mesh.position.copy(p)
                 scene.add(this.mesh)
             }
         )

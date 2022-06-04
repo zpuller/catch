@@ -69,7 +69,7 @@ const waitForClientLogin = () => {
     if (client.id === undefined) {
         setTimeout(waitForClientLogin, 100)
     } else {
-        game = new Game(gltfLoader, renderer.xr, scene, cameraGroup, client, camera)
+        game = new Game(gltfLoader, renderer.xr, scene, cameraGroup, client, camera, animateXR)
         document.body.appendChild(VRButton.createButton(renderer))
         animate()
     }
@@ -77,8 +77,14 @@ const waitForClientLogin = () => {
 
 const animate = () => {
     renderer.setAnimationLoop(() => {
-        const inputs = renderer.xr.getSession()?.inputSources;
         controls.update()
+        renderer.render(scene, camera)
+    })
+}
+
+const animateXR = () => {
+    const inputs = renderer.xr.getSession().inputSources;
+    renderer.setAnimationLoop(() => {
         game.update(inputs)
         renderer.render(scene, camera)
     })
