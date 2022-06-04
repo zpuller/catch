@@ -284,70 +284,107 @@ export default class Game {
         controller.userData.prevPositions.push(controller.getWorldPosition(this.positionBuffer).toArray())
     }
 
+    handleLeftInput(source) {
+        const h = 'left'
+        const a = source.gamepad.axes
+        const [x, z] = [a[2], a[3]]
+        const p = this.positionBuffer
+        p.set(x, 0, z)
+        p.applyQuaternion(this.player.quaternion)
+        this.player.position.addScaledVector(p, .01)
+        const b = source.gamepad.buttons
+        const c = this.handParams.c
+        this.hands.clenchLeft(b[1].value * c)
+
+        if (b[0].pressed) {
+            console.log(h, 'trigger')
+        }
+        if (b[1].pressed) {
+            console.log(h, 'squeeze')
+        }
+        if (b[3].touched) {
+            console.log(h, 'joystick touched')
+        }
+        if (b[3].pressed || this.sPressed) {
+            console.log(h, 'joystick pressed')
+            if (!this.wasPressed[h][3]) {
+            }
+        }
+        this.wasPressed[h][3] = b[3].pressed || this.sPressed
+        if (b[4].touched) {
+            console.log(h, 'a touched')
+        }
+        if (b[4].pressed || this.aPressed) {
+            console.log(h, 'a pressed')
+            if (!this.wasPressed[h][4]) {
+            }
+        }
+        this.wasPressed[h][4] = b[4].pressed || this.aPressed
+        if (b[5].touched) {
+            console.log(h, 'b touched')
+        }
+        if (b[5].pressed || this.bPressed) {
+            console.log(h, 'b pressed')
+        }
+        this.wasPressed[h][5] = b[5].pressed || this.bPressed
+    }
+
+    handleRightInput(source) {
+        const h = 'right'
+        const a = source.gamepad.axes
+        const [x, z] = [a[2], a[3]]
+        this.player.rotateY(-.01 * x)
+        const b = source.gamepad.buttons
+        const c = this.handParams.c
+        this.hands.clenchRight(b[1].value * c)
+
+        if (b[0].pressed) {
+            console.log(h, 'trigger')
+        }
+        if (b[1].pressed) {
+            console.log(h, 'squeeze')
+        }
+        if (b[3].touched) {
+            console.log(h, 'joystick touched')
+        }
+        if (b[3].pressed || this.sPressed) {
+            console.log(h, 'joystick pressed')
+            if (!this.wasPressed[h][3]) {
+            }
+        }
+        this.wasPressed[h][3] = b[3].pressed || this.sPressed
+        if (b[4].touched) {
+            console.log(h, 'a touched')
+        }
+        if (b[4].pressed || this.aPressed) {
+            console.log(h, 'a pressed')
+            if (!this.wasPressed[h][4]) {
+                const p = this.rightHand.con.getWorldPosition(this.positionBuffer)
+                this.resetBall(p.x, p.y + 0.5, p.z)
+            }
+        }
+        this.wasPressed[h][4] = b[4].pressed || this.aPressed
+        if (b[5].touched) {
+            console.log(h, 'b touched')
+        }
+        if (b[5].pressed || this.bPressed) {
+            console.log(h, 'b pressed')
+            if (!this.wasPressed[h][5]) {
+                if (MODE === 'dev') {
+                    this.gui.toggle()
+                }
+            }
+        }
+        this.wasPressed[h][5] = b[5].pressed || this.bPressed
+    }
+
     handleInputs(inputs) {
         if (inputs) {
             for (const source of inputs) {
-                const h = source.handedness
-                let a = source.gamepad.axes
-                const [x, z] = [a[2], a[3]]
-                const p = this.positionBuffer
-                p.set(x, 0, z)
-                p.applyQuaternion(this.player.quaternion)
-                if (h == 'left') {
-                    this.player.position.addScaledVector(p, .01)
-                } else {
-                    this.player.rotateY(-.01 * x)
-                }
-                const b = source.gamepad.buttons
-                if (b[0].pressed) {
-                    console.log('trigger')
-                }
-                if (b[1].pressed) {
-                    console.log('squeeze')
-                }
-                if (b[3].touched) {
-                    console.log('joystick touched')
-                }
-                if (b[3].pressed || this.sPressed) {
-                    console.log('joystick pressed')
-                    if (!this.wasPressed[h][3]) {
-                    }
-                }
-                this.wasPressed[h][3] = b[3].pressed || this.sPressed
-                if (b[4].touched) {
-                    console.log('a touched')
-                }
-                if (b[4].pressed || this.aPressed) {
-                    console.log('a pressed')
-                    if (!this.wasPressed[h][4]) {
-                        const p = this.rightHand.con.getWorldPosition(this.positionBuffer)
-                        this.resetBall(p.x, p.y + 0.5, p.z)
-                    }
-                }
-                this.wasPressed[h][4] = b[4].pressed || this.aPressed
-                if (b[5].touched) {
-                    console.log('b touched')
-                }
-                // TODO this could all be better organized
-                if (b[5].pressed || this.bPressed) {
-                    console.log('b pressed')
-                    if (h === 'right' && !this.wasPressed[h][5]) {
-                        if (MODE === 'dev') {
-                            this.gui.toggle()
-                        }
-                    }
-                }
-                this.wasPressed[h][5] = b[5].pressed || this.bPressed
-
-                const squeeze = source.gamepad.buttons[1]
-                const select = source.gamepad.buttons[0]
-                const c = this.handParams.c
                 if (source.handedness === 'left') {
-                    this.hands.clenchLeft(squeeze.value * c)
-                    this.hands.clenchLeftIndex(select.value * c)
+                    this.handleLeftInput(source)
                 } else {
-                    this.hands.clenchRight(squeeze.value * c)
-                    this.hands.clenchRightIndex(select.value * c)
+                    this.handleRightInput(source)
                 }
             }
         }
