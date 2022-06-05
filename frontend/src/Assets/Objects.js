@@ -58,6 +58,7 @@ export default class Objects {
         this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1654396991/zachGame/furniture_go3x2t.glb', onLoad(scene))
         this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1654396861/zachGame/plant_tfepom.glb', onLoad(scene))
         this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1654396898/zachGame/picture_aqoarb.glb', onLoad(scene))
+        this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1654403415/zachGame/building_yfebqa.glb', onLoad(scene))
         this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1653634116/zachGame/screen_khzwhi.glb', (gltf) => {
             onLoad(scene)(gltf)
             gltf.scene.children[0].material = videoMesh
