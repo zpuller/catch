@@ -31,44 +31,42 @@ const environmentMap = cubeTextureLoader.load([
 
 environmentMap.encoding = THREE.sRGBEncoding
 
+const onLoad = scene => gltf => {
+    gltf.scene.matrixAutoUpdate = false
+    scene.add(gltf.scene)
+}
+
 export default class Objects {
     constructor(gltfLoader) {
         this.gltfLoader = gltfLoader
         this.video = video
     }
 
-    // move to sep. classes
+    // TODO move to sep. classes
     buildRoom(scene, tvSound) {
         scene.background = environmentMap
         scene.environment = environmentMap
 
-        this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1653634116/zachGame/room_avs9ju.glb', (gltf) => {
-            gltf.scene.matrixAutoUpdate = false
-            scene.add(gltf.scene)
+        this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1654396923/zachGame/room_xctn0b.glb', (gltf) => {
+            onLoad(scene)(gltf)
             gltf.scene.traverse(o => {
                 if (o.name === "Plane") {
                     this.floor = o
                 }
             })
         })
-        this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1653634116/zachGame/picture_byydt0.glb', (gltf) => {
-            gltf.scene.matrixAutoUpdate = false
-            scene.add(gltf.scene)
-        })
+        this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1654396991/zachGame/furniture_go3x2t.glb', onLoad(scene))
+        this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1654396861/zachGame/plant_tfepom.glb', onLoad(scene))
+        this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1654396898/zachGame/picture_aqoarb.glb', onLoad(scene))
         this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1653634116/zachGame/screen_khzwhi.glb', (gltf) => {
-            gltf.scene.matrixAutoUpdate = false
+            onLoad(scene)(gltf)
             gltf.scene.children[0].material = videoMesh
             this.screen = gltf.scene
             this.screen.sound = tvSound
             this.screen.add(tvSound)
-            scene.add(gltf.scene)
         })
         this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1654148966/zachGame/screen_broken_byifr2.glb', gltf => {
             this.screenBroken = gltf.scene
-        })
-        this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1654377423/zachGame/furniture_ovjm6e.glb', (gltf) => {
-            gltf.scene.matrixAutoUpdate = false
-            scene.add(gltf.scene)
         })
     }
 
