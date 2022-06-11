@@ -69,7 +69,8 @@ export default class Gui extends THREE.Group {
         this.add(this.mainScreen)
         this.add(this.scrollBar)
 
-        this.position.set(0, 1.5, -0.5)
+        this.position.set(0, -0.25, -0.5)
+        this.rotateX(Math.PI * -0.15)
         // this.rotateY(Math.PI * .25)
         // this.rotateZ(Math.PI * -.25)
 

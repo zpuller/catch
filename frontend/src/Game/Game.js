@@ -135,9 +135,17 @@ export default class Game {
                 this.gui = new Gui()
                 this.gui.addSlider(this.debugObj, 'x')
                 this.gui.addSlider(this.debugObj, 'y')
-                this.player.add(this.gui)
+                // this.player.add(this.gui)
             }
         }
+    }
+
+    startXRSession(xr) {
+        console.log('start xr')
+        this.headset = xr.getCamera()
+        this.scene.add(this.headset)
+        this.headset.add(this.gui)
+        console.log(this.headset)
     }
 
     addEntity(e) {
@@ -240,6 +248,8 @@ export default class Game {
     }
 
     toggleGui() {
+        console.log('toggle gui')
+        console.log(this.gui)
         if (MODE === 'dev') {
             this.gui.toggle()
         }
