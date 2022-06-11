@@ -56,7 +56,7 @@ export default class Objects {
         this.gltfLoader.load('models/room.glb', (gltf) => {
             onLoad(scene)(gltf)
             gltf.scene.traverse(o => {
-                if (o.name === "Plane") {
+                if (o.name === 'Plane') {
                     this.floor = o
                     const s = 10
                     o.material.normalScale = new Vector2(s, -s)
@@ -70,7 +70,17 @@ export default class Objects {
                 }
             })
         })
-        this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1654396991/zachGame/furniture_go3x2t.glb', onLoad(scene))
+        // this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1654396991/zachGame/furniture_go3x2t.glb', onLoad(scene))
+        this.gltfLoader.load('models/furniture.glb', gltf => {
+            gltf.scene.matrixAutoUpdate = false
+            scene.add(gltf.scene)
+            gltf.scene.traverse(o => {
+                if (o.name === 'Cube001') {
+                    console.log(o)
+                    o.material.roughness = 10
+                }
+            })
+        })
         this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1654396861/zachGame/plant_tfepom.glb', onLoad(scene))
         this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1654396898/zachGame/picture_aqoarb.glb', onLoad(scene))
         this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1654403415/zachGame/building_yfebqa.glb', onLoad(scene))
