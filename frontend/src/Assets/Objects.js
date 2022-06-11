@@ -90,6 +90,8 @@ export default class Objects {
             this.screen = gltf.scene
             this.screen.sound = tvSound
             this.screen.add(tvSound)
+
+            this.screen.visible = false
         })
         this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1654148966/zachGame/screen_broken_byifr2.glb', gltf => {
             this.screenBroken = gltf.scene
