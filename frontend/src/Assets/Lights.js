@@ -5,9 +5,21 @@ export default class Lights {
         const group = new THREE.Group()
         group.add(new THREE.HemisphereLight(0x606060, 0x404040));
 
-        const plight = new THREE.PointLight(0xffffff, 0.8, 5, .9)
-        plight.position.set(3, 3.6, -2)
-        group.add(plight)
+        // const plight = new THREE.PointLight(0xffffff, 0.5, 5, 0.9)
+        // plight.position.set(3, 3.6, -2)
+        // group.add(plight)
+
+        const dlight = new THREE.DirectionalLight(0xffffff, 0.5)
+        dlight.position.set(-4, 4, 1)
+        group.add(dlight)
+        group.add(dlight.target)
+        dlight.target.position.z = -4
+        dlight.target.updateMatrixWorld()
+
+        // const helper = new THREE.DirectionalLightHelper(dlight)
+        // group.add(helper)
+        // helper.updateMatrixWorld()
+        // helper.update()
 
         return group
     }

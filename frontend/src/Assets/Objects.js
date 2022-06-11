@@ -1,4 +1,9 @@
 import * as THREE from 'three'
+import { Float32BufferAttribute, Vector2 } from 'three'
+
+import * as dat from 'lil-gui'
+
+const gui = new dat.GUI()
 
 const cubeTextureLoader = new THREE.CubeTextureLoader()
 
@@ -47,11 +52,21 @@ export default class Objects {
         scene.background = environmentMap
         scene.environment = environmentMap
 
-        this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1654396923/zachGame/room_xctn0b.glb', (gltf) => {
+        // this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1654396923/zachGame/room_xctn0b.glb', (gltf) => {
+        this.gltfLoader.load('models/room.glb', (gltf) => {
             onLoad(scene)(gltf)
             gltf.scene.traverse(o => {
                 if (o.name === "Plane") {
                     this.floor = o
+                    const s = 10
+                    o.material.normalScale = new Vector2(s, -s)
+                    o.material.needsUpdate = true
+                    const debugObj = { scale: 14.0 }
+                    gui.add(debugObj, 'scale').min(0.0).max(20.0).step(.1).onChange(() => {
+                        const s = debugObj.scale
+                        o.material.normalScale = new Vector2(s, -s)
+                        o.material.needsUpdate = true
+                    })
                 }
             })
         })
@@ -80,6 +95,7 @@ export default class Objects {
             (gltf) => {
                 scene.remove(ball.mesh)
                 ball.mesh = gltf.scene
+                ball.mesh.position.y = 10
                 scene.add(ball.mesh)
                 ball.mesh.add(sound)
                 ball.sound = sound

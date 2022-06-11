@@ -135,7 +135,7 @@ export default class Game {
                 this.gui = new Gui()
                 this.gui.addSlider(this.debugObj, 'x')
                 this.gui.addSlider(this.debugObj, 'y')
-                this.leftHand.con.add(this.gui)
+                this.player.add(this.gui)
             }
         }
     }
