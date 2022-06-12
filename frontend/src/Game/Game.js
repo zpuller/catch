@@ -8,7 +8,6 @@ import WebXR from '../WebXR'
 
 import CannonDebugger from 'cannon-es-debugger'
 import GarbageBin from '../Assets/Entities/GarbageBin'
-import StaticEntities from '../Assets/Entities/StaticEntities'
 
 import Gui from './Gui'
 import Teleport from './Teleport'
@@ -103,7 +102,6 @@ export default class Game {
         this.objects.buildRoom(this.scene, sounds.tv, physicsHandlers)
 
         this.dynamicEntities = []
-        this.addEntity(new StaticEntities(physicsHandlers))
 
         this.addDynamicEntity(new GarbageBin({ x: 0.7, y: 0.0, z: -3 }, this.scene, gltfLoader))
 
