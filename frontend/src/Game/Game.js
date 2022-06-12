@@ -84,7 +84,6 @@ export default class Game {
         }
         // TODO this could theoretically trigger before the assets are loaded
         const tvHandler = () => {
-            console.log('handling')
             if (this.objects.screen.broken) {
                 return
             }
@@ -142,7 +141,9 @@ export default class Game {
     startXRSession(xr) {
         this.headset = xr.getCamera()
         this.scene.add(this.headset)
-        this.headset.add(this.gui)
+        if (MODE === 'dev') {
+            this.headset.add(this.gui)
+        }
     }
 
     addEntity(e) {
@@ -246,7 +247,6 @@ export default class Game {
 
     toggleGui() {
         console.log('toggle gui')
-        console.log(this.gui)
         if (MODE === 'dev') {
             this.gui.toggle()
         }

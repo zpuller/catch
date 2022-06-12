@@ -45,7 +45,6 @@ const createBody = (o, physics, handler) => {
     const { shape } = threeToCannon(o, { type: ShapeType.BOX })
     body.addShape(shape)
     if (handler) {
-        console.log(handler)
         body.addEventListener('collide', handler)
     }
     physics.world.addBody(body)
