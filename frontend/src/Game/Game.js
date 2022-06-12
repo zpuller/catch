@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import Stats from 'three/examples/jsm/libs/stats.module'
+import { HTMLMesh } from 'three/examples/jsm/interactive/HTMLMesh'
 
 import Objects from '../Assets/Objects'
 
@@ -16,6 +17,7 @@ import GameAudio from '../Assets/GameAudio'
 import Utils from '../Utils'
 import Inputs from './Inputs'
 
+// TODO move to script.js?
 let stats
 if (MODE === 'dev') {
     stats = Stats()
@@ -109,6 +111,17 @@ export default class Game {
             if (this.cannonDebuggerEnabled) {
                 this.cannonDebugger = new CannonDebugger(this.scene, this.physics.world)
             }
+
+            // Experimental
+            const statsMesh = new HTMLMesh(stats.dom);
+            statsMesh.position.x = - 0.75;
+            statsMesh.position.y = 2;
+            statsMesh.position.z = - 0.6;
+            statsMesh.rotation.y = Math.PI / 4;
+            statsMesh.scale.setScalar(2.5);
+            scene.add(statsMesh);
+
+            this.statsMesh = statsMesh
         }
 
 
@@ -372,6 +385,8 @@ export default class Game {
             if (this.cannonDebuggerEnabled) {
                 this.cannonDebugger.update()
             }
+
+            this.statsMesh.material.map.update()
         }
     }
 }
