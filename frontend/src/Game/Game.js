@@ -51,9 +51,6 @@ export default class Game {
         this.rightHand = {}
 
         const sounds = new GameAudio(camera)
-        this.objects = new Objects(gltfLoader)
-        this.objects.buildBall(this.ball, this.scene, sounds.ball)
-        this.objects.buildRoom(this.scene, sounds.tv)
 
         this.hands = new Hands(gltfLoader)
 
@@ -88,6 +85,7 @@ export default class Game {
         }
         // TODO this could theoretically trigger before the assets are loaded
         const tvHandler = () => {
+            console.log('handling')
             if (this.objects.screen.broken) {
                 return
             }
@@ -99,7 +97,10 @@ export default class Game {
         }
         const physicsHandlers = { ball: ballHandler, tv: tvHandler }
 
-        this.physics = new Physics(this.ball, this.wall, this.leftHand, this.rightHand, physicsHandlers)
+        this.physics = new Physics(this.ball, this.leftHand, this.rightHand, physicsHandlers)
+        this.objects = new Objects(gltfLoader, this.physics)
+        this.objects.buildBall(this.ball, this.scene, sounds.ball)
+        this.objects.buildRoom(this.scene, sounds.tv, physicsHandlers)
 
         this.dynamicEntities = []
         this.addEntity(new StaticEntities(physicsHandlers))
@@ -141,11 +142,9 @@ export default class Game {
     }
 
     startXRSession(xr) {
-        console.log('start xr')
         this.headset = xr.getCamera()
         this.scene.add(this.headset)
         this.headset.add(this.gui)
-        console.log(this.headset)
     }
 
     addEntity(e) {

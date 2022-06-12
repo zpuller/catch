@@ -4,7 +4,7 @@ import * as CANNON from 'cannon-es'
 import { Matrix4 } from 'three'
 
 export default class Physics {
-    constructor(pBall, pWall, pLeftHand, pRightHand, handlers) {
+    constructor(pBall, pLeftHand, pRightHand, handlers) {
         this.vec3Buffer = new THREE.Vector3()
         this.quaternionBuffer = new THREE.Quaternion()
         this.scaleOne = new THREE.Vector3(1, 1, 1)
@@ -12,7 +12,6 @@ export default class Physics {
         this.elapsedTime = this.clock.getElapsedTime()
         this.timeframes = Array(10).fill(1)
         this.ball = pBall
-        this.wall = pWall
         this.leftHand = pLeftHand
         this.rightHand = pRightHand
 
