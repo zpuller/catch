@@ -2,10 +2,7 @@ import * as THREE from 'three'
 import * as CANNON from 'cannon-es'
 import { Float32BufferAttribute, Vector2 } from 'three'
 
-import * as dat from 'lil-gui'
 import { ShapeType, threeToCannon } from 'three-to-cannon'
-
-const gui = new dat.GUI()
 
 const cubeTextureLoader = new THREE.CubeTextureLoader()
 
@@ -75,21 +72,15 @@ export default class Objects {
         scene.environment = environmentMap
 
         // this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1654396923/zachGame/room_xctn0b.glb', (gltf) => {
-        this.gltfLoader.load('models/room.glb', (gltf) => {
+        this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1655006749/zachGame/room_xoxpqr.glb', (gltf) => {
             onLoad(scene, this.physics)(gltf)
             this.floor = gltf.scene.children.find(o => o.name === 'Plane')
             const s = 10
             this.floor.material.normalScale = new Vector2(s, -s)
             this.floor.material.needsUpdate = true
-            const debugObj = { scale: 14.0 }
-            gui.add(debugObj, 'scale').min(0.0).max(20.0).step(.1).onChange(() => {
-                const s = debugObj.scale
-                this.floor.material.normalScale = new Vector2(s, -s)
-                this.floor.material.needsUpdate = true
-            })
         })
         // this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1654396991/zachGame/furniture_go3x2t.glb', onLoad(scene))
-        this.gltfLoader.load('models/furniture.glb', gltf => {
+        this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1655006749/zachGame/furniture_vxgbcy.glb', gltf => {
             onLoad(scene, this.physics)(gltf)
             gltf.scene.traverse(o => {
                 if (o.name === 'Cube001') {
@@ -98,9 +89,9 @@ export default class Objects {
             })
         })
         this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1654396861/zachGame/plant_tfepom.glb', onLoad(scene, this.physics))
-        this.gltfLoader.load('models/picture.glb', onLoad(scene, this.physics))
+        this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1655006748/zachGame/picture_ox10d0.glb', onLoad(scene, this.physics))
         this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1654403415/zachGame/building_yfebqa.glb', onLoad(scene, this.physics))
-        this.gltfLoader.load('models/screen.glb', (gltf) => {
+        this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1655006748/zachGame/screen_mbbm8z.glb', (gltf) => {
             onLoad(scene, this.physics, handlers.tv)(gltf)
             gltf.scene.children[0].material = videoMesh
             this.screen = gltf.scene
@@ -109,7 +100,7 @@ export default class Objects {
 
             this.screen.visible = true
         })
-        this.gltfLoader.load('models/screen_broken.glb', gltf => {
+        this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1655006748/zachGame/screen_broken_o2sbwa.glb', gltf => {
             this.screenBroken = gltf.scene
         })
     }
