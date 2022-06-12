@@ -67,49 +67,53 @@ export default class Objects {
 
     // TODO move to sep. classes
     buildRoom(scene, tvSound, handlers) {
+        // draws: ~4
         scene.background = environmentMap
-        scene.environment = environmentMap
+        // frames: 20
+        // scene.environment = environmentMap
 
-        // this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1654396923/zachGame/room_xctn0b.glb', (gltf) => {
-        this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1655006749/zachGame/room_xoxpqr.glb', (gltf) => {
+        // draws: 22
+        // this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1655006749/zachGame/room_xoxpqr.glb', (gltf) => {
+        this.gltfLoader.load('models/room.glb', (gltf) => {
             onLoad(scene, this.physics)(gltf)
             this.floor = gltf.scene.children.find(o => o.name === 'Plane')
             const s = 10
             this.floor.material.normalScale = new Vector2(s, -s)
             this.floor.material.needsUpdate = true
         })
-        // this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1654396991/zachGame/furniture_go3x2t.glb', onLoad(scene))
-        this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1655006749/zachGame/furniture_vxgbcy.glb', gltf => {
-            onLoad(scene, this.physics)(gltf)
-            gltf.scene.traverse(o => {
-                if (o.name === 'Cube001') {
-                    o.material.roughness = 10
-                }
-            })
-        })
-        this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1654396861/zachGame/plant_tfepom.glb', onLoad(scene, this.physics))
-        this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1655006748/zachGame/picture_ox10d0.glb', onLoad(scene, this.physics))
-        this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1654403415/zachGame/building_yfebqa.glb', onLoad(scene, this.physics))
-        this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1655006748/zachGame/screen_mbbm8z.glb', (gltf) => {
-            onLoad(scene, this.physics, handlers.tv)(gltf)
-            gltf.scene.children[0].material = videoMesh
-            this.screen = gltf.scene
-            this.screen.sound = tvSound
-            this.screen.add(tvSound)
+        // this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1655006749/zachGame/furniture_vxgbcy.glb', gltf => {
+        //     onLoad(scene, this.physics)(gltf)
+        //     gltf.scene.traverse(o => {
+        //         if (o.name === 'Cube001') {
+        //             o.material.roughness = 10
+        //         }
+        //     })
+        // })
+        // this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1654396861/zachGame/plant_tfepom.glb', onLoad(scene, this.physics))
+        // this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1655006748/zachGame/picture_ox10d0.glb', onLoad(scene, this.physics))
+        // this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1654403415/zachGame/building_yfebqa.glb', onLoad(scene, this.physics))
+        // this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1655006748/zachGame/screen_mbbm8z.glb', (gltf) => {
+        //     onLoad(scene, this.physics, handlers.tv)(gltf)
+        //     gltf.scene.children[0].material = videoMesh
+        //     this.screen = gltf.scene
+        //     this.screen.sound = tvSound
+        //     this.screen.add(tvSound)
 
-            this.screen.visible = true
-        })
-        this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1655006748/zachGame/screen_broken_o2sbwa.glb', gltf => {
-            this.screenBroken = gltf.scene
-        })
+        //     this.screen.visible = true
+        // })
+        // this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1655006748/zachGame/screen_broken_o2sbwa.glb', gltf => {
+        //     this.screenBroken = gltf.scene
+        // })
     }
 
+    // 4 draw calls, 20 fps
     buildBall(ball, scene, sound) {
         ball.mesh = new THREE.Mesh(ballGeometry, ballMaterial)
         scene.add(ball.mesh)
 
         this.gltfLoader.load(
-            'https://res.cloudinary.com/hack-reactor888/image/upload/v1652594431/zachGame/baseball.glb',
+            // 'https://res.cloudinary.com/hack-reactor888/image/upload/v1652594431/zachGame/baseball.glb',
+            'models/baseball.glb',
             (gltf) => {
                 scene.remove(ball.mesh)
                 ball.mesh = gltf.scene

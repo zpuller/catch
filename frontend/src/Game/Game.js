@@ -53,6 +53,7 @@ export default class Game {
 
         const sounds = new GameAudio(camera)
 
+        // draws: 8, frames: 5
         this.hands = new Hands(gltfLoader)
 
         this.inputs = new Inputs(this)
@@ -114,10 +115,6 @@ export default class Game {
 
             // Experimental
             const statsMesh = new HTMLMesh(stats.dom);
-            statsMesh.position.x = - 0.75;
-            statsMesh.position.y = 2;
-            statsMesh.position.z = - 0.6;
-            statsMesh.rotation.y = Math.PI / 4;
             statsMesh.scale.setScalar(2.5);
             scene.add(statsMesh);
 
@@ -130,10 +127,10 @@ export default class Game {
         this.teleport = new Teleport(scene, this.rightHand.con, this.objects, this.player)
 
         this.handParams = {
-            x: .03,
-            y: -.017,
-            z: .03,
-            c: .4,
+            x: .035,
+            y: -.015,
+            z: .02,
+            c: 0.5,
         }
 
         this.debugObj = {
@@ -144,9 +141,10 @@ export default class Game {
             this.guiEnabled = true
             if (this.guiEnabled) {
                 this.gui = new Gui()
-                this.gui.addSlider(this.debugObj, 'x')
-                this.gui.addSlider(this.debugObj, 'y')
-                // this.player.add(this.gui)
+                this.gui.addSlider(this.handParams, 'x', -.1, .1)
+                this.gui.addSlider(this.handParams, 'y', -.1, .1)
+                this.gui.addSlider(this.handParams, 'z', -.1, .1)
+                this.gui.addSlider(this.handParams, 'c')
             }
         }
     }
@@ -156,6 +154,8 @@ export default class Game {
         this.scene.add(this.headset)
         if (MODE === 'dev') {
             this.headset.add(this.gui)
+            this.headset.add(this.statsMesh)
+            this.statsMesh.position.set(-0.3, 0.3, -1)
         }
     }
 
@@ -260,7 +260,7 @@ export default class Game {
 
     toggleGui() {
         console.log('toggle gui')
-        if (MODE === 'dev') {
+        if (MODE === 'dev' && this.guiEnabled) {
             this.gui.toggle()
         }
     }
