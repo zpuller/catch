@@ -44,6 +44,8 @@ const init = () => {
     const canvas = document.querySelector('canvas.webgl')
 
     renderer = new Renderer(canvas, sizes)
+    renderer.outputEncoding = THREE.sRGBEncoding
+    // renderer.shadowMapEnabled = true
 
     lights = new Lights()
     camera = new Camera(sizes)

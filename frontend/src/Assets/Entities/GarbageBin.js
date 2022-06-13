@@ -54,6 +54,7 @@ export default class GarbageBin {
                 const mesh = gltf.scene.children[0]
                 const oldMat = mesh.material
                 mesh.material = Utils.swapToLambertMat(oldMat)
+                // mesh.castShadow = true
 
                 const scale = 1
                 gltf.scene.scale.set(scale, scale, scale)
