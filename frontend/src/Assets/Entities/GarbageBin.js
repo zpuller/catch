@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import * as CANNON from 'cannon-es'
+import Utils from '../../Utils'
 
 const createBody = conf => {
 
@@ -51,12 +52,8 @@ export default class GarbageBin {
             'https://res.cloudinary.com/hack-reactor888/image/upload/v1653628665/zachGame/garbage_bin_wt1tuu.glb',
             (gltf) => {
                 const mesh = gltf.scene.children[0]
-                console.log(mesh.material)
-                // const color = mesh.material.color.getHex()
-                const newMaterial = new THREE.MeshPhongMaterial()
-                newMaterial.setValues({ color: mesh.material.color })
-                mesh.material.dispose()
-                mesh.material = newMaterial
+                const oldMat = mesh.material
+                mesh.material = Utils.swapToLambertMat(oldMat)
 
                 const scale = 1
                 gltf.scene.scale.set(scale, scale, scale)

@@ -3,13 +3,14 @@ import * as CANNON from 'cannon-es'
 import { Float32BufferAttribute, Vector2 } from 'three'
 
 import { ShapeType, threeToCannon } from 'three-to-cannon'
+import Utils from '../Utils'
 
 const cubeTextureLoader = new THREE.CubeTextureLoader()
 
 const video = document.getElementById("vid")
 video.play()
 const videoTexture = new THREE.VideoTexture(video)
-const videoMesh = new THREE.MeshBasicMaterial({ map: videoTexture })
+const videoMeshMaterial = new THREE.MeshBasicMaterial({ map: videoTexture })
 
 const gripGeometry = new THREE.SphereGeometry(0.025, 16, 16)
 const gripMaterial = new THREE.MeshBasicMaterial({ color: '#ffffff' })
@@ -39,7 +40,8 @@ const createBody = (o, physics, handler) => {
     const body = new CANNON.Body({
         type: CANNON.Body.STATIC,
     })
-    body.position.copy(o.position)
+    const p = o.getWorldPosition(new THREE.Vector3())
+    body.position.copy(p)
     body.quaternion.copy(o.quaternion)
 
     const { shape } = threeToCannon(o, { type: ShapeType.BOX })
@@ -53,11 +55,42 @@ const createBody = (o, physics, handler) => {
 const onLoad = (scene, physics, handler) => gltf => {
     gltf.scene.matrixAutoUpdate = false
     scene.add(gltf.scene)
-    gltf.scene.children.forEach(o => {
-        createBody(o, physics, handler)
+    gltf.scene.traverse(o => {
+        if (o.type === 'Mesh') {
+            createBody(o, physics, handler)
+        }
     })
 }
 
+const swapObjectMat = (gltf, name, matType) => {
+    const obj = gltf.scene.children.find(c => c.name === name)
+    const isMesh = obj.type === 'Mesh'
+    const oldMaterial = isMesh ? obj.material : obj.children[0].material
+    let newMat
+    switch (matType) {
+        case 'lambert':
+            newMat = Utils.swapToLambertMat(oldMaterial)
+            break
+
+        case 'phong':
+            newMat = Utils.swapToPhongMat(oldMaterial)
+            break
+
+        case 'basic':
+            newMat = Utils.swapToBasicMat(oldMaterial)
+            break
+
+        default:
+            console.error('mat type not found!')
+    }
+    if (isMesh) {
+        obj.material = newMat
+    } else {
+        obj.children.forEach(c => c.material = newMat)
+    }
+}
+
+// global local/uploaded option
 export default class Objects {
     constructor(gltfLoader, physics) {
         this.gltfLoader = gltfLoader
@@ -77,41 +110,37 @@ export default class Objects {
         this.gltfLoader.load('models/room.glb', (gltf) => {
             onLoad(scene, this.physics)(gltf)
             this.floor = gltf.scene.children.find(o => o.name === 'Plane')
+            swapObjectMat(gltf, 'Plane', 'phong')
             const s = 10
             this.floor.material.normalScale = new Vector2(s, -s)
             this.floor.material.needsUpdate = true
         })
         this.gltfLoader.load('models/furniture.glb', gltf => {
             onLoad(scene, this.physics)(gltf)
-            let oldMaterial
-            gltf.scene.traverse(o => {
-                if (o.name === 'Cube001') {
-                    // o.material.roughness = 10
-                    oldMaterial = o.material
-                }
-            })
-            const newCouchMaterial = new THREE.MeshLambertMaterial()
-            const { map } = oldMaterial
-            newCouchMaterial.setValues({ map })
-            gltf.scene.traverse(o => {
-                if (o.parent?.name === 'Couch') {
-                    o.material.dispose()
-                    o.material = newCouchMaterial
-                }
-            })
+            swapObjectMat(gltf, 'couch', 'lambert')
+            swapObjectMat(gltf, 'fan_light', 'basic')
+            swapObjectMat(gltf, 'bench', 'lambert')
+            swapObjectMat(gltf, 'bench_legs', 'lambert')
+            swapObjectMat(gltf, 'tv', 'lambert')
+            swapObjectMat(gltf, 'tv_legs', 'lambert')
+            swapObjectMat(gltf, 'tv_stand_cabinet', 'lambert')
+            swapObjectMat(gltf, 'tv_stand_legs', 'lambert')
         })
         // this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1654396861/zachGame/plant_tfepom.glb', onLoad(scene, this.physics))
         // this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1655006748/zachGame/picture_ox10d0.glb', onLoad(scene, this.physics))
         // this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1654403415/zachGame/building_yfebqa.glb', onLoad(scene, this.physics))
         // this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1655006748/zachGame/screen_mbbm8z.glb', (gltf) => {
-        //     onLoad(scene, this.physics, handlers.tv)(gltf)
-        //     gltf.scene.children[0].material = videoMesh
-        //     this.screen = gltf.scene
-        //     this.screen.sound = tvSound
-        //     this.screen.add(tvSound)
+        this.gltfLoader.load('models/screen.glb', (gltf) => {
+            onLoad(scene, this.physics, handlers.tv)(gltf)
+            const screen = gltf.scene.children[0]
+            screen.material.dispose()
+            screen.material = videoMeshMaterial
+            this.screen = gltf.scene
+            this.screen.sound = tvSound
+            this.screen.add(tvSound)
 
-        //     this.screen.visible = true
-        // })
+            this.screen.visible = true
+        })
         // this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1655006748/zachGame/screen_broken_o2sbwa.glb', gltf => {
         //     this.screenBroken = gltf.scene
         // })
@@ -129,6 +158,12 @@ export default class Objects {
                 scene.remove(ball.mesh)
                 ball.mesh = gltf.scene
                 ball.mesh.position.y = 10
+                ball.mesh.traverse(o => {
+                    if (o.type === 'Mesh') {
+                        const oldMaterial = o.material
+                        o.material = Utils.swapToLambertMat(oldMaterial)
+                    }
+                })
                 scene.add(ball.mesh)
                 ball.mesh.add(sound)
                 ball.sound = sound

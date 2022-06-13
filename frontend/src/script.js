@@ -84,7 +84,7 @@ const animate = () => {
 
 const animateXR = () => {
     game.startXRSession(renderer.xr)
-    console.log(renderer.info)
+    // console.log(renderer.info)
     const inputs = renderer.xr.getSession().inputSources;
     renderer.setAnimationLoop(() => {
         game.update(inputs)
