@@ -50,6 +50,14 @@ export default class GarbageBin {
         gltfLoader.load(
             'https://res.cloudinary.com/hack-reactor888/image/upload/v1653628665/zachGame/garbage_bin_wt1tuu.glb',
             (gltf) => {
+                const mesh = gltf.scene.children[0]
+                console.log(mesh.material)
+                // const color = mesh.material.color.getHex()
+                const newMaterial = new THREE.MeshPhongMaterial()
+                newMaterial.setValues({ color: mesh.material.color })
+                mesh.material.dispose()
+                mesh.material = newMaterial
+
                 const scale = 1
                 gltf.scene.scale.set(scale, scale, scale)
                 scene.remove(this.mesh)

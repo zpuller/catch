@@ -81,14 +81,25 @@ export default class Objects {
             this.floor.material.normalScale = new Vector2(s, -s)
             this.floor.material.needsUpdate = true
         })
-        // this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1655006749/zachGame/furniture_vxgbcy.glb', gltf => {
-        //     onLoad(scene, this.physics)(gltf)
-        //     gltf.scene.traverse(o => {
-        //         if (o.name === 'Cube001') {
-        //             o.material.roughness = 10
-        //         }
-        //     })
-        // })
+        this.gltfLoader.load('models/furniture.glb', gltf => {
+            onLoad(scene, this.physics)(gltf)
+            let oldMaterial
+            gltf.scene.traverse(o => {
+                if (o.name === 'Cube001') {
+                    // o.material.roughness = 10
+                    oldMaterial = o.material
+                }
+            })
+            const newCouchMaterial = new THREE.MeshLambertMaterial()
+            const { map } = oldMaterial
+            newCouchMaterial.setValues({ map })
+            gltf.scene.traverse(o => {
+                if (o.parent?.name === 'Couch') {
+                    o.material.dispose()
+                    o.material = newCouchMaterial
+                }
+            })
+        })
         // this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1654396861/zachGame/plant_tfepom.glb', onLoad(scene, this.physics))
         // this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1655006748/zachGame/picture_ox10d0.glb', onLoad(scene, this.physics))
         // this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1654403415/zachGame/building_yfebqa.glb', onLoad(scene, this.physics))
