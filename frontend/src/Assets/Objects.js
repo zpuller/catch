@@ -53,7 +53,7 @@ const createBody = (o, physics, handler) => {
 }
 
 const onLoad = (scene, physics, handler) => gltf => {
-    gltf.scene.matrixAutoUpdate = false
+    // gltf.scene.matrixAutoUpdate = false
     scene.add(gltf.scene)
     gltf.scene.traverse(o => {
         if (o.type === 'Mesh') {
@@ -90,6 +90,14 @@ const swapObjectMat = (gltf, name, matType) => {
     }
 }
 
+const textureLoader = new THREE.TextureLoader()
+const floorTex = textureLoader.load('textures/baked.jpg')
+const floorMat = new THREE.MeshBasicMaterial()
+floorMat.map = floorTex
+floorTex.encoding = THREE.sRGBEncoding
+floorTex.flipY = false
+// floorTex.wrapT = THREE.RepeatWrapping
+
 // global local/uploaded option
 export default class Objects {
     constructor(gltfLoader, physics) {
@@ -109,45 +117,47 @@ export default class Objects {
         // this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1655006749/zachGame/room_xoxpqr.glb', (gltf) => {
         this.gltfLoader.load('models/room.glb', (gltf) => {
             onLoad(scene, this.physics)(gltf)
-            this.floor = gltf.scene.children.find(o => o.name === 'Plane')
+            console.log(gltf.scene)
+            this.floor = gltf.scene.children.find(o => o.name === 'rug001')
             console.log(this.floor)
             // this.floor.receiveShadow = true
             console.log(THREE.sRGBEncoding)
-            swapObjectMat(gltf, 'Plane', 'basic')
-            const s = 10
-            this.floor.material.normalScale = new Vector2(s, -s)
+            // swapObjectMat(gltf, 'rug001', 'basic')
+            this.floor.material = floorMat
+            // const s = 10
+            // this.floor.material.normalScale = new Vector2(s, -s)
             this.floor.material.needsUpdate = true
         })
-        this.gltfLoader.load('models/furniture.glb', gltf => {
-            onLoad(scene, this.physics)(gltf)
-            swapObjectMat(gltf, 'couch', 'lambert')
-            swapObjectMat(gltf, 'fan_light', 'basic')
-            swapObjectMat(gltf, 'bench', 'lambert')
-            swapObjectMat(gltf, 'bench_legs', 'lambert')
-            swapObjectMat(gltf, 'tv', 'lambert')
-            swapObjectMat(gltf, 'tv_legs', 'lambert')
-            swapObjectMat(gltf, 'tv_stand_cabinet', 'lambert')
-            swapObjectMat(gltf, 'tv_stand_legs', 'lambert')
-        })
+        // this.gltfLoader.load('models/furniture.glb', gltf => {
+        //     onLoad(scene, this.physics)(gltf)
+        //     swapObjectMat(gltf, 'couch', 'lambert')
+        // swapObjectMat(gltf, 'fan_light', 'basic')
+        // swapObjectMat(gltf, 'bench', 'lambert')
+        // swapObjectMat(gltf, 'bench_legs', 'lambert')
+        // swapObjectMat(gltf, 'tv', 'lambert')
+        // swapObjectMat(gltf, 'tv_legs', 'lambert')
+        // swapObjectMat(gltf, 'tv_stand_cabinet', 'lambert')
+        // swapObjectMat(gltf, 'tv_stand_legs', 'lambert')
+        // })
         // this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1654396861/zachGame/plant_tfepom.glb', onLoad(scene, this.physics))
         // this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1655006748/zachGame/picture_ox10d0.glb', onLoad(scene, this.physics))
         // this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1654403415/zachGame/building_yfebqa.glb', onLoad(scene, this.physics))
         // this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1655006748/zachGame/screen_mbbm8z.glb', (gltf) => {
-        this.gltfLoader.load('models/screen.glb', (gltf) => {
-            onLoad(scene, this.physics, handlers.tv)(gltf)
-            const screen = gltf.scene.children[0]
-            screen.material.dispose()
-            screen.material = videoMeshMaterial
-            this.screen = gltf.scene
-            this.screen.sound = tvSound
-            this.screen.add(tvSound)
+        // this.gltfLoader.load('models/screen.glb', (gltf) => {
+        //     onLoad(scene, this.physics, handlers.tv)(gltf)
+        //     const screen = gltf.scene.children[0]
+        //     screen.material.dispose()
+        //     screen.material = videoMeshMaterial
+        //     this.screen = gltf.scene
+        //     this.screen.sound = tvSound
+        //     this.screen.add(tvSound)
 
-            this.screen.visible = true
-        })
+        //     this.screen.visible = true
+        // })
         // this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1655006748/zachGame/screen_broken_o2sbwa.glb', gltf => {
-        this.gltfLoader.load('models/screen_broken.glb', gltf => {
-            this.screenBroken = gltf.scene
-        })
+        // this.gltfLoader.load('models/screen_broken.glb', gltf => {
+        //     this.screenBroken = gltf.scene
+        // })
     }
 
     // 4 draw calls, 20 fps

@@ -105,7 +105,7 @@ export default class Game {
 
         this.dynamicEntities = []
 
-        this.addDynamicEntity(new GarbageBin({ x: 0.7, y: 0.0, z: -3 }, this.scene, gltfLoader))
+        // this.addDynamicEntity(new GarbageBin({ x: 0.7, y: 0.0, z: -3 }, this.scene, gltfLoader))
 
         if (MODE === 'dev') {
             this.cannonDebuggerEnabled = false
@@ -116,6 +116,7 @@ export default class Game {
             // Experimental
             const statsMesh = new HTMLMesh(stats.dom);
             statsMesh.scale.setScalar(2.5);
+            statsMesh.visible = false
             scene.add(statsMesh);
 
             this.statsMesh = statsMesh
@@ -156,6 +157,7 @@ export default class Game {
             this.headset.add(this.gui)
             this.headset.add(this.statsMesh)
             this.statsMesh.position.set(-0.3, 0.3, -1)
+            this.statsMesh.visible = true
         }
     }
 
