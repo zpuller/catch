@@ -20,6 +20,15 @@ import Windowing from './Assets/Window'
 
 import Game from './Game/Game'
 
+import Stats from 'three/examples/jsm/libs/stats.module'
+
+let stats
+
+if (MODE === 'dev') {
+    stats = Stats()
+    document.body.appendChild(stats.dom)
+}
+
 const dracoLoader = new DRACOLoader()
 const gltfLoader = new GLTFLoader()
 dracoLoader.setDecoderPath('/draco/')
@@ -71,7 +80,7 @@ const waitForClientLogin = () => {
     if (client.id === undefined) {
         setTimeout(waitForClientLogin, 100)
     } else {
-        game = new Game(gltfLoader, renderer.xr, scene, cameraGroup, client, camera, animateXR)
+        game = new Game(gltfLoader, renderer.xr, scene, cameraGroup, client, camera, animateXR, stats)
         document.body.appendChild(VRButton.createButton(renderer))
         animate()
     }
@@ -81,6 +90,11 @@ const animate = () => {
     renderer.setAnimationLoop(() => {
         controls.update()
         renderer.render(scene, camera)
+        console.log(renderer.info.render.calls)
+
+        if (MODE === 'dev') {
+            stats.update()
+        }
     })
 }
 
@@ -91,7 +105,6 @@ const animateXR = () => {
     renderer.setAnimationLoop(() => {
         game.update(inputs)
         renderer.render(scene, camera)
-        // console.log(renderer.info.render.calls)
     })
 }
 

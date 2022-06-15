@@ -1,5 +1,4 @@
 import * as THREE from 'three'
-import Stats from 'three/examples/jsm/libs/stats.module'
 import { HTMLMesh } from 'three/examples/jsm/interactive/HTMLMesh'
 
 import Objects from '../Assets/Objects'
@@ -17,12 +16,6 @@ import GameAudio from '../Assets/GameAudio'
 import Utils from '../Utils'
 import Inputs from './Inputs'
 
-// TODO move to script.js?
-let stats
-if (MODE === 'dev') {
-    stats = Stats()
-    document.body.appendChild(stats.dom)
-}
 
 const defaultEntity = () => { return { position: [], quaternion: [], } }
 const defaultPlayer = () => {
@@ -34,7 +27,7 @@ const defaultPlayer = () => {
 }
 
 export default class Game {
-    constructor(gltfLoader, xr, scene, cameraGroup, client, camera, onInputsConnected) {
+    constructor(gltfLoader, xr, scene, cameraGroup, client, camera, onInputsConnected, stats) {
         this.client = client
         this.client.subscribeToEvents(this)
         this.handledInitialState = false
@@ -157,7 +150,7 @@ export default class Game {
             this.headset.add(this.gui)
             this.headset.add(this.statsMesh)
             this.statsMesh.position.set(-0.3, 0.3, -1)
-            this.statsMesh.visible = true
+            // this.statsMesh.visible = true
         }
     }
 
@@ -380,7 +373,6 @@ export default class Game {
         this.updateOtherPlayerState()
 
         if (MODE === 'dev') {
-            stats.update()
             if (this.guiEnabled) {
                 this.gui.update(this.rightHand.con, inputs && this.getRight(inputs))
             }

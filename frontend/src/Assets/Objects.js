@@ -8,7 +8,7 @@ import Utils from '../Utils'
 const cubeTextureLoader = new THREE.CubeTextureLoader()
 
 const video = document.getElementById("vid")
-video.play()
+// video.play()
 const videoTexture = new THREE.VideoTexture(video)
 const videoMeshMaterial = new THREE.MeshBasicMaterial({ map: videoTexture })
 
@@ -109,7 +109,7 @@ export default class Objects {
     // TODO move to sep. classes
     buildRoom(scene, tvSound, handlers) {
         // draws: ~4
-        scene.background = environmentMap
+        // scene.background = environmentMap
         // frames: 20
         // scene.environment = environmentMap
 
@@ -118,15 +118,11 @@ export default class Objects {
         this.gltfLoader.load('models/room.glb', (gltf) => {
             onLoad(scene, this.physics)(gltf)
             console.log(gltf.scene)
-            this.floor = gltf.scene.children.find(o => o.name === 'rug001')
-            console.log(this.floor)
-            // this.floor.receiveShadow = true
-            console.log(THREE.sRGBEncoding)
-            // swapObjectMat(gltf, 'rug001', 'basic')
+            const meshName = 'Plane009'
+            this.floor = gltf.scene.children.find(o => o.name === meshName)
+            console.log(this.floor.geometry.attributes)
+            swapObjectMat(gltf, meshName, 'basic')
             this.floor.material = floorMat
-            // const s = 10
-            // this.floor.material.normalScale = new Vector2(s, -s)
-            this.floor.material.needsUpdate = true
         })
         // this.gltfLoader.load('models/furniture.glb', gltf => {
         //     onLoad(scene, this.physics)(gltf)
