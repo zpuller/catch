@@ -1,6 +1,5 @@
 import * as THREE from 'three'
 import * as CANNON from 'cannon-es'
-import { Float32BufferAttribute, Vector2 } from 'three'
 
 import { ShapeType, threeToCannon } from 'three-to-cannon'
 import Utils from '../Utils'
@@ -8,7 +7,7 @@ import Utils from '../Utils'
 const cubeTextureLoader = new THREE.CubeTextureLoader()
 
 const video = document.getElementById("vid")
-// video.play()
+video.play()
 const videoTexture = new THREE.VideoTexture(video)
 const videoMeshMaterial = new THREE.MeshBasicMaterial({ map: videoTexture })
 
@@ -62,41 +61,26 @@ const onLoad = (scene, physics, handler) => gltf => {
     })
 }
 
-const swapObjectMat = (gltf, name, matType) => {
-    const obj = gltf.scene.children.find(c => c.name === name)
-    const isMesh = obj.type === 'Mesh'
-    const oldMaterial = isMesh ? obj.material : obj.children[0].material
-    let newMat
-    switch (matType) {
-        case 'lambert':
-            newMat = Utils.swapToLambertMat(oldMaterial)
-            break
+const textureLoader = new THREE.TextureLoader()
 
-        case 'phong':
-            newMat = Utils.swapToPhongMat(oldMaterial)
-            break
+const loadTextureMaterial = path => {
+    const tex = textureLoader.load(path)
+    const mat = new THREE.MeshBasicMaterial()
+    mat.map = tex
+    tex.encoding = THREE.sRGBEncoding
+    tex.flipY = false
 
-        case 'basic':
-            newMat = Utils.swapToBasicMat(oldMaterial)
-            break
-
-        default:
-            console.error('mat type not found!')
-    }
-    if (isMesh) {
-        obj.material = newMat
-    } else {
-        obj.children.forEach(c => c.material = newMat)
-    }
+    return mat
 }
 
-const textureLoader = new THREE.TextureLoader()
-const floorTex = textureLoader.load('textures/baked.jpg')
-const floorMat = new THREE.MeshBasicMaterial()
-floorMat.map = floorTex
-floorTex.encoding = THREE.sRGBEncoding
-floorTex.flipY = false
-// floorTex.wrapT = THREE.RepeatWrapping
+const floorMat = loadTextureMaterial('textures/baked.jpg')
+const roomMat1 = loadTextureMaterial('textures/baked1.jpg')
+const roomMat2 = loadTextureMaterial('textures/baked2.jpg')
+const roomMat3 = loadTextureMaterial('textures/baked3.jpg')
+const roomMat4 = loadTextureMaterial('textures/baked4.jpg')
+const roomMat5 = loadTextureMaterial('textures/baked5.jpg')
+const roomMat6 = loadTextureMaterial('textures/baked6.jpg')
+const roomMat7 = loadTextureMaterial('textures/baked7.jpg')
 
 // global local/uploaded option
 export default class Objects {
@@ -108,55 +92,53 @@ export default class Objects {
 
     // TODO move to sep. classes
     buildRoom(scene, tvSound, handlers) {
-        // draws: ~4
-        // scene.background = environmentMap
-        // frames: 20
+        scene.background = environmentMap
         // scene.environment = environmentMap
 
-        // draws: 22
-        // this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1655006749/zachGame/room_xoxpqr.glb', (gltf) => {
-        this.gltfLoader.load('models/room.glb', (gltf) => {
+        this.gltfLoader.load('models/floor.glb', gltf => {
             onLoad(scene, this.physics)(gltf)
-            console.log(gltf.scene)
-            const meshName = 'Plane009'
-            this.floor = gltf.scene.children.find(o => o.name === meshName)
-            console.log(this.floor.geometry.attributes)
-            swapObjectMat(gltf, meshName, 'basic')
+            this.floor = gltf.scene.children.find(o => o.name === 'floor')
+            this.floor.material.dispose()
             this.floor.material = floorMat
         })
-        // this.gltfLoader.load('models/furniture.glb', gltf => {
-        //     onLoad(scene, this.physics)(gltf)
-        //     swapObjectMat(gltf, 'couch', 'lambert')
-        // swapObjectMat(gltf, 'fan_light', 'basic')
-        // swapObjectMat(gltf, 'bench', 'lambert')
-        // swapObjectMat(gltf, 'bench_legs', 'lambert')
-        // swapObjectMat(gltf, 'tv', 'lambert')
-        // swapObjectMat(gltf, 'tv_legs', 'lambert')
-        // swapObjectMat(gltf, 'tv_stand_cabinet', 'lambert')
-        // swapObjectMat(gltf, 'tv_stand_legs', 'lambert')
-        // })
-        // this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1654396861/zachGame/plant_tfepom.glb', onLoad(scene, this.physics))
-        // this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1655006748/zachGame/picture_ox10d0.glb', onLoad(scene, this.physics))
-        // this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1654403415/zachGame/building_yfebqa.glb', onLoad(scene, this.physics))
-        // this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1655006748/zachGame/screen_mbbm8z.glb', (gltf) => {
-        // this.gltfLoader.load('models/screen.glb', (gltf) => {
-        //     onLoad(scene, this.physics, handlers.tv)(gltf)
-        //     const screen = gltf.scene.children[0]
-        //     screen.material.dispose()
-        //     screen.material = videoMeshMaterial
-        //     this.screen = gltf.scene
-        //     this.screen.sound = tvSound
-        //     this.screen.add(tvSound)
 
-        //     this.screen.visible = true
-        // })
-        // this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1655006748/zachGame/screen_broken_o2sbwa.glb', gltf => {
-        // this.gltfLoader.load('models/screen_broken.glb', gltf => {
-        //     this.screenBroken = gltf.scene
-        // })
+        const loadRoomComponent = (path, meshName, mat) => {
+            this.gltfLoader.load(path, gltf => {
+                onLoad(scene, this.physics)(gltf)
+                const mesh = gltf.scene.children.find(o => o.name === meshName)
+                mesh.material.dispose()
+                mesh.material = mat
+            })
+        }
+
+        loadRoomComponent('models/room.glb', 'baked', floorMat)
+        loadRoomComponent('models/room1.glb', 'baked1', roomMat1)
+        loadRoomComponent('models/room2.glb', 'baked2', roomMat2)
+        loadRoomComponent('models/room3.glb', 'baked3', roomMat3)
+        loadRoomComponent('models/room4.glb', 'baked4', roomMat4)
+        loadRoomComponent('models/room5.glb', 'baked5', roomMat5)
+        loadRoomComponent('models/room6.glb', 'baked6', roomMat6)
+        loadRoomComponent('models/room7.glb', 'baked7', roomMat7)
+
+        this.gltfLoader.load('models/doors.glb', gltf => {
+            onLoad(scene, this.physics)(gltf)
+        })
+        this.gltfLoader.load('models/screen.glb', (gltf) => {
+            onLoad(scene, this.physics, handlers.tv)(gltf)
+            const screen = gltf.scene.children[0]
+            screen.material.dispose()
+            screen.material = videoMeshMaterial
+            this.screen = gltf.scene
+            // this.screen.sound = tvSound
+            // this.screen.add(tvSound)
+
+            this.screen.visible = true
+        })
+        this.gltfLoader.load('models/screen_broken.glb', gltf => {
+            this.screenBroken = gltf.scene
+        })
     }
 
-    // 4 draw calls, 20 fps
     buildBall(ball, scene, sound) {
         ball.mesh = new THREE.Mesh(ballGeometry, ballMaterial)
         scene.add(ball.mesh)
@@ -175,8 +157,8 @@ export default class Objects {
                     }
                 })
                 scene.add(ball.mesh)
-                ball.mesh.add(sound)
-                ball.sound = sound
+                // ball.mesh.add(sound)
+                // ball.sound = sound
             }
         )
     }

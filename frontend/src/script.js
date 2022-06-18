@@ -105,6 +105,9 @@ const animateXR = () => {
     renderer.setAnimationLoop(() => {
         game.update(inputs)
         renderer.render(scene, camera)
+        if (MODE === 'dev') {
+            stats.update()
+        }
     })
 }
 

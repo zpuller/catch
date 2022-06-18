@@ -44,9 +44,9 @@ export default class Game {
         this.leftHand = {}
         this.rightHand = {}
 
-        const sounds = new GameAudio(camera)
+        // const sounds = new GameAudio(camera)
+        const sounds = {}
 
-        // draws: 8, frames: 5
         this.hands = new Hands(gltfLoader)
 
         this.inputs = new Inputs(this)
@@ -93,7 +93,7 @@ export default class Game {
 
         this.physics = new Physics(this.ball, this.leftHand, this.rightHand, physicsHandlers)
         this.objects = new Objects(gltfLoader, this.physics)
-        this.objects.buildBall(this.ball, this.scene, sounds.ball)
+        // this.objects.buildBall(this.ball, this.scene, sounds.ball)
         this.objects.buildRoom(this.scene, sounds.tv, physicsHandlers)
 
         this.dynamicEntities = []
@@ -106,7 +106,6 @@ export default class Game {
                 this.cannonDebugger = new CannonDebugger(this.scene, this.physics.world)
             }
 
-            // Experimental
             const statsMesh = new HTMLMesh(stats.dom);
             statsMesh.scale.setScalar(2.5);
             statsMesh.visible = false
@@ -116,7 +115,7 @@ export default class Game {
         }
 
 
-        this.resetBall(0, 1.6, -0.5)
+        // this.resetBall(0, 1.6, -0.5)
 
         this.teleport = new Teleport(scene, this.rightHand.con, this.objects, this.player)
 
@@ -150,7 +149,7 @@ export default class Game {
             this.headset.add(this.gui)
             this.headset.add(this.statsMesh)
             this.statsMesh.position.set(-0.3, 0.3, -1)
-            // this.statsMesh.visible = true
+            this.statsMesh.visible = true
         }
     }
 
@@ -366,8 +365,8 @@ export default class Game {
         this.handleController(this.rightHand.con)
 
         this.teleport.update(this.rightHand.con)
-        this.physics.update(this.players, this.leftHand.con, this.rightHand.con)
-        this.updateMeshes()
+        // this.physics.update(this.players, this.leftHand.con, this.rightHand.con)
+        // this.updateMeshes()
 
         this.emitPlayerState()
         this.updateOtherPlayerState()
