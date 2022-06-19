@@ -91,7 +91,7 @@ export default class Game {
         }
         const physicsHandlers = { ball: ballHandler, tv: tvHandler }
 
-        this.physics = new Physics(this.ball, this.leftHand, this.rightHand, physicsHandlers)
+        // this.physics = new Physics(this.ball, this.leftHand, this.rightHand, physicsHandlers)
         this.objects = new Objects(gltfLoader, this.physics)
         // this.objects.buildBall(this.ball, this.scene, sounds.ball)
         this.objects.buildRoom(this.scene, sounds.tv, physicsHandlers)

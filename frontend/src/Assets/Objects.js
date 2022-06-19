@@ -48,7 +48,7 @@ const createBody = (o, physics, handler) => {
     if (handler) {
         body.addEventListener('collide', handler)
     }
-    physics.world.addBody(body)
+    // physics.world.addBody(body)
 }
 
 const onLoad = (scene, physics, handler) => gltf => {
