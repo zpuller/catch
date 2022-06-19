@@ -14,11 +14,12 @@ import {
 import Client from './Client'
 
 import Camera from './Assets/Camera'
-import Lights from './Assets/Lights'
+import GameLights from './Assets/GameLights'
 import Renderer from './Assets/Renderer'
 import Windowing from './Assets/Window'
 
-import Game from './Game/Game'
+import Apartment from './Game/Apartment'
+import BallGame from './Game/BallGame'
 
 import Stats from 'three/examples/jsm/libs/stats.module'
 
@@ -50,13 +51,12 @@ const mode = MODE
 console.log(`running in ${mode} mode`)
 
 const init = () => {
-    const canvas = document.querySelector('canvas.webgl')
+    const canvas = document.getElementById('webgl')
 
     renderer = new Renderer(canvas, sizes)
     renderer.outputEncoding = THREE.sRGBEncoding
     // renderer.shadowMapEnabled = true
 
-    lights = new Lights()
     camera = new Camera(sizes)
 
     cameraGroup = new THREE.Group()
@@ -67,20 +67,62 @@ const init = () => {
     controls.enableDamping = true
 
     scene = new THREE.Scene()
-    scene.add(lights.get())
     scene.add(cameraGroup)
 
     Windowing.init(camera, renderer, canvas, sizes)
 
+    const overlay = document.getElementById('overlay')
+    overlay.width = sizes.width
+    overlay.height = sizes.height
+    const ctx = overlay.getContext('2d')
+    ctx.fillStyle = 'black'
+    const buttonSizes = {
+        width: 128,
+        height: 64,
+    }
+    const dim = 128
+    ctx.fillRect(dim, dim, buttonSizes.width, buttonSizes.height)
+    ctx.fillRect(dim, dim * 2, buttonSizes.width, buttonSizes.height)
+
+    const inBounds = (r, x, y) => x >= dim && x < 2 * dim && y >= r * dim && y < (r + 0.5) * dim
+
+    overlay.addEventListener('click', e => {
+        const x = e.clientX
+        const y = e.clientY
+        if (inBounds(1, x, y)) {
+            ctx.clearRect(0, 0, sizes.width, sizes.height)
+            overlay.width = 0
+
+            launchApartment()
+        }
+        if (inBounds(2, x, y)) {
+            ctx.clearRect(0, 0, sizes.width, sizes.height)
+            overlay.width = 0
+
+            launchBallGame()
+        }
+    })
+}
+
+const launchBallGame = () => {
     client = new Client()
     setTimeout(waitForClientLogin, 100)
+
+    lights = new GameLights()
+    scene.add(lights.get())
+}
+
+const launchApartment = () => {
+    game = new Apartment(gltfLoader, renderer.xr, scene, cameraGroup, camera, animateXR, stats)
+    document.body.appendChild(VRButton.createButton(renderer))
+    animate()
 }
 
 const waitForClientLogin = () => {
     if (client.id === undefined) {
         setTimeout(waitForClientLogin, 100)
     } else {
-        game = new Game(gltfLoader, renderer.xr, scene, cameraGroup, client, camera, animateXR, stats)
+        game = new BallGame(gltfLoader, renderer.xr, scene, cameraGroup, client, camera, animateXR, stats)
         document.body.appendChild(VRButton.createButton(renderer))
         animate()
     }

@@ -8,7 +8,10 @@
 </head>
 
 <body>
-    <canvas class="webgl"></canvas>
+    <div id="stack" class="stack">
+        <canvas id="webgl" class="webgl"></canvas>
+        <canvas id="overlay" class="webgl"></canvas>
+    </div>
     <canvas id="gui" hidden></canvas>
     <canvas id="scroll" hidden></canvas>
     <video autoplay muted loop id="vid" type="video/mp4" hidden="true" crossorigin="anonymous">

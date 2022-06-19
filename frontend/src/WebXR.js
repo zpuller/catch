@@ -22,7 +22,7 @@ const buildController = (data) => {
 let numInputs = 0
 
 const init = (conf) => {
-    const { xr, leftHandlers, rightHandlers, player, hands, onInputsConnected } = conf
+    const { xr, leftHandlers, rightHandlers, player, hands, onInputsConnected, controllerModels } = conf
     xr.enabled = true
 
     const leftCon = xr.getController(0)
@@ -57,12 +57,16 @@ const init = (conf) => {
     rightCon.addEventListener('squeezestart', rightHandlers.onSqueezeStart)
     rightCon.addEventListener('squeezeend', rightHandlers.onSqueezeEnd)
 
-    // const controllerModelFactory = new XRControllerModelFactory()
+    const controllerModelFactory = new XRControllerModelFactory()
     const [leftGrip, rightGrip] = [xr.getControllerGrip(0), xr.getControllerGrip(1)]
-    // leftGrip.add(controllerModelFactory.createControllerModel(rightGrip))
-    // rightGrip.add(controllerModelFactory.createControllerModel(rightGrip))
-    hands.left(leftGrip)
-    hands.right(rightGrip)
+    if (controllerModels) {
+        leftGrip.add(controllerModelFactory.createControllerModel(rightGrip))
+        rightGrip.add(controllerModelFactory.createControllerModel(rightGrip))
+    }
+    if (hands) {
+        hands.left(leftGrip)
+        hands.right(rightGrip)
+    }
     player.add(leftGrip)
     player.add(rightGrip)
 

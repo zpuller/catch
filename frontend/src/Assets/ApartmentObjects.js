@@ -35,7 +35,7 @@ const environmentMap = cubeTextureLoader.load([
 
 environmentMap.encoding = THREE.sRGBEncoding
 
-const createBody = (o, physics, handler) => {
+const createBody = (o) => {
     const body = new CANNON.Body({
         type: CANNON.Body.STATIC,
     })
@@ -45,10 +45,6 @@ const createBody = (o, physics, handler) => {
 
     const { shape } = threeToCannon(o, { type: ShapeType.BOX })
     body.addShape(shape)
-    if (handler) {
-        body.addEventListener('collide', handler)
-    }
-    // physics.world.addBody(body)
 }
 
 const onLoad = (scene, physics, handler) => gltf => {
@@ -91,7 +87,7 @@ export default class Objects {
     }
 
     // TODO move to sep. classes
-    buildRoom(scene, tvSound, handlers) {
+    buildRoom(scene, handlers) {
         scene.background = environmentMap
         // scene.environment = environmentMap
 
@@ -124,7 +120,7 @@ export default class Objects {
             onLoad(scene, this.physics)(gltf)
         })
         this.gltfLoader.load('models/screen.glb', (gltf) => {
-            onLoad(scene, this.physics, handlers.tv)(gltf)
+            onLoad(scene, this.physics)(gltf)
             const screen = gltf.scene.children[0]
             screen.material.dispose()
             screen.material = videoMeshMaterial
@@ -134,9 +130,9 @@ export default class Objects {
 
             this.screen.visible = true
         })
-        this.gltfLoader.load('models/screen_broken.glb', gltf => {
-            this.screenBroken = gltf.scene
-        })
+        // this.gltfLoader.load('models/screen_broken.glb', gltf => {
+        //     this.screenBroken = gltf.scene
+        // })
     }
 
     buildBall(ball, scene, sound) {

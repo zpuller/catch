@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import { HTMLMesh } from 'three/examples/jsm/interactive/HTMLMesh'
 
-import Objects from '../Assets/Objects'
+import Objects from '../Assets/GameObjects'
 
 import Physics from './Physics'
 import WebXR from '../WebXR'
@@ -26,7 +26,7 @@ const defaultPlayer = () => {
     }
 }
 
-export default class Game {
+export default class BallGame {
     constructor(gltfLoader, xr, scene, cameraGroup, client, camera, onInputsConnected, stats) {
         this.client = client
         this.client.subscribeToEvents(this)
@@ -44,8 +44,7 @@ export default class Game {
         this.leftHand = {}
         this.rightHand = {}
 
-        // const sounds = new GameAudio(camera)
-        const sounds = {}
+        const sounds = new GameAudio(camera)
 
         this.hands = new Hands(gltfLoader)
 
@@ -57,6 +56,7 @@ export default class Game {
             player: cameraGroup,
             hands: this.hands,
             onInputsConnected,
+            controllerModels: false,
         }
         const { leftCon, rightCon, leftGrip, rightGrip } = WebXR.init(webXRConf)
         // TODO this could be optional/an object to pick up
@@ -78,27 +78,16 @@ export default class Game {
                 b.sound.play()
             }
         }
-        // TODO this could theoretically trigger before the assets are loaded
-        const tvHandler = () => {
-            if (this.objects.screen.broken) {
-                return
-            }
-            this.objects.screen.broken = true
-            this.objects.screen?.sound?.play()
-            this.objects.video.pause()
-            this.scene.remove(this.objects.screen)
-            this.scene.add(this.objects.screenBroken)
-        }
-        const physicsHandlers = { ball: ballHandler, tv: tvHandler }
+        const physicsHandlers = { ball: ballHandler }
 
-        // this.physics = new Physics(this.ball, this.leftHand, this.rightHand, physicsHandlers)
+        this.physics = new Physics(this.ball, this.leftHand, this.rightHand, physicsHandlers)
         this.objects = new Objects(gltfLoader, this.physics)
-        // this.objects.buildBall(this.ball, this.scene, sounds.ball)
+        this.objects.buildBall(this.ball, this.scene, sounds.ball)
         this.objects.buildRoom(this.scene, sounds.tv, physicsHandlers)
 
         this.dynamicEntities = []
 
-        // this.addDynamicEntity(new GarbageBin({ x: 0.7, y: 0.0, z: -3 }, this.scene, gltfLoader))
+        this.addDynamicEntity(new GarbageBin({ x: 0.7, y: 0.0, z: -3 }, this.scene, gltfLoader))
 
         if (MODE === 'dev') {
             this.cannonDebuggerEnabled = false
@@ -365,8 +354,8 @@ export default class Game {
         this.handleController(this.rightHand.con)
 
         this.teleport.update(this.rightHand.con)
-        // this.physics.update(this.players, this.leftHand.con, this.rightHand.con)
-        // this.updateMeshes()
+        this.physics.update(this.players, this.leftHand.con, this.rightHand.con)
+        this.updateMeshes()
 
         this.emitPlayerState()
         this.updateOtherPlayerState()

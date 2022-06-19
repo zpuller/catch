@@ -20,6 +20,11 @@ const swapToPhongMat = (oldMaterial) => {
     return swapToMat(oldMaterial, newMat)
 }
 
+const swapToToonMaterial = (oldMaterial) => {
+    const newMat = new THREE.MeshToonMaterial()
+    return swapToMat(oldMaterial, newMat)
+}
+
 const swapToBasicMat = (oldMaterial) => {
     const newMat = new THREE.MeshBasicMaterial()
     return swapToMat(oldMaterial, newMat)
@@ -29,5 +34,6 @@ export default {
     clamp,
     swapToLambertMat,
     swapToPhongMat,
+    swapToToonMaterial,
     swapToBasicMat,
 }

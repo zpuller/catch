@@ -1,9 +1,9 @@
 import * as THREE from 'three'
 
-export default class Lights {
+export default class GameLights {
     get() {
         const group = new THREE.Group()
-        // group.add(new THREE.HemisphereLight(0x606060, 0x404040, 0.5));
+        group.add(new THREE.HemisphereLight(0x606060, 0x404040, 0.5));
 
         // const plight = new THREE.PointLight(0xffffff, 0.5, 5, 0.9)
         // plight.position.set(3, 3.6, -2)
