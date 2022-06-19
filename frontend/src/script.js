@@ -14,12 +14,12 @@ import {
 import Client from './Client'
 
 import Camera from './Assets/Camera'
-import GameLights from './Assets/GameLights'
+import GameLights from './Assets/BallGame/Lights'
 import Renderer from './Assets/Renderer'
 import Windowing from './Assets/Window'
 
-import Apartment from './Game/Apartment'
-import BallGame from './Game/BallGame'
+import Apartment from './Game/Apartment/Game'
+import BallGame from './Game/BallGame/Game'
 
 import Stats from 'three/examples/jsm/libs/stats.module'
 
@@ -75,30 +75,43 @@ const init = () => {
     overlay.width = sizes.width
     overlay.height = sizes.height
     const ctx = overlay.getContext('2d')
-    ctx.fillStyle = 'black'
+    ctx.strokeStyle = 'black'
+    ctx.font = '18px Arial'
     const buttonSizes = {
         width: 128,
         height: 64,
     }
     const dim = 128
-    ctx.fillRect(dim, dim, buttonSizes.width, buttonSizes.height)
-    ctx.fillRect(dim, dim * 2, buttonSizes.width, buttonSizes.height)
+    const xBuf = 0.5
+    const yBuf = 0.3
+
+    const drawButton = (r, s) => {
+        ctx.fillStyle = '#1fa3ef'
+        ctx.fillRect(dim, r * dim, buttonSizes.width, buttonSizes.height)
+        ctx.strokeRect(dim, r * dim, buttonSizes.width, buttonSizes.height)
+        const w = ctx.measureText(s).width
+        ctx.fillStyle = '#000000'
+        ctx.fillText(s, (1 + xBuf) * dim - 0.5 * w, (r + yBuf) * dim)
+    }
+    drawButton(1, 'Apartment')
+    drawButton(2, 'Ball Game')
 
     const inBounds = (r, x, y) => x >= dim && x < 2 * dim && y >= r * dim && y < (r + 0.5) * dim
+
+    const clearOverlay = () => {
+        ctx.clearRect(0, 0, sizes.width, sizes.height)
+        overlay.width = 0
+    }
 
     overlay.addEventListener('click', e => {
         const x = e.clientX
         const y = e.clientY
         if (inBounds(1, x, y)) {
-            ctx.clearRect(0, 0, sizes.width, sizes.height)
-            overlay.width = 0
-
+            clearOverlay()
             launchApartment()
         }
         if (inBounds(2, x, y)) {
-            ctx.clearRect(0, 0, sizes.width, sizes.height)
-            overlay.width = 0
-
+            clearOverlay()
             launchBallGame()
         }
     })
@@ -132,7 +145,7 @@ const animate = () => {
     renderer.setAnimationLoop(() => {
         controls.update()
         renderer.render(scene, camera)
-        console.log(renderer.info.render.calls)
+        // console.log(renderer.info.render.calls)
 
         if (MODE === 'dev') {
             stats.update()

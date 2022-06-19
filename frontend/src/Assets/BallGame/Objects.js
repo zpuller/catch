@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import * as CANNON from 'cannon-es'
 
 import { ShapeType, threeToCannon } from 'three-to-cannon'
-import Utils from '../Utils'
+import Utils from '../../Utils'
 
 const cubeTextureLoader = new THREE.CubeTextureLoader()
 

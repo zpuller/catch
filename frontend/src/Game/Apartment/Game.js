@@ -1,23 +1,19 @@
 import * as THREE from 'three'
 import { HTMLMesh } from 'three/examples/jsm/interactive/HTMLMesh'
 
-import Objects from '../Assets/ApartmentObjects'
+import Objects from '../../Assets/Apartment/Objects'
 
-import WebXR from '../WebXR'
+import WebXR from '../../WebXR'
 
-import Gui from './Gui'
-import Teleport from './Teleport'
-import Inputs from './ApartmentInputs'
+import Gui from '../Gui'
+import Teleport from '../Teleport'
+import Inputs from './Inputs'
 
 export default class Apartment {
     constructor(gltfLoader, xr, scene, cameraGroup, camera, onInputsConnected, stats) {
-        this.handledInitialState = false
-
         this.scene = scene
 
         this.player = cameraGroup
-        this.players = {}
-        this.playerGroups = {}
 
         this.positionBuffer = new THREE.Vector3()
 
@@ -41,8 +37,6 @@ export default class Apartment {
 
         this.objects = new Objects(gltfLoader)
         this.objects.buildRoom(this.scene)
-
-        this.dynamicEntities = []
 
         if (MODE === 'dev') {
             const statsMesh = new HTMLMesh(stats.dom);

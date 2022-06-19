@@ -1,19 +1,19 @@
 import * as THREE from 'three'
 import { HTMLMesh } from 'three/examples/jsm/interactive/HTMLMesh'
 
-import Objects from '../Assets/GameObjects'
+import Objects from '../../Assets/BallGame/Objects'
 
-import Physics from './Physics'
-import WebXR from '../WebXR'
+import Physics from '../Physics'
+import WebXR from '../../WebXR'
 
 import CannonDebugger from 'cannon-es-debugger'
-import GarbageBin from '../Assets/Entities/GarbageBin'
+import GarbageBin from '../../Assets/Entities/GarbageBin'
 
-import Gui from './Gui'
-import Teleport from './Teleport'
-import Hands from '../Assets/Entities/Hands'
-import GameAudio from '../Assets/GameAudio'
-import Utils from '../Utils'
+import Gui from '../Gui'
+import Teleport from '../Teleport'
+import Hands from '../../Assets/Entities/Hands'
+import GameAudio from '../../Assets/GameAudio'
+import Utils from '../../Utils'
 import Inputs from './Inputs'
 
 
