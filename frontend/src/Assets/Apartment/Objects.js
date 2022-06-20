@@ -102,6 +102,18 @@ const remoteModelPaths = [
 
 const modelPaths = localMode ? localModelPaths : remoteModelPaths
 
+const localFloorModelPath = 'models/apartment/floor.glb'
+const remoteFloorModelPath = 'https://res.cloudinary.com/hack-reactor888/image/upload/v1655685444/zachGame/models/apartment/floor_mdqtzx.glb'
+const floorModelPath = localMode ? localFloorModelPath : remoteFloorModelPath
+
+const localDoorsModelPath = 'models/apartment/doors.glb'
+const remoteDoorsModelPath = 'https://res.cloudinary.com/hack-reactor888/image/upload/v1655685444/zachGame/models/apartment/doors_phg9vl.glb'
+const doorsModelPath = localMode ? localDoorsModelPath : remoteDoorsModelPath
+
+const localScreenModelPath = 'models/apartment/screen.glb'
+const remoteScreenModelPath = 'https://res.cloudinary.com/hack-reactor888/image/upload/v1655685447/zachGame/models/apartment/screen_te6lzq.glb'
+const screenModelPath = localMode ? localScreenModelPath : remoteScreenModelPath
+
 // global local/uploaded option
 export default class Objects {
     constructor(gltfLoader, physics) {
@@ -115,7 +127,7 @@ export default class Objects {
         scene.background = environmentMap
         // scene.environment = environmentMap
 
-        this.gltfLoader.load('models/apartment/floor.glb', gltf => {
+        this.gltfLoader.load(floorModelPath, gltf => {
             onLoad(scene, this.physics)(gltf)
             this.floor = gltf.scene.children.find(o => o.name === 'floor')
             this.floor.material.dispose()
@@ -140,10 +152,10 @@ export default class Objects {
         loadRoomComponent(modelPaths[6], 'baked6', roomMat6)
         loadRoomComponent(modelPaths[7], 'baked7', roomMat7)
 
-        this.gltfLoader.load('models/apartment/doors.glb', gltf => {
+        this.gltfLoader.load(doorsModelPath, gltf => {
             onLoad(scene, this.physics)(gltf)
         })
-        this.gltfLoader.load('models/apartment/screen.glb', (gltf) => {
+        this.gltfLoader.load(screenModelPath, (gltf) => {
             onLoad(scene, this.physics)(gltf)
             const screen = gltf.scene.children[0]
             screen.material.dispose()
