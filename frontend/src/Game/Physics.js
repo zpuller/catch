@@ -14,6 +14,7 @@ export default class Physics {
         this.ball = pBall
         this.leftHand = pLeftHand
         this.rightHand = pRightHand
+        this.localHeld = false
 
         this.world = new CANNON.World({
             gravity: new CANNON.Vec3(0, -9.8, 0)
@@ -59,6 +60,7 @@ export default class Physics {
 
     doThrow(controller) {
         this.ball.body.wakeUp()
+        this.localHeld = false
 
         const frametimes = Array(10).fill(0)
         frametimes[0] = this.timeframes[0]
@@ -76,7 +78,8 @@ export default class Physics {
 
     doCatch(controller) {
         const distance = controller.getWorldPosition(this.vec3Buffer).distanceTo(this.ball.mesh.position)
-        return distance < 0.2
+        this.localHeld = distance < 0.2
+        return this.localHeld
     }
 
     sleepBall() {
@@ -138,7 +141,14 @@ export default class Physics {
         this.world.fixedStep()
 
         this.scaleOne.set(1, 1, 1)
-        if (this.ball.state === 'held') {
+        if (this.localHeld) {
+            const p = this.vec3Buffer
+            this.ball.mesh.getWorldPosition(p)
+            const q = this.ball.mesh.quaternion
+
+            this.ball.body.position.copy(p)
+            this.ball.body.quaternion.copy(q)
+        } else if (this.ball.state === 'held') {
             const p = this.vec3Buffer
             const q = this.quaternionBuffer
             const player = players[this.ball.holding]
