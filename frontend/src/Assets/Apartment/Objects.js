@@ -1,8 +1,4 @@
 import * as THREE from 'three'
-import * as CANNON from 'cannon-es'
-
-import { ShapeType, threeToCannon } from 'three-to-cannon'
-import Utils from '../../Utils'
 
 const cubeTextureLoader = new THREE.CubeTextureLoader()
 
@@ -10,12 +6,6 @@ const video = document.getElementById("vid")
 video.play()
 const videoTexture = new THREE.VideoTexture(video)
 const videoMeshMaterial = new THREE.MeshBasicMaterial({ map: videoTexture })
-
-const gripGeometry = new THREE.SphereGeometry(0.025, 16, 16)
-const gripMaterial = new THREE.MeshBasicMaterial({ color: '#ffffff' })
-
-const ballGeometry = new THREE.SphereGeometry(0.04, 16, 16)
-const ballMaterial = new THREE.MeshBasicMaterial({ wireframe: true })
 
 // const envNum = '1'
 const environmentMap = cubeTextureLoader.load([
@@ -53,14 +43,64 @@ const loadTextureMaterial = path => {
     return mat
 }
 
-const floorMat = loadTextureMaterial('textures/baked.jpg')
-const roomMat1 = loadTextureMaterial('textures/baked1.jpg')
-const roomMat2 = loadTextureMaterial('textures/baked2.jpg')
-const roomMat3 = loadTextureMaterial('textures/baked3.jpg')
-const roomMat4 = loadTextureMaterial('textures/baked4.jpg')
-const roomMat5 = loadTextureMaterial('textures/baked5.jpg')
-const roomMat6 = loadTextureMaterial('textures/baked6.jpg')
-const roomMat7 = loadTextureMaterial('textures/baked7.jpg')
+const localMode = false
+
+const localTexturePaths = [
+    'textures/baked.jpg',
+    'textures/baked1.jpg',
+    'textures/baked2.jpg',
+    'textures/baked3.jpg',
+    'textures/baked4.jpg',
+    'textures/baked5.jpg',
+    'textures/baked6.jpg',
+    'textures/baked7.jpg',
+]
+
+const remoteTexturePaths = [
+    'https://res.cloudinary.com/hack-reactor888/image/upload/v1655685510/zachGame/textures/baked_tazjl4.jpg',
+    'https://res.cloudinary.com/hack-reactor888/image/upload/v1655685510/zachGame/textures/baked1_l38p9o.jpg',
+    'https://res.cloudinary.com/hack-reactor888/image/upload/v1655685511/zachGame/textures/baked2_os5hpw.jpg',
+    'https://res.cloudinary.com/hack-reactor888/image/upload/v1655685510/zachGame/textures/baked3_hncb48.jpg',
+    'https://res.cloudinary.com/hack-reactor888/image/upload/v1655685510/zachGame/textures/baked4_zhew9k.jpg',
+    'https://res.cloudinary.com/hack-reactor888/image/upload/v1655685510/zachGame/textures/baked5_rrbdp2.jpg',
+    'https://res.cloudinary.com/hack-reactor888/image/upload/v1655685510/zachGame/textures/baked6_u15nu0.jpg',
+    'https://res.cloudinary.com/hack-reactor888/image/upload/v1655685510/zachGame/textures/baked7_wbzyun.jpg',
+]
+
+const texturePaths = localMode ? localTexturePaths : remoteTexturePaths
+
+const floorMat = loadTextureMaterial(texturePaths[0])
+const roomMat1 = loadTextureMaterial(texturePaths[1])
+const roomMat2 = loadTextureMaterial(texturePaths[2])
+const roomMat3 = loadTextureMaterial(texturePaths[3])
+const roomMat4 = loadTextureMaterial(texturePaths[4])
+const roomMat5 = loadTextureMaterial(texturePaths[5])
+const roomMat6 = loadTextureMaterial(texturePaths[6])
+const roomMat7 = loadTextureMaterial(texturePaths[7])
+
+const localModelPaths = [
+    'models/apartment/room.glb',
+    'models/apartment/room1.glb',
+    'models/apartment/room2.glb',
+    'models/apartment/room3.glb',
+    'models/apartment/room4.glb',
+    'models/apartment/room5.glb',
+    'models/apartment/room6.glb',
+    'models/apartment/room7.glb',
+]
+
+const remoteModelPaths = [
+    'https://res.cloudinary.com/hack-reactor888/image/upload/v1655685444/zachGame/models/apartment/room_my7wj1.glb',
+    'https://res.cloudinary.com/hack-reactor888/image/upload/v1655685444/zachGame/models/apartment/room1_rdqtuy.glb',
+    'https://res.cloudinary.com/hack-reactor888/image/upload/v1655685444/zachGame/models/apartment/room2_btfu21.glb',
+    'https://res.cloudinary.com/hack-reactor888/image/upload/v1655685444/zachGame/models/apartment/room3_bo0tjy.glb',
+    'https://res.cloudinary.com/hack-reactor888/image/upload/v1655685445/zachGame/models/apartment/room4_se18ou.glb',
+    'https://res.cloudinary.com/hack-reactor888/image/upload/v1655685445/zachGame/models/apartment/room5_lmsuqp.glb',
+    'https://res.cloudinary.com/hack-reactor888/image/upload/v1655685446/zachGame/models/apartment/room6_sodsv9.glb',
+    'https://res.cloudinary.com/hack-reactor888/image/upload/v1655685447/zachGame/models/apartment/room7_z07nh5.glb',
+]
+
+const modelPaths = localMode ? localModelPaths : remoteModelPaths
 
 // global local/uploaded option
 export default class Objects {
@@ -75,7 +115,7 @@ export default class Objects {
         scene.background = environmentMap
         // scene.environment = environmentMap
 
-        this.gltfLoader.load('models/floor.glb', gltf => {
+        this.gltfLoader.load('models/apartment/floor.glb', gltf => {
             onLoad(scene, this.physics)(gltf)
             this.floor = gltf.scene.children.find(o => o.name === 'floor')
             this.floor.material.dispose()
@@ -91,19 +131,19 @@ export default class Objects {
             })
         }
 
-        loadRoomComponent('models/room.glb', 'baked', floorMat)
-        loadRoomComponent('models/room1.glb', 'baked1', roomMat1)
-        loadRoomComponent('models/room2.glb', 'baked2', roomMat2)
-        loadRoomComponent('models/room3.glb', 'baked3', roomMat3)
-        loadRoomComponent('models/room4.glb', 'baked4', roomMat4)
-        loadRoomComponent('models/room5.glb', 'baked5', roomMat5)
-        loadRoomComponent('models/room6.glb', 'baked6', roomMat6)
-        loadRoomComponent('models/room7.glb', 'baked7', roomMat7)
+        loadRoomComponent(modelPaths[0], 'baked', floorMat)
+        loadRoomComponent(modelPaths[1], 'baked1', roomMat1)
+        loadRoomComponent(modelPaths[2], 'baked2', roomMat2)
+        loadRoomComponent(modelPaths[3], 'baked3', roomMat3)
+        loadRoomComponent(modelPaths[4], 'baked4', roomMat4)
+        loadRoomComponent(modelPaths[5], 'baked5', roomMat5)
+        loadRoomComponent(modelPaths[6], 'baked6', roomMat6)
+        loadRoomComponent(modelPaths[7], 'baked7', roomMat7)
 
-        this.gltfLoader.load('models/doors.glb', gltf => {
+        this.gltfLoader.load('models/apartment/doors.glb', gltf => {
             onLoad(scene, this.physics)(gltf)
         })
-        this.gltfLoader.load('models/screen.glb', (gltf) => {
+        this.gltfLoader.load('models/apartment/screen.glb', (gltf) => {
             onLoad(scene, this.physics)(gltf)
             const screen = gltf.scene.children[0]
             screen.material.dispose()
@@ -114,7 +154,7 @@ export default class Objects {
 
             this.screen.visible = true
         })
-        // this.gltfLoader.load('models/screen_broken.glb', gltf => {
+        // this.gltfLoader.load('models/apartment/screen_broken.glb', gltf => {
         //     this.screenBroken = gltf.scene
         // })
     }

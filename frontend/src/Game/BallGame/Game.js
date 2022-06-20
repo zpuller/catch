@@ -83,7 +83,7 @@ export default class BallGame {
         this.physics = new Physics(this.ball, this.leftHand, this.rightHand, physicsHandlers)
         this.objects = new Objects(gltfLoader, this.physics)
         this.objects.buildBall(this.ball, this.scene, sounds.ball)
-        this.objects.buildRoom(this.scene, sounds.tv, physicsHandlers)
+        this.objects.buildRoom(this.scene)
 
         this.dynamicEntities = []
 

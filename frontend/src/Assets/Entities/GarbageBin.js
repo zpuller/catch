@@ -21,6 +21,11 @@ const createBody = conf => {
 
 const createBodies = conf => conf.map(createBody)
 
+const localMode = false
+const localModelPath = 'models/ballgame/garbage_bin.glb'
+const remoteModelPath = 'https://res.cloudinary.com/hack-reactor888/image/upload/v1655685470/zachGame/models/ballgame/garbage_bin_zjm9cb.glb'
+const modelPath = localMode ? localModelPath : remoteModelPath
+
 export default class GarbageBin {
     constructor(p, scene, gltfLoader) {
         const geometry = new THREE.BoxGeometry(1, 1, 1)
@@ -49,8 +54,8 @@ export default class GarbageBin {
         this.constraints = ixs.map(i => new CANNON.LockConstraint(this.bodies[i], this.bodies[i + 1]))
 
         gltfLoader.load(
-            'https://res.cloudinary.com/hack-reactor888/image/upload/v1653628665/zachGame/garbage_bin_wt1tuu.glb',
-            (gltf) => {
+            modelPath,
+            gltf => {
                 const mesh = gltf.scene.children[0]
                 const oldMat = mesh.material
                 mesh.material = Utils.swapToLambertMat(oldMat)

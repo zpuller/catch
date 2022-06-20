@@ -64,6 +64,16 @@ const onLoad = (group, boneGroups) => (gltf) => {
     group.add(gltf.scene)
 }
 
+const localMode = false
+
+const localLHPath = 'models/ballgame/left_hand_lp.glb'
+const remoteLHPath = 'https://res.cloudinary.com/hack-reactor888/image/upload/v1655685470/zachGame/models/ballgame/left_hand_lp_bdzboq.glb'
+const lHPath = localMode ? localLHPath : remoteLHPath
+
+const localRHPath = 'models/ballgame/right_hand_lp.glb'
+const remoteRHPath = 'https://res.cloudinary.com/hack-reactor888/image/upload/v1655685470/zachGame/models/ballgame/right_hand_lp_jnat6n.glb'
+const rHPath = localMode ? localRHPath : remoteRHPath
+
 export default class Hands {
     constructor(gltfLoader) {
         this.gltfLoader = gltfLoader
@@ -73,13 +83,11 @@ export default class Hands {
     }
 
     left(group) {
-        // this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1654183534/zachGame/left_hand_kbzjgf.glb', onLoad(group, this.leftGroups))
-        this.gltfLoader.load('models/left_hand_lp.glb', onLoad(group, this.leftGroups))
+        this.gltfLoader.load(lHPath, onLoad(group, this.leftGroups))
     }
 
     right(group) {
-        // this.gltfLoader.load('https://res.cloudinary.com/hack-reactor888/image/upload/v1654183534/zachGame/right_hand_dmld80.glb', onLoad(group, this.rightGroups))
-        this.gltfLoader.load('models/right_hand_lp.glb', onLoad(group, this.rightGroups))
+        this.gltfLoader.load(rHPath, onLoad(group, this.rightGroups))
     }
 
     clenchLeft(x) {

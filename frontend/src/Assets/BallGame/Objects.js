@@ -4,13 +4,6 @@ import * as CANNON from 'cannon-es'
 import { ShapeType, threeToCannon } from 'three-to-cannon'
 import Utils from '../../Utils'
 
-const cubeTextureLoader = new THREE.CubeTextureLoader()
-
-const video = document.getElementById("vid")
-video.play()
-const videoTexture = new THREE.VideoTexture(video)
-const videoMeshMaterial = new THREE.MeshBasicMaterial({ map: videoTexture })
-
 const gripGeometry = new THREE.SphereGeometry(0.025, 16, 16)
 const gripMaterial = new THREE.MeshBasicMaterial({ color: '#ffffff' })
 
@@ -34,7 +27,7 @@ const createBody = (o, physics, handler) => {
 }
 
 const onLoad = (scene, physics, handler) => gltf => {
-    // gltf.scene.matrixAutoUpdate = false
+    gltf.scene.matrixAutoUpdate = false
     scene.add(gltf.scene)
     gltf.scene.traverse(o => {
         if (o.type === 'Mesh') {
@@ -43,17 +36,27 @@ const onLoad = (scene, physics, handler) => gltf => {
     })
 }
 
+const localMode = false
+
+const localFloorPath = 'models/ballgame/floor.glb'
+const remoteFloorPath = 'https://res.cloudinary.com/hack-reactor888/image/upload/v1655685470/zachGame/models/ballgame/floor_x69ubr.glb'
+const floorPath = localMode ? localFloorPath : remoteFloorPath
+
+const localBallPath = 'models/ballgame/baseball.glb'
+const remoteBallPath = 'https://res.cloudinary.com/hack-reactor888/image/upload/v1655685470/zachGame/models/ballgame/baseball_rwilbc.glb'
+const ballPath = localMode ? localBallPath : remoteBallPath
+
+
 // global local/uploaded option
 export default class Objects {
     constructor(gltfLoader, physics) {
         this.gltfLoader = gltfLoader
         this.physics = physics
-        this.video = video
     }
 
     // TODO move to sep. classes
-    buildRoom(scene, tvSound, handlers) {
-        this.gltfLoader.load('models/ballgame/floor.glb', gltf => {
+    buildRoom(scene) {
+        this.gltfLoader.load(floorPath, gltf => {
             onLoad(scene, this.physics)(gltf)
             this.floor = gltf.scene.children.find(o => o.name === 'floor')
             this.floor.material = Utils.swapToToonMaterial(this.floor.material)
@@ -65,8 +68,7 @@ export default class Objects {
         scene.add(ball.mesh)
 
         this.gltfLoader.load(
-            // 'https://res.cloudinary.com/hack-reactor888/image/upload/v1652594431/zachGame/baseball.glb',
-            'models/baseball.glb',
+            ballPath,
             (gltf) => {
                 scene.remove(ball.mesh)
                 ball.mesh = gltf.scene
