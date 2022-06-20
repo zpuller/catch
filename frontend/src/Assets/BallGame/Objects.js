@@ -7,13 +7,12 @@ import Utils from '../../Utils'
 const gripGeometry = new THREE.SphereGeometry(0.025, 16, 16)
 const gripMaterial = new THREE.MeshBasicMaterial({ color: '#ffffff' })
 
-const ballGeometry = new THREE.SphereGeometry(0.04, 16, 16)
-const ballMaterial = new THREE.MeshBasicMaterial({ wireframe: true })
+const ballGeometry = new THREE.SphereGeometry(0.12, 16, 16)
+const ballMaterial = new THREE.MeshToonMaterial({ color: 0x118ad0 })
 
-const createBody = (o, physics, handler) => {
-    const body = new CANNON.Body({
-        type: CANNON.Body.STATIC,
-    })
+const createBody = (o, physics, type = CANNON.Body.STATIC, material, handler) => {
+    material = material || physics.defaultMaterial
+    const body = new CANNON.Body({ type, mass: type === CANNON.Body.DYNAMIC ? 0.5 : 0, material })
     const p = o.getWorldPosition(new THREE.Vector3())
     body.position.copy(p)
     body.quaternion.copy(o.quaternion)
@@ -24,19 +23,11 @@ const createBody = (o, physics, handler) => {
         body.addEventListener('collide', handler)
     }
     physics.world.addBody(body)
+
+    return body
 }
 
-const onLoad = (scene, physics, handler) => gltf => {
-    gltf.scene.matrixAutoUpdate = false
-    scene.add(gltf.scene)
-    gltf.scene.traverse(o => {
-        if (o.type === 'Mesh') {
-            createBody(o, physics, handler)
-        }
-    })
-}
-
-const localMode = false
+const localMode = true
 
 const localFloorPath = 'models/ballgame/floor.glb'
 const remoteFloorPath = 'https://res.cloudinary.com/hack-reactor888/image/upload/v1655685470/zachGame/models/ballgame/floor_x69ubr.glb'
@@ -46,6 +37,7 @@ const localBallPath = 'models/ballgame/baseball.glb'
 const remoteBallPath = 'https://res.cloudinary.com/hack-reactor888/image/upload/v1655685470/zachGame/models/ballgame/baseball_rwilbc.glb'
 const ballPath = localMode ? localBallPath : remoteBallPath
 
+const pinPath = 'models/ballgame/pin.glb'
 
 // global local/uploaded option
 export default class Objects {
@@ -55,11 +47,48 @@ export default class Objects {
     }
 
     // TODO move to sep. classes
-    buildRoom(scene) {
+    buildRoom(scene, game) {
         this.gltfLoader.load(floorPath, gltf => {
-            onLoad(scene, this.physics)(gltf)
             this.floor = gltf.scene.children.find(o => o.name === 'floor')
             this.floor.material = Utils.swapToToonMaterial(this.floor.material)
+            this.floor.material.color = new THREE.Color(0x888888)
+
+            createBody(this.floor, this.physics, CANNON.Body.STATIC, this.physics.groundMaterial)
+            scene.add(this.floor)
+
+            const lane = gltf.scene.children.find(o => o.name === 'lane')
+            lane.material.dispose()
+            lane.material = this.floor.material
+
+            createBody(lane, this.physics, CANNON.Body.STATIC, this.physics.groundMaterial)
+            scene.add(lane)
+            {
+
+
+                const lane = gltf.scene.children.find(o => o.name === 'lane001')
+                lane.material.dispose()
+                lane.material = this.floor.material
+
+                createBody(lane, this.physics, CANNON.Body.STATIC, this.physics.groundMaterial)
+                scene.add(lane)
+            }
+        })
+
+        this.gltfLoader.load(pinPath, gltf => {
+            const entities = []
+            gltf.scene.traverse(c => {
+                if (c.type === 'Mesh') {
+                    c.material = Utils.swapToToonMaterial(c.material)
+                    const e = {
+                        mesh: c,
+                        bodies: [],
+                        constraints: [],
+                    }
+                    e.bodies.push(createBody(c, this.physics, CANNON.Body.DYNAMIC))
+                    entities.push(e)
+                }
+            })
+            entities.forEach(e => game.addDynamicEntity.call(game, e))
         })
     }
 
@@ -67,23 +96,23 @@ export default class Objects {
         ball.mesh = new THREE.Mesh(ballGeometry, ballMaterial)
         scene.add(ball.mesh)
 
-        this.gltfLoader.load(
-            ballPath,
-            (gltf) => {
-                scene.remove(ball.mesh)
-                ball.mesh = gltf.scene
-                ball.mesh.position.y = 10
-                ball.mesh.traverse(o => {
-                    if (o.type === 'Mesh') {
-                        const oldMaterial = o.material
-                        o.material = Utils.swapToLambertMat(oldMaterial)
-                    }
-                })
-                scene.add(ball.mesh)
-                ball.mesh.add(sound)
-                ball.sound = sound
-            }
-        )
+        // this.gltfLoader.load(
+        //     ballPath,
+        //     (gltf) => {
+        //         scene.remove(ball.mesh)
+        //         ball.mesh = gltf.scene
+        //         ball.mesh.position.y = 10
+        //         ball.mesh.traverse(o => {
+        //             if (o.type === 'Mesh') {
+        //                 const oldMaterial = o.material
+        //                 o.material = Utils.swapToLambertMat(oldMaterial)
+        //             }
+        //         })
+        //         scene.add(ball.mesh)
+        //         ball.mesh.add(sound)
+        //         ball.sound = sound
+        //     }
+        // )
     }
 
     buildGlove(group) {

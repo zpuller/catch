@@ -21,18 +21,28 @@ export default class Physics {
         })
         this.world.allowSleep = true
 
-        const r = .04
+        this.groundMaterial = new CANNON.Material('ground')
+        this.defaultMaterial = new CANNON.Material('default')
+        this.world.addContactMaterial(new CANNON.ContactMaterial(this.groundMaterial, this.defaultMaterial, {
+            friction: 0,
+            restitution: 0.0,
+            contactEquationStiffness: 1e8,
+            contactEquationRelaxation: 3,
+        }))
+
+        const r = 0.12
         const sleepSpeed = 1.0
         const sleepTime = 1.0
         this.ball.body = new CANNON.Body({
-            mass: 5,
+            material: this.defaultMaterial,
+            mass: 10,
             shape: new CANNON.Sphere(r),
             collisionFilterGroup: 2,
             sleepSpeedLimit: sleepSpeed,
             sleepTimeLimit: sleepTime,
         })
-        this.ball.body.linearDamping = .5
-        this.ball.body.angularDamping = .5
+        // this.ball.body.linearDamping = .5
+        // this.ball.body.angularDamping = .5
         this.ball.body.addEventListener('collide', handlers.ball)
         this.world.addBody(this.ball.body)
 
@@ -70,7 +80,7 @@ export default class Physics {
         })
         const theta = this.linearRegressionQuadratic(controller.userData.prevPositions, frametimes)
         const v = theta[1]
-        const scalar = 2
+        const scalar = 10 / this.ball.body.mass
         this.ball.body.velocity.set(scalar * v[0], scalar * v[1], scalar * v[2])
 
         return this.ball.body.velocity

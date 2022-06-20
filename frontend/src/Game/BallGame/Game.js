@@ -83,11 +83,11 @@ export default class BallGame {
         this.physics = new Physics(this.ball, this.leftHand, this.rightHand, physicsHandlers)
         this.objects = new Objects(gltfLoader, this.physics)
         this.objects.buildBall(this.ball, this.scene, sounds.ball)
-        this.objects.buildRoom(this.scene)
+        this.objects.buildRoom(this.scene, this)
 
         this.dynamicEntities = []
 
-        this.addDynamicEntity(new GarbageBin({ x: 0.7, y: 0.0, z: -3 }, this.scene, gltfLoader))
+        // this.addDynamicEntity(new GarbageBin({ x: 0.7, y: 0.0, z: -3 }, this.scene, gltfLoader))
 
         if (MODE === 'dev') {
             this.cannonDebuggerEnabled = false
@@ -102,9 +102,6 @@ export default class BallGame {
 
             this.statsMesh = statsMesh
         }
-
-
-        // this.resetBall(0, 1.6, -0.5)
 
         this.teleport = new Teleport(scene, this.rightHand.con, this.objects, this.player)
 
