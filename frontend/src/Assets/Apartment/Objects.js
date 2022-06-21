@@ -43,7 +43,7 @@ const loadTextureMaterial = path => {
     return mat
 }
 
-const localMode = false
+const localMode = true
 
 const localTexturePaths = [
     'textures/baked.jpg',

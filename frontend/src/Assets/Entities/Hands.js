@@ -80,14 +80,20 @@ export default class Hands {
 
         this.leftGroups = makeBoneGroups()
         this.rightGroups = makeBoneGroups()
+
+        this.gltfLoader.load(lHPath, gltf => this.lhGltf = gltf)
+        this.gltfLoader.load(rHPath, gltf => this.rhGltf = gltf)
     }
 
     left(group) {
-        this.gltfLoader.load(lHPath, onLoad(group, this.leftGroups))
+        onLoad(group, this.leftGroups)(this.lhGltf)
     }
 
     right(group) {
-        this.gltfLoader.load(rHPath, onLoad(group, this.rightGroups))
+        console.log('right')
+        console.log(group)
+        console.log(this.rhGltf)
+        onLoad(group, this.rightGroups)(this.rhGltf)
     }
 
     clenchLeft(x) {

@@ -1,7 +1,6 @@
 import * as THREE from 'three'
 import * as CANNON from 'cannon-es'
 
-import { ShapeType, threeToCannon } from 'three-to-cannon'
 import Utils from '../../Utils'
 
 const gripGeometry = new THREE.SphereGeometry(0.025, 16, 16)
@@ -9,23 +8,6 @@ const gripMaterial = new THREE.MeshBasicMaterial({ color: '#ffffff' })
 
 const ballGeometry = new THREE.SphereGeometry(0.12, 16, 16)
 const ballMaterial = new THREE.MeshToonMaterial({ color: 0x118ad0 })
-
-const createBody = (o, physics, type = CANNON.Body.STATIC, material, handler) => {
-    material = material || physics.defaultMaterial
-    const body = new CANNON.Body({ type, mass: type === CANNON.Body.DYNAMIC ? 0.5 : 0, material })
-    const p = o.getWorldPosition(new THREE.Vector3())
-    body.position.copy(p)
-    body.quaternion.copy(o.quaternion)
-
-    const { shape } = threeToCannon(o, { type: ShapeType.BOX })
-    body.addShape(shape)
-    if (handler) {
-        body.addEventListener('collide', handler)
-    }
-    physics.world.addBody(body)
-
-    return body
-}
 
 const localMode = true
 
@@ -43,7 +25,7 @@ const pinPath = 'models/ballgame/pin.glb'
 export default class Objects {
     constructor(gltfLoader, physics) {
         this.gltfLoader = gltfLoader
-        this.physics = physics
+        // this.physics = physics
     }
 
     // TODO move to sep. classes
@@ -53,14 +35,13 @@ export default class Objects {
             this.floor.material = Utils.swapToToonMaterial(this.floor.material)
             this.floor.material.color = new THREE.Color(0x888888)
 
-            createBody(this.floor, this.physics, CANNON.Body.STATIC, this.physics.groundMaterial)
             scene.add(this.floor)
 
             const lane = gltf.scene.children.find(o => o.name === 'lane')
             lane.material.dispose()
             lane.material = this.floor.material
+            this.lane = lane
 
-            createBody(lane, this.physics, CANNON.Body.STATIC, this.physics.groundMaterial)
             scene.add(lane)
             {
 
@@ -69,26 +50,14 @@ export default class Objects {
                 lane.material.dispose()
                 lane.material = this.floor.material
 
-                createBody(lane, this.physics, CANNON.Body.STATIC, this.physics.groundMaterial)
                 scene.add(lane)
+
+                this.lane1 = lane
             }
         })
 
         this.gltfLoader.load(pinPath, gltf => {
-            const entities = []
-            gltf.scene.traverse(c => {
-                if (c.type === 'Mesh') {
-                    c.material = Utils.swapToToonMaterial(c.material)
-                    const e = {
-                        mesh: c,
-                        bodies: [],
-                        constraints: [],
-                    }
-                    e.bodies.push(createBody(c, this.physics, CANNON.Body.DYNAMIC))
-                    entities.push(e)
-                }
-            })
-            entities.forEach(e => game.addDynamicEntity.call(game, e))
+            this.pinsGltf = gltf
         })
     }
 

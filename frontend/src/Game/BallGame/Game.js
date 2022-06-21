@@ -1,12 +1,28 @@
-import Objects from '../../Assets/BallGame/Objects'
 import Physics from '../Physics'
+import { ShapeType, threeToCannon } from 'three-to-cannon'
+import * as THREE from 'three'
+import * as CANNON from 'cannon-es'
 import CannonDebugger from 'cannon-es-debugger'
-import Teleport from '../Teleport'
-import Hands from '../../Assets/Entities/Hands'
 import GameAudio from '../../Assets/GameAudio'
 import Utils from '../../Utils'
 import Game from '../Game'
 
+const createBody = (mesh, physics, type = CANNON.Body.STATIC, material, handler) => {
+    material = material || physics.defaultMaterial
+    const body = new CANNON.Body({ type, mass: type === CANNON.Body.DYNAMIC ? 0.5 : 0, material })
+    const p = mesh.getWorldPosition(new THREE.Vector3())
+    body.position.copy(p)
+    body.quaternion.copy(mesh.quaternion)
+
+    const { shape } = threeToCannon(mesh, { type: ShapeType.BOX })
+    body.addShape(shape)
+    if (handler) {
+        body.addEventListener('collide', handler)
+    }
+    physics.world.addBody(body)
+
+    return body
+}
 
 const defaultEntity = () => { return { position: [], quaternion: [], } }
 const defaultPlayer = () => {
@@ -18,9 +34,9 @@ const defaultPlayer = () => {
 }
 
 export default class BallGame extends Game {
-    constructor(gltfLoader, xr, scene, cameraGroup, client, camera, onInputsConnected, stats) {
-        const hands = new Hands(gltfLoader)
-        super(gltfLoader, xr, scene, cameraGroup, camera, onInputsConnected, stats, false, hands)
+    constructor(objects, gltfLoader, xr, scene, cameraGroup, client, camera, onInputsConnected, stats, hands) {
+        // const hands = new Hands(gltfLoader)
+        super(objects, gltfLoader, xr, scene, cameraGroup, camera, onInputsConnected, stats, false, hands)
         this.hands = hands
         this.client = client
         this.client.subscribeToEvents(this)
@@ -49,35 +65,45 @@ export default class BallGame extends Game {
 
         this.physics = new Physics(this.ball, this.leftHand, this.rightHand, physicsHandlers)
         // TODO inject objects? or, it will come out of base game class
-        this.objects = new Objects(gltfLoader, this.physics)
+        // this.objects = new Objects(gltfLoader, this.physics)
         this.objects.buildBall(this.ball, this.scene, sounds.ball)
-        this.objects.buildRoom(this.scene, this)
+        // this.objects.buildRoom(this.scene, this)
 
         this.dynamicEntities = []
+
+        console.log(this.objects)
+        createBody(this.objects.floor, this.physics, CANNON.Body.STATIC, this.physics.groundMaterial)
+        createBody(this.objects.lane, this.physics, CANNON.Body.STATIC, this.physics.groundMaterial)
+        createBody(this.objects.lane1, this.physics, CANNON.Body.STATIC, this.physics.groundMaterial)
+
+        const entities = []
+        this.objects.pinsGltf.scene.traverse(c => {
+            if (c.type === 'Mesh') {
+                c.material = Utils.swapToToonMaterial(c.material)
+                const e = {
+                    mesh: c,
+                    bodies: [],
+                    constraints: [],
+                }
+                e.bodies.push(createBody(c, this.physics, CANNON.Body.DYNAMIC))
+                entities.push(e)
+            }
+        })
+        entities.forEach(this.addDynamicEntity.bind(this))
 
         // this.addDynamicEntity(new GarbageBin({ x: 0.7, y: 0.0, z: -3 }, this.scene, gltfLoader))
 
         if (MODE === 'dev') {
-            this.cannonDebuggerEnabled = false
+            this.cannonDebuggerEnabled = true
             if (this.cannonDebuggerEnabled) {
                 this.cannonDebugger = new CannonDebugger(this.scene, this.physics.world)
             }
         }
 
-        // TODO
-        this.teleport = new Teleport(scene, this.rightHand.con, this.objects, this.player)
-        this.inputs.addListener('left', 'squeezeStart', (() => {
-            this.tryCatch(this.leftHand.con, true)
-        }).bind(this))
-        this.inputs.addListener('left', 'squeezeEnd', (() => {
-            this.tryThrow(this.leftHand.con)
-        }).bind(this))
-        this.inputs.addListener('right', 'squeezeStart', (() => {
-            this.tryCatch(this.rightHand.con, false)
-        }).bind(this))
-        this.inputs.addListener('right', 'squeezeEnd', (() => {
-            this.tryThrow(this.rightHand.con)
-        }).bind(this))
+        this.inputs.addListener('left', 'squeezeStart', (() => { this.tryCatch(this.leftHand.con, true) }).bind(this))
+        this.inputs.addListener('left', 'squeezeEnd', (() => { this.tryThrow(this.leftHand.con) }).bind(this))
+        this.inputs.addListener('right', 'squeezeStart', (() => { this.tryCatch(this.rightHand.con, false) }).bind(this))
+        this.inputs.addListener('right', 'squeezeEnd', (() => { this.tryThrow(this.rightHand.con) }).bind(this))
         this.inputs.addListener('left', 'squeeze', this.clenchLeftHand.bind(this))
         this.inputs.addListener('right', 'squeeze', this.clenchRightHand.bind(this))
         this.inputs.addListener('right', 'aPressed', this.resetBallAboveRightCon.bind(this))

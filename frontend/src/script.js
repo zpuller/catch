@@ -22,6 +22,9 @@ import Apartment from './Game/Apartment/Game'
 import BallGame from './Game/BallGame/Game'
 
 import Stats from 'three/examples/jsm/libs/stats.module'
+import ApartmentObjects from './Assets/Apartment/Objects'
+import BallGameObjects from './Assets/BallGame/Objects'
+import Hands from './Assets/Entities/Hands'
 
 let stats
 
@@ -30,8 +33,33 @@ if (MODE === 'dev') {
     document.body.appendChild(stats.dom)
 }
 
+let objects
+let hands
+
+let gameChoice = -1
+
+const onLoad = () => {
+    console.log('done')
+    switch (gameChoice) {
+        case 0:
+            game = new Apartment(objects, gltfLoader, renderer.xr, scene, cameraGroup, camera, animateXR, stats)
+            break
+
+        case 1:
+            game = new BallGame(objects, gltfLoader, renderer.xr, scene, cameraGroup, client, camera, animateXR, stats, hands)
+            break
+    }
+    animate()
+}
+
+const onProgress = (url, loaded, total) => {
+    console.log(url, loaded, total)
+}
+
+const loadingManager = new THREE.LoadingManager(onLoad, onProgress)
+
 const dracoLoader = new DRACOLoader()
-const gltfLoader = new GLTFLoader()
+const gltfLoader = new GLTFLoader(loadingManager)
 dracoLoader.setDecoderPath('/draco/')
 gltfLoader.setDRACOLoader(dracoLoader)
 
@@ -115,9 +143,13 @@ const init = () => {
             launchBallGame()
         }
     })
+
+    clearOverlay()
+    launchBallGame()
 }
 
 const launchBallGame = () => {
+    gameChoice = 1
     client = new Client()
     setTimeout(waitForClientLogin, 100)
 
@@ -126,18 +158,22 @@ const launchBallGame = () => {
 }
 
 const launchApartment = () => {
-    game = new Apartment(gltfLoader, renderer.xr, scene, cameraGroup, camera, animateXR, stats)
+    gameChoice = 0
+    objects = new ApartmentObjects(gltfLoader)
+    objects.buildRoom(scene)
     document.body.appendChild(VRButton.createButton(renderer))
-    animate()
 }
 
 const waitForClientLogin = () => {
     if (client.id === undefined) {
         setTimeout(waitForClientLogin, 100)
     } else {
-        game = new BallGame(gltfLoader, renderer.xr, scene, cameraGroup, client, camera, animateXR, stats)
+        // TODO can load and then wait for login
+        console.log('wait login')
+        objects = new BallGameObjects(gltfLoader)
+        objects.buildRoom(scene, this)
+        hands = new Hands(gltfLoader)
         document.body.appendChild(VRButton.createButton(renderer))
-        animate()
     }
 }
 

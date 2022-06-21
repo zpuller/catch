@@ -57,12 +57,14 @@ const init = (conf) => {
     rightCon.addEventListener('squeezestart', rightHandlers.onSqueezeStart)
     rightCon.addEventListener('squeezeend', rightHandlers.onSqueezeEnd)
 
+    // TODO fix
     const controllerModelFactory = new XRControllerModelFactory()
     const [leftGrip, rightGrip] = [xr.getControllerGrip(0), xr.getControllerGrip(1)]
     if (controllerModels) {
-        leftGrip.add(controllerModelFactory.createControllerModel(rightGrip))
+        leftGrip.add(controllerModelFactory.createControllerModel(leftGrip))
         rightGrip.add(controllerModelFactory.createControllerModel(rightGrip))
     }
+    console.log(hands)
     if (hands) {
         hands.left(leftGrip)
         hands.right(rightGrip)

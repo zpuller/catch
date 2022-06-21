@@ -6,8 +6,11 @@ import Inputs from './Inputs'
 
 import WebXR from '../WebXR'
 
+import Teleport from './Teleport'
+
 export default class Game {
-    constructor(gltfLoader, xr, scene, cameraGroup, camera, onInputsConnected, stats, controllerModels = false, hands) {
+    constructor(objects, gltfLoader, xr, scene, cameraGroup, camera, onInputsConnected, stats, controllerModels = false, hands) {
+        this.objects = objects
 
         this.inputs = new Inputs()
         this.inputs.addListener('left', 'joystick', this.movePlayer.bind(this))
@@ -25,6 +28,7 @@ export default class Game {
         this.leftHand = {}
         this.rightHand = {}
 
+        console.log(xr)
         const webXRConf = {
             xr,
             leftHandlers: this.inputs.leftConEventHandlers,
@@ -42,9 +46,12 @@ export default class Game {
         this.leftHand.grip = leftGrip
         this.rightHand.grip = rightGrip
 
+
         this.scene = scene
 
         this.player = cameraGroup
+
+        this.teleport = new Teleport(scene, this.rightHand.con, this.objects, this.player)
 
         this.positionBuffer = new THREE.Vector3()
 
