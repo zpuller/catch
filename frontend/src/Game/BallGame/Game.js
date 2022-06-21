@@ -1,20 +1,11 @@
-import * as THREE from 'three'
-import { HTMLMesh } from 'three/examples/jsm/interactive/HTMLMesh'
-
 import Objects from '../../Assets/BallGame/Objects'
-
 import Physics from '../Physics'
-import WebXR from '../../WebXR'
-
 import CannonDebugger from 'cannon-es-debugger'
-import GarbageBin from '../../Assets/Entities/GarbageBin'
-
-import Gui from '../Gui'
 import Teleport from '../Teleport'
 import Hands from '../../Assets/Entities/Hands'
 import GameAudio from '../../Assets/GameAudio'
 import Utils from '../../Utils'
-import Inputs from './Inputs'
+import Game from '../Game'
 
 
 const defaultEntity = () => { return { position: [], quaternion: [], } }
@@ -26,45 +17,21 @@ const defaultPlayer = () => {
     }
 }
 
-export default class BallGame {
+export default class BallGame extends Game {
     constructor(gltfLoader, xr, scene, cameraGroup, client, camera, onInputsConnected, stats) {
+        const hands = new Hands(gltfLoader)
+        super(gltfLoader, xr, scene, cameraGroup, camera, onInputsConnected, stats, false, hands)
+        this.hands = hands
         this.client = client
         this.client.subscribeToEvents(this)
         this.handledInitialState = false
 
-        this.scene = scene
-
-        this.player = cameraGroup
         this.players = {}
         this.playerGroups = {}
 
-        this.positionBuffer = new THREE.Vector3()
-
         this.ball = { state: 'free', }
-        this.leftHand = {}
-        this.rightHand = {}
 
         const sounds = new GameAudio(camera)
-
-        this.hands = new Hands(gltfLoader)
-
-        this.inputs = new Inputs(this)
-        const webXRConf = {
-            xr,
-            leftHandlers: this.inputs.leftConEventHandlers,
-            rightHandlers: this.inputs.rightConEventHandlers,
-            player: cameraGroup,
-            hands: this.hands,
-            onInputsConnected,
-            controllerModels: false,
-        }
-        const { leftCon, rightCon, leftGrip, rightGrip } = WebXR.init(webXRConf)
-        // TODO this could be optional/an object to pick up
-        // this.objects.buildGlove(leftGrip)
-        this.leftHand.con = leftCon
-        this.rightHand.con = rightCon
-        this.leftHand.grip = leftGrip
-        this.rightHand.grip = rightGrip
 
 
         const ballHandler = () => {
@@ -81,6 +48,7 @@ export default class BallGame {
         const physicsHandlers = { ball: ballHandler }
 
         this.physics = new Physics(this.ball, this.leftHand, this.rightHand, physicsHandlers)
+        // TODO inject objects? or, it will come out of base game class
         this.objects = new Objects(gltfLoader, this.physics)
         this.objects.buildBall(this.ball, this.scene, sounds.ball)
         this.objects.buildRoom(this.scene, this)
@@ -94,48 +62,31 @@ export default class BallGame {
             if (this.cannonDebuggerEnabled) {
                 this.cannonDebugger = new CannonDebugger(this.scene, this.physics.world)
             }
-
-            const statsMesh = new HTMLMesh(stats.dom);
-            statsMesh.scale.setScalar(2.5);
-            statsMesh.visible = false
-            scene.add(statsMesh);
-
-            this.statsMesh = statsMesh
         }
 
+        // TODO
         this.teleport = new Teleport(scene, this.rightHand.con, this.objects, this.player)
+        this.inputs.addListener('left', 'squeezeStart', (() => {
+            this.tryCatch(this.leftHand.con, true)
+        }).bind(this))
+        this.inputs.addListener('left', 'squeezeEnd', (() => {
+            this.tryThrow(this.leftHand.con)
+        }).bind(this))
+        this.inputs.addListener('right', 'squeezeStart', (() => {
+            this.tryCatch(this.rightHand.con, false)
+        }).bind(this))
+        this.inputs.addListener('right', 'squeezeEnd', (() => {
+            this.tryThrow(this.rightHand.con)
+        }).bind(this))
+        this.inputs.addListener('left', 'squeeze', this.clenchLeftHand.bind(this))
+        this.inputs.addListener('right', 'squeeze', this.clenchRightHand.bind(this))
+        this.inputs.addListener('right', 'aPressed', this.resetBallAboveRightCon.bind(this))
 
         this.handParams = {
             x: .035,
             y: -.015,
             z: .02,
             c: 0.5,
-        }
-
-        this.debugObj = {
-            x: 0,
-            y: 0,
-        }
-        if (MODE === 'dev') {
-            this.guiEnabled = true
-            if (this.guiEnabled) {
-                this.gui = new Gui()
-                this.gui.addSlider(this.handParams, 'x', -.1, .1)
-                this.gui.addSlider(this.handParams, 'y', -.1, .1)
-                this.gui.addSlider(this.handParams, 'z', -.1, .1)
-                this.gui.addSlider(this.handParams, 'c')
-            }
-        }
-    }
-
-    startXRSession(xr) {
-        this.headset = xr.getCamera()
-        this.scene.add(this.headset)
-        if (MODE === 'dev') {
-            this.headset.add(this.gui)
-            this.headset.add(this.statsMesh)
-            this.statsMesh.position.set(-0.3, 0.3, -1)
-            this.statsMesh.visible = true
         }
     }
 
@@ -214,13 +165,6 @@ export default class BallGame {
         controller.userData.prevPositions.push(controller.getWorldPosition(this.positionBuffer).toArray())
     }
 
-    movePlayer(x, z) {
-        const p = this.positionBuffer
-        p.set(x, 0, z)
-        p.applyQuaternion(this.player.quaternion)
-        this.player.position.addScaledVector(p, .01)
-    }
-
     clenchLeftHand(x) {
         this.hands.clenchLeft(x * this.handParams.c)
     }
@@ -229,20 +173,9 @@ export default class BallGame {
         this.hands.clenchRight(x * this.handParams.c)
     }
 
-    rotatePlayer(x) {
-        this.player.rotateY(-.01 * x)
-    }
-
     resetBallAboveRightCon() {
         const p = this.rightHand.con.getWorldPosition(this.positionBuffer)
         this.resetBall(p.x, p.y + 0.5, p.z)
-    }
-
-    toggleGui() {
-        console.log('toggle gui')
-        if (MODE === 'dev' && this.guiEnabled) {
-            this.gui.toggle()
-        }
     }
 
     tryCatch(con, left) {
@@ -341,16 +274,10 @@ export default class BallGame {
         }
     }
 
-    getRight(inputs) {
-        return inputs[inputs[0].handedness === 'right' ? 0 : 1]
-    }
-
     update(inputs) {
-        this.inputs.handleInputs(inputs)
         this.handleController(this.leftHand.con)
         this.handleController(this.rightHand.con)
 
-        this.teleport.update(this.rightHand.con)
         this.physics.update(this.players, this.leftHand.con, this.rightHand.con)
         this.updateMeshes()
 
@@ -358,14 +285,11 @@ export default class BallGame {
         this.updateOtherPlayerState()
 
         if (MODE === 'dev') {
-            if (this.guiEnabled) {
-                this.gui.update(this.rightHand.con, inputs && this.getRight(inputs))
-            }
             if (this.cannonDebuggerEnabled) {
                 this.cannonDebugger.update()
             }
-
-            this.statsMesh.material.map.update()
         }
+
+        super.update(inputs)
     }
 }

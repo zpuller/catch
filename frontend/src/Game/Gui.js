@@ -4,12 +4,13 @@ import Utils from '../Utils'
 
 const round = (num, places = 2) => String(Math.round(num * Math.pow(10, places)) / Math.pow(10, places))
 
-const canvasMaterial = canvas => new THREE.MeshStandardMaterial({
-    color: 0x1fa3ef,
+const backgroundColor = '#1fa3ef'
+const foregroundColor = '#ffffff'
+
+const canvasMaterial = canvas => new THREE.MeshBasicMaterial({
     transparent: true,
     opacity: 0.5,
-    emissive: 0xffffff,
-    emissiveMap: new THREE.CanvasTexture(canvas),
+    map: new THREE.CanvasTexture(canvas),
 })
 
 const initCanvas = conf => {
@@ -23,9 +24,11 @@ const initCanvas = conf => {
 
 const initCtx = canvas => {
     const ctx = canvas.getContext('2d')
-    ctx.strokeStyle = 'white'
-    ctx.fillStyle = 'white'
-    ctx.strokeRect(1, 1, canvas.width - 2, canvas.height - 2)
+    ctx.fillStyle = backgroundColor
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
+    ctx.strokeStyle = foregroundColor
+    ctx.fillStyle = foregroundColor
+    ctx.strokeRect(0, 0, canvas.width, canvas.height)
 
     return ctx
 }
@@ -116,18 +119,18 @@ export default class Gui extends THREE.Group {
     }
 
     drawScroll(x) {
-        this.scrollCtx.fillStyle = 'black'
+        this.scrollCtx.fillStyle = backgroundColor
         this.scrollCtx.fillRect(0, 0, this.scrollCanvas.width, this.scrollCanvas.height)
-        this.scrollCtx.fillStyle = 'white'
+        this.scrollCtx.fillStyle = foregroundColor
         this.scrollCtx.strokeRect(1, 1, this.scrollCanvas.width - 2, this.scrollCanvas.height - 2)
 
         this.scrollCtx.fillRect(0, (this.scrollCanvas.height - this.scrollCanvas.width) * x, this.scrollCanvas.width, this.scrollCanvas.width)
     }
 
     clearRect(rowNum) {
-        this.ctx.fillStyle = 'black'
+        this.ctx.fillStyle = backgroundColor
         this.ctx.fillRect(10, this.rowHeight * (rowNum + 0.5), this.mainScreenCanvas.width - this.borderWidth, this.rowHeight * 0.5)
-        this.ctx.fillStyle = 'white'
+        this.ctx.fillStyle = foregroundColor
     }
 
     drawCircle(x, y, r) {
@@ -143,9 +146,9 @@ export default class Gui extends THREE.Group {
     }
 
     drawText(rowNum, s) {
-        this.ctx.fillStyle = 'black'
+        this.ctx.fillStyle = backgroundColor
         this.ctx.fillRect(10, rowNum * this.rowHeight + 10, this.mainScreenCanvas.width - this.borderWidth, this.rowHeight * 0.5 - 10)
-        this.ctx.fillStyle = 'white'
+        this.ctx.fillStyle = foregroundColor
         this.ctx.fillText(s, 10, (rowNum * this.rowHeight) + 50)
     }
 
@@ -192,7 +195,7 @@ export default class Gui extends THREE.Group {
 
     updateImpl(con, source) {
         this.wasPressed = this.updateMenu(con, source) || this.updateScrollbar(con, source)
-        this.baseMaterial.emissiveMap.needsUpdate = true
-        this.scrollMaterial.emissiveMap.needsUpdate = true
+        this.baseMaterial.map.needsUpdate = true
+        this.scrollMaterial.map.needsUpdate = true
     }
 }
