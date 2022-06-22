@@ -1,20 +1,19 @@
 import * as math from 'mathjs'
 import * as THREE from 'three'
 import * as CANNON from 'cannon-es'
+import { ShapeType, threeToCannon } from 'three-to-cannon'
 import { Matrix4 } from 'three'
 
 export default class Physics {
-    constructor(pBall, pLeftHand, pRightHand, handlers) {
+    constructor(pLeftHand, pRightHand) {
         this.vec3Buffer = new THREE.Vector3()
         this.quaternionBuffer = new THREE.Quaternion()
         this.scaleOne = new THREE.Vector3(1, 1, 1)
         this.clock = new THREE.Clock()
         this.elapsedTime = this.clock.getElapsedTime()
         this.timeframes = Array(10).fill(1)
-        this.ball = pBall
         this.leftHand = pLeftHand
         this.rightHand = pRightHand
-        this.localHeld = false
 
         this.world = new CANNON.World({
             gravity: new CANNON.Vec3(0, -9.8, 0)
@@ -30,24 +29,47 @@ export default class Physics {
             contactEquationRelaxation: 3,
         }))
 
-        const r = 0.12
-        const sleepSpeed = 1.0
-        const sleepTime = 1.0
-        this.ball.body = new CANNON.Body({
-            material: this.defaultMaterial,
-            mass: 10,
-            shape: new CANNON.Sphere(r),
-            collisionFilterGroup: 2,
-            sleepSpeedLimit: sleepSpeed,
-            sleepTimeLimit: sleepTime,
-        })
-        // this.ball.body.linearDamping = .5
-        // this.ball.body.angularDamping = .5
-        this.ball.body.addEventListener('collide', handlers.ball)
-        this.world.addBody(this.ball.body)
-
         this.addHand(this.leftHand)
         this.addHand(this.rightHand)
+    }
+
+    createBoxBody(mesh, material, handler, type) {
+        material = material || this.defaultMaterial
+        const body = new CANNON.Body({ type, mass: type === CANNON.Body.DYNAMIC ? 0.5 : 0, material })
+        const p = mesh.getWorldPosition(new THREE.Vector3())
+        body.position.copy(p)
+        body.quaternion.copy(mesh.quaternion)
+
+        const { shape } = threeToCannon(mesh, { type: ShapeType.BOX })
+        body.addShape(shape)
+        if (handler) {
+            body.addEventListener('collide', handler)
+        }
+        this.world.addBody(body)
+
+        return body
+    }
+
+    createStaticBox(mesh, material, handler) {
+        return this.createBoxBody(mesh, material, handler, CANNON.Body.STATIC)
+    }
+
+    createDynamicBox(mesh, material, handler) {
+        return this.createBoxBody(mesh, material, handler, CANNON.Body.DYNAMIC)
+    }
+
+    createBall(radius, mass, sleepSpeedLimit = 1.0, sleepTimeLimit = 1.0) {
+        const body = new CANNON.Body({
+            type: CANNON.Body.DYNAMIC,
+            mass,
+            shape: new CANNON.Sphere(radius),
+            collisionFilterGroup: 2,
+            sleepSpeedLimit,
+            sleepTimeLimit,
+        })
+
+        this.world.addBody(body)
+        return body
     }
 
     addHand(hand) {
@@ -68,9 +90,9 @@ export default class Physics {
         return theta;
     }
 
-    doThrow(controller) {
-        this.ball.body.wakeUp()
-        this.localHeld = false
+    doThrow(controller, ball) {
+        ball.body.wakeUp()
+        ball.localHeld = false
 
         const frametimes = Array(10).fill(0)
         frametimes[0] = this.timeframes[0]
@@ -80,24 +102,24 @@ export default class Physics {
         })
         const theta = this.linearRegressionQuadratic(controller.userData.prevPositions, frametimes)
         const v = theta[1]
-        const scalar = 10 / this.ball.body.mass
-        this.ball.body.velocity.set(scalar * v[0], scalar * v[1], scalar * v[2])
+        const scalar = 10 / ball.body.mass
+        ball.body.velocity.set(scalar * v[0], scalar * v[1], scalar * v[2])
 
-        return this.ball.body.velocity
+        return ball.body.velocity
     }
 
-    doCatch(controller) {
-        const distance = controller.getWorldPosition(this.vec3Buffer).distanceTo(this.ball.mesh.position)
-        this.localHeld = distance < 0.2
-        return this.localHeld
+    doCatch(controller, ball) {
+        const distance = controller.getWorldPosition(this.vec3Buffer).distanceTo(ball.mesh.position)
+        ball.localHeld = distance < 0.2
+        return ball.localHeld
     }
 
-    sleepBall() {
-        this.ball.body.sleep()
+    sleepBall(ball) {
+        ball.body.sleep()
     }
 
-    updateBallState(v, p) {
-        const b = this.ball.body
+    updateBallState(ball, v, p) {
+        const b = ball.body
         b.wakeUp()
         if (v) {
             b.velocity.set(v.x, v.y, v.z)
@@ -108,8 +130,8 @@ export default class Physics {
         }
     }
 
-    resetBall(x, y, z) {
-        const b = this.ball.body
+    resetBall(ball, x, y, z) {
+        const b = ball.body
         b.wakeUp()
         b.position.set(x, y, z)
         b.velocity.set(0, 0, 0)
@@ -131,7 +153,7 @@ export default class Physics {
         this.timeframes[this.timeframes.length - 1] = dt
     }
 
-    update(players, leftCon, rightCon) {
+    update(players, leftCon, rightCon, ball) {
         this.saveDt()
 
         {
@@ -151,22 +173,22 @@ export default class Physics {
         this.world.fixedStep()
 
         this.scaleOne.set(1, 1, 1)
-        if (this.localHeld) {
+        if (ball.localHeld) {
             const p = this.vec3Buffer
-            this.ball.mesh.getWorldPosition(p)
-            const q = this.ball.mesh.quaternion
+            ball.mesh.getWorldPosition(p)
+            const q = ball.mesh.quaternion
 
-            this.ball.body.position.copy(p)
-            this.ball.body.quaternion.copy(q)
-        } else if (this.ball.state === 'held') {
+            ball.body.position.copy(p)
+            ball.body.quaternion.copy(q)
+        } else if (ball.state === 'held') {
             const p = this.vec3Buffer
             const q = this.quaternionBuffer
-            const player = players[this.ball.holding]
+            const player = players[ball.holding]
             const pp = player.player.position
             p.fromArray(pp)
             const pTransform = new Matrix4().compose(p, q.fromArray(player.player.quaternion), this.scaleOne)
 
-            const con = this.ball.hand == 'left' ? player.leftCon : player.rightCon
+            const con = ball.hand == 'left' ? player.leftCon : player.rightCon
             const cp = con.position
             p.fromArray(cp)
             const cTransform = new Matrix4().compose(p, q.fromArray(con.quaternion), this.scaleOne)
@@ -174,8 +196,8 @@ export default class Physics {
             const transform = pTransform.multiply(cTransform)
             transform.decompose(p, q, this.scaleOne)
 
-            this.ball.body.position.copy(p)
-            this.ball.body.quaternion.copy(q)
+            ball.body.position.copy(p)
+            ball.body.quaternion.copy(q)
         }
     }
 }

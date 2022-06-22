@@ -57,10 +57,8 @@ export default class Objects {
         })
     }
 
-    buildBall(ball, scene, sound) {
-        ball.mesh = new THREE.Mesh(ballGeometry, ballMaterial)
-        ball.sound = sound
-        scene.add(ball.mesh)
+    buildBall(ball) {
+        return new THREE.Mesh(ballGeometry, ballMaterial)
 
         // this.gltfLoader.load(
         //     ballPath,

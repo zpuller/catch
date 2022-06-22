@@ -1,27 +1,7 @@
 import Physics from '../Physics'
-import { ShapeType, threeToCannon } from 'three-to-cannon'
-import * as THREE from 'three'
-import * as CANNON from 'cannon-es'
 import CannonDebugger from 'cannon-es-debugger'
 import Utils from '../../Utils'
 import Game from '../Game'
-
-const createBody = (mesh, physics, type = CANNON.Body.STATIC, material, handler) => {
-    material = material || physics.defaultMaterial
-    const body = new CANNON.Body({ type, mass: type === CANNON.Body.DYNAMIC ? 0.5 : 0, material })
-    const p = mesh.getWorldPosition(new THREE.Vector3())
-    body.position.copy(p)
-    body.quaternion.copy(mesh.quaternion)
-
-    const { shape } = threeToCannon(mesh, { type: ShapeType.BOX })
-    body.addShape(shape)
-    if (handler) {
-        body.addEventListener('collide', handler)
-    }
-    physics.world.addBody(body)
-
-    return body
-}
 
 const defaultEntity = () => { return { position: [], quaternion: [], } }
 const defaultPlayer = () => {
@@ -43,9 +23,12 @@ export default class BallGame extends Game {
         this.players = {}
         this.playerGroups = {}
 
-        this.ball = { state: 'free', }
+        this.ball = {
+            state: 'free',
+            localHeld: false,
+        }
 
-        const ballHandler = (e) => {
+        const ballHandler = () => {
             const b = this.ball
             const gain = Utils.clamp(b.body.velocity.length() / 5)
             if (b.sound) {
@@ -56,16 +39,20 @@ export default class BallGame extends Game {
                 b.sound.play()
             }
         }
-        const physicsHandlers = { ball: ballHandler }
 
-        this.physics = new Physics(this.ball, this.leftHand, this.rightHand, physicsHandlers)
-        this.objects.buildBall(this.ball, this.scene, sounds.ball)
+        this.physics = new Physics(this.leftHand, this.rightHand)
+        this.ball.body = this.physics.createBall(0.12, 10)
+        // this.ball.body.linearDamping = .5
+        // this.ball.body.angularDamping = .5
+        this.ball.body.addEventListener('collide', ballHandler)
+        this.ball.mesh = this.objects.buildBall()
+        this.ball.sound = sounds.ball
 
         this.dynamicEntities = []
 
-        createBody(this.objects.floor, this.physics, CANNON.Body.STATIC, this.physics.groundMaterial)
-        createBody(this.objects.lane, this.physics, CANNON.Body.STATIC, this.physics.groundMaterial)
-        createBody(this.objects.lane1, this.physics, CANNON.Body.STATIC, this.physics.groundMaterial)
+        this.physics.createStaticBox(this.objects.floor, this.physics.groundMaterial)
+        this.physics.createStaticBox(this.objects.lane, this.physics.groundMaterial)
+        this.physics.createStaticBox(this.objects.lane1, this.physics.groundMaterial)
 
         const entities = []
         this.objects.pinsGltf.scene.traverse(c => {
@@ -76,7 +63,7 @@ export default class BallGame extends Game {
                     bodies: [],
                     constraints: [],
                 }
-                e.bodies.push(createBody(c, this.physics, CANNON.Body.DYNAMIC))
+                e.bodies.push(this.physics.createDynamicBox(c))
                 entities.push(e)
             }
         })
@@ -157,7 +144,7 @@ export default class BallGame extends Game {
 
         const id = this.ball.holding
         if (this.ball.state === 'held') {
-            this.physics.sleepBall()
+            this.physics.sleepBall(this.ball)
             const left = this.ball.hand === 'left'
             let grip
             if (id === this.client.id) {
@@ -171,7 +158,7 @@ export default class BallGame extends Game {
             grip.add(m)
         } else {
             if (id !== this.client.id) {
-                this.physics.updateBallState(state.velocity, state.position)
+                this.physics.updateBallState(this.ball, state.velocity, state.position)
                 this.scene.add(this.ball.mesh)
             }
         }
@@ -201,7 +188,7 @@ export default class BallGame extends Game {
             this.ball.holding = this.client.id
             this.ball.hand = left ? 'left' : 'right'
 
-            this.physics.sleepBall()
+            this.physics.sleepBall(this.ball)
             const m = this.ball.mesh
             m.position.set(this.handParams.x * (left ? 1 : -1), this.handParams.y, this.handParams.z)
             con.add(m)
@@ -220,7 +207,7 @@ export default class BallGame extends Game {
             this.ball.state = 'free'
             this.scene.add(this.ball.mesh)
 
-            const v = this.physics.doThrow(con)
+            const v = this.physics.doThrow(con, this.ball)
             this.client.emitBallState({
                 state: this.ball.state,
                 holding: this.ball.holding,
@@ -270,7 +257,7 @@ export default class BallGame extends Game {
 
     resetBall(x, y, z) {
         this.scene.add(this.ball.mesh)
-        const { v, p } = this.physics.resetBall(x, y, z)
+        const { v, p } = this.physics.resetBall(this.ball, x, y, z)
         this.client.emitBallState({
             state: 'free',
             holding: this.client.id,
@@ -295,7 +282,7 @@ export default class BallGame extends Game {
         this.handleController(this.leftHand.con)
         this.handleController(this.rightHand.con)
 
-        this.physics.update(this.players, this.leftHand.con, this.rightHand.con)
+        this.physics.update(this.players, this.leftHand.con, this.rightHand.con, this.ball)
         this.updateMeshes()
 
         this.emitPlayerState()
