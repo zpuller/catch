@@ -20,14 +20,14 @@ export default class Physics {
         })
         this.world.allowSleep = true
 
-        this.groundMaterial = new CANNON.Material('ground')
-        this.defaultMaterial = new CANNON.Material('default')
-        this.world.addContactMaterial(new CANNON.ContactMaterial(this.groundMaterial, this.defaultMaterial, {
-            friction: 0,
-            restitution: 0.0,
-            contactEquationStiffness: 1e8,
-            contactEquationRelaxation: 3,
-        }))
+        // this.groundMaterial = new CANNON.Material('ground')
+        // this.defaultMaterial = new CANNON.Material('default')
+        // this.world.addContactMaterial(new CANNON.ContactMaterial(this.groundMaterial, this.defaultMaterial, {
+        //     friction: 0,
+        //     restitution: 0.0,
+        //     contactEquationStiffness: 1e8,
+        //     contactEquationRelaxation: 3,
+        // }))
 
         this.addHand(this.leftHand)
         this.addHand(this.rightHand)
@@ -58,10 +58,12 @@ export default class Physics {
         return this.createBoxBody(mesh, material, handler, CANNON.Body.DYNAMIC)
     }
 
-    createBall(radius, mass, sleepSpeedLimit = 1.0, sleepTimeLimit = 1.0) {
+    createBall(radius, mass, material, sleepSpeedLimit = 1.0, sleepTimeLimit = 1.0) {
+        material = material || this.defaultMaterial
         const body = new CANNON.Body({
             type: CANNON.Body.DYNAMIC,
             mass,
+            material,
             shape: new CANNON.Sphere(radius),
             collisionFilterGroup: 2,
             sleepSpeedLimit,

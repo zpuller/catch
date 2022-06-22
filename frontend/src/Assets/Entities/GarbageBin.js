@@ -21,13 +21,8 @@ const createBody = conf => {
 
 const createBodies = conf => conf.map(createBody)
 
-const localMode = false
-const localModelPath = 'models/ballgame/garbage_bin.glb'
-const remoteModelPath = 'https://res.cloudinary.com/hack-reactor888/image/upload/v1655685470/zachGame/models/ballgame/garbage_bin_zjm9cb.glb'
-const modelPath = localMode ? localModelPath : remoteModelPath
-
 export default class GarbageBin {
-    constructor(p, scene, gltfLoader) {
+    constructor(p, scene, gltf) {
         const geometry = new THREE.BoxGeometry(1, 1, 1)
         const material = new THREE.MeshBasicMaterial({ wireframe: true })
         this.mesh = new THREE.Mesh(geometry, material)
@@ -53,21 +48,16 @@ export default class GarbageBin {
         const ixs = [...Array(4).keys()]
         this.constraints = ixs.map(i => new CANNON.LockConstraint(this.bodies[i], this.bodies[i + 1]))
 
-        gltfLoader.load(
-            modelPath,
-            gltf => {
-                const mesh = gltf.scene.children[0]
-                const oldMat = mesh.material
-                mesh.material = Utils.swapToLambertMat(oldMat)
-                // mesh.castShadow = true
+        const mesh = gltf.scene.children[0]
+        const oldMat = mesh.material
+        mesh.material = Utils.swapToLambertMat(oldMat)
+        // mesh.castShadow = true
 
-                const scale = 1
-                gltf.scene.scale.set(scale, scale, scale)
-                scene.remove(this.mesh)
-                this.mesh = gltf.scene
-                this.mesh.position.copy(p)
-                scene.add(this.mesh)
-            }
-        )
+        const scale = 1
+        gltf.scene.scale.set(scale, scale, scale)
+        scene.remove(this.mesh)
+        this.mesh = gltf.scene
+        this.mesh.position.copy(p)
+        scene.add(this.mesh)
     }
 }
