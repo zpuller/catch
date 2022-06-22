@@ -25,6 +25,7 @@ import Stats from 'three/examples/jsm/libs/stats.module'
 import ApartmentObjects from './Assets/Apartment/Objects'
 import BallGameObjects from './Assets/BallGame/Objects'
 import Hands from './Assets/Entities/Hands'
+import gsap from 'gsap'
 
 let stats
 
@@ -36,24 +37,48 @@ if (MODE === 'dev') {
 let objects
 let hands
 
+const shaderMaterial = new THREE.ShaderMaterial({
+    transparent: true,
+    uniforms: {
+        uAlpha: { value: 1.0 },
+    },
+    vertexShader: `
+            void main() {
+                gl_Position = vec4(position, 1.0);
+            }
+        `,
+    fragmentShader: `
+            uniform float uAlpha;
+
+            void main() {
+                gl_FragColor = vec4(0.0, 0.0, 0.0, uAlpha);
+            }
+        `
+})
+
 let gameChoice = -1
 
 const onLoad = () => {
-    console.log('done')
     switch (gameChoice) {
         case 0:
             game = new Apartment(objects, gltfLoader, renderer.xr, scene, cameraGroup, camera, animateXR, stats)
             break
 
         case 1:
-            game = new BallGame(objects, gltfLoader, renderer.xr, scene, cameraGroup, client, camera, animateXR, stats, hands)
+            waitForClientLogin()
             break
     }
-    animate()
+
+    gsap.delayedCall(0.5, () => {
+        gsap.to(shaderMaterial.uniforms.uAlpha, { duration: 3, value: 0.0 })
+        loadingBarElement.classList.add('ended')
+        loadingBarElement.style.transform = ''
+    })
 }
 
+const loadingBarElement = document.querySelector('.loading-bar')
 const onProgress = (url, loaded, total) => {
-    console.log(url, loaded, total)
+    loadingBarElement.style.transform = `scaleX(${loaded / total})`
 }
 
 const loadingManager = new THREE.LoadingManager(onLoad, onProgress)
@@ -62,6 +87,9 @@ const dracoLoader = new DRACOLoader()
 const gltfLoader = new GLTFLoader(loadingManager)
 dracoLoader.setDecoderPath('/draco/')
 gltfLoader.setDRACOLoader(dracoLoader)
+
+const textureLoader = new THREE.TextureLoader(loadingManager)
+const cubeTextureLoader = new THREE.CubeTextureLoader(loadingManager)
 
 let cameraGroup
 let renderer, scene, lights, camera
@@ -144,14 +172,20 @@ const init = () => {
         }
     })
 
-    clearOverlay()
-    launchBallGame()
+    const plane = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), shaderMaterial)
+    plane.position.copy(camera)
+
+    scene.add(plane)
+
+    animate()
 }
 
 const launchBallGame = () => {
     gameChoice = 1
     client = new Client()
-    setTimeout(waitForClientLogin, 100)
+    objects = new BallGameObjects(gltfLoader)
+    objects.buildRoom(scene, this)
+    hands = new Hands(gltfLoader)
 
     lights = new GameLights()
     scene.add(lights.get())
@@ -159,7 +193,7 @@ const launchBallGame = () => {
 
 const launchApartment = () => {
     gameChoice = 0
-    objects = new ApartmentObjects(gltfLoader)
+    objects = new ApartmentObjects(gltfLoader, textureLoader, cubeTextureLoader)
     objects.buildRoom(scene)
     document.body.appendChild(VRButton.createButton(renderer))
 }
@@ -168,11 +202,7 @@ const waitForClientLogin = () => {
     if (client.id === undefined) {
         setTimeout(waitForClientLogin, 100)
     } else {
-        // TODO can load and then wait for login
-        console.log('wait login')
-        objects = new BallGameObjects(gltfLoader)
-        objects.buildRoom(scene, this)
-        hands = new Hands(gltfLoader)
+        game = new BallGame(objects, gltfLoader, renderer.xr, scene, cameraGroup, client, camera, animateXR, stats, hands)
         document.body.appendChild(VRButton.createButton(renderer))
     }
 }

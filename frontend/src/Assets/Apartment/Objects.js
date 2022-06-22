@@ -1,46 +1,14 @@
 import * as THREE from 'three'
 
-const cubeTextureLoader = new THREE.CubeTextureLoader()
-
 const video = document.getElementById("vid")
 video.play()
 const videoTexture = new THREE.VideoTexture(video)
 const videoMeshMaterial = new THREE.MeshBasicMaterial({ map: videoTexture })
 
-// const envNum = '1'
-const environmentMap = cubeTextureLoader.load([
-    'https://res.cloudinary.com/hack-reactor888/image/upload/v1653629023/zachGame/envMaps/px_vgn0hu.jpg',
-    'https://res.cloudinary.com/hack-reactor888/image/upload/v1653629023/zachGame/envMaps/nx_domm6q.jpg',
-    'https://res.cloudinary.com/hack-reactor888/image/upload/v1653629023/zachGame/envMaps/py_dgjjzf.jpg',
-    'https://res.cloudinary.com/hack-reactor888/image/upload/v1653629023/zachGame/envMaps/ny_s7bcwa.jpg',
-    'https://res.cloudinary.com/hack-reactor888/image/upload/v1653629023/zachGame/envMaps/pz_w4b9lw.jpg',
-    'https://res.cloudinary.com/hack-reactor888/image/upload/v1653629023/zachGame/envMaps/nz_uxnx3c.jpg',
-    // '/textures/environmentMaps/' + envNum + '/px.jpg',
-    // '/textures/environmentMaps/' + envNum + '/nx.jpg',
-    // '/textures/environmentMaps/' + envNum + '/py.jpg',
-    // '/textures/environmentMaps/' + envNum + '/ny.jpg',
-    // '/textures/environmentMaps/' + envNum + '/pz.jpg',
-    // '/textures/environmentMaps/' + envNum + '/nz.jpg'
-])
 
-environmentMap.encoding = THREE.sRGBEncoding
-
-
-const onLoad = (scene, physics, handler) => gltf => {
+const onLoad = (scene) => gltf => {
     gltf.scene.matrixAutoUpdate = false
     scene.add(gltf.scene)
-}
-
-const textureLoader = new THREE.TextureLoader()
-
-const loadTextureMaterial = path => {
-    const tex = textureLoader.load(path)
-    const mat = new THREE.MeshBasicMaterial()
-    mat.map = tex
-    tex.encoding = THREE.sRGBEncoding
-    tex.flipY = false
-
-    return mat
 }
 
 const localMode = true
@@ -68,15 +36,6 @@ const remoteTexturePaths = [
 ]
 
 const texturePaths = localMode ? localTexturePaths : remoteTexturePaths
-
-const floorMat = loadTextureMaterial(texturePaths[0])
-const roomMat1 = loadTextureMaterial(texturePaths[1])
-const roomMat2 = loadTextureMaterial(texturePaths[2])
-const roomMat3 = loadTextureMaterial(texturePaths[3])
-const roomMat4 = loadTextureMaterial(texturePaths[4])
-const roomMat5 = loadTextureMaterial(texturePaths[5])
-const roomMat6 = loadTextureMaterial(texturePaths[6])
-const roomMat7 = loadTextureMaterial(texturePaths[7])
 
 const localModelPaths = [
     'models/apartment/room.glb',
@@ -116,47 +75,87 @@ const screenModelPath = localMode ? localScreenModelPath : remoteScreenModelPath
 
 // global local/uploaded option
 export default class Objects {
-    constructor(gltfLoader, physics) {
+    constructor(gltfLoader, textureLoader, cubeTextureLoader) {
         this.gltfLoader = gltfLoader
-        this.physics = physics
         this.video = video
+
+        this.textureLoader = textureLoader
+        this.cubeTextureLoader = cubeTextureLoader
+
+        this.floorMat = this.loadTextureMaterial(texturePaths[0])
+        this.roomMat1 = this.loadTextureMaterial(texturePaths[1])
+        this.roomMat2 = this.loadTextureMaterial(texturePaths[2])
+        this.roomMat3 = this.loadTextureMaterial(texturePaths[3])
+        this.roomMat4 = this.loadTextureMaterial(texturePaths[4])
+        this.roomMat5 = this.loadTextureMaterial(texturePaths[5])
+        this.roomMat6 = this.loadTextureMaterial(texturePaths[6])
+        this.roomMat7 = this.loadTextureMaterial(texturePaths[7])
+
+
+        // const envNum = '1'
+        this.environmentMap = cubeTextureLoader.load([
+            'https://res.cloudinary.com/hack-reactor888/image/upload/v1653629023/zachGame/envMaps/px_vgn0hu.jpg',
+            'https://res.cloudinary.com/hack-reactor888/image/upload/v1653629023/zachGame/envMaps/nx_domm6q.jpg',
+            'https://res.cloudinary.com/hack-reactor888/image/upload/v1653629023/zachGame/envMaps/py_dgjjzf.jpg',
+            'https://res.cloudinary.com/hack-reactor888/image/upload/v1653629023/zachGame/envMaps/ny_s7bcwa.jpg',
+            'https://res.cloudinary.com/hack-reactor888/image/upload/v1653629023/zachGame/envMaps/pz_w4b9lw.jpg',
+            'https://res.cloudinary.com/hack-reactor888/image/upload/v1653629023/zachGame/envMaps/nz_uxnx3c.jpg',
+            // '/textures/environmentMaps/' + envNum + '/px.jpg',
+            // '/textures/environmentMaps/' + envNum + '/nx.jpg',
+            // '/textures/environmentMaps/' + envNum + '/py.jpg',
+            // '/textures/environmentMaps/' + envNum + '/ny.jpg',
+            // '/textures/environmentMaps/' + envNum + '/pz.jpg',
+            // '/textures/environmentMaps/' + envNum + '/nz.jpg'
+        ])
+
+        this.environmentMap.encoding = THREE.sRGBEncoding
+    }
+
+    loadTextureMaterial(path) {
+        const tex = this.textureLoader.load(path)
+        const mat = new THREE.MeshBasicMaterial()
+        mat.map = tex
+        tex.encoding = THREE.sRGBEncoding
+        tex.flipY = false
+
+        return mat
     }
 
     // TODO move to sep. classes
     buildRoom(scene, handlers) {
-        scene.background = environmentMap
-        // scene.environment = environmentMap
+        scene.background = this.environmentMap
+        // scene.environment = this.environmentMap
 
         this.gltfLoader.load(floorModelPath, gltf => {
-            onLoad(scene, this.physics)(gltf)
+            onLoad(scene)(gltf)
             this.floor = gltf.scene.children.find(o => o.name === 'floor')
             this.floor.material.dispose()
-            this.floor.material = floorMat
+            this.floor.material = this.floorMat
         })
 
         const loadRoomComponent = (path, meshName, mat) => {
             this.gltfLoader.load(path, gltf => {
-                onLoad(scene, this.physics)(gltf)
+                onLoad(scene)(gltf)
                 const mesh = gltf.scene.children.find(o => o.name === meshName)
                 mesh.material.dispose()
                 mesh.material = mat
             })
         }
 
-        loadRoomComponent(modelPaths[0], 'baked', floorMat)
-        loadRoomComponent(modelPaths[1], 'baked1', roomMat1)
-        loadRoomComponent(modelPaths[2], 'baked2', roomMat2)
-        loadRoomComponent(modelPaths[3], 'baked3', roomMat3)
-        loadRoomComponent(modelPaths[4], 'baked4', roomMat4)
-        loadRoomComponent(modelPaths[5], 'baked5', roomMat5)
-        loadRoomComponent(modelPaths[6], 'baked6', roomMat6)
-        loadRoomComponent(modelPaths[7], 'baked7', roomMat7)
+        loadRoomComponent(modelPaths[0], 'baked', this.floorMat)
+        loadRoomComponent(modelPaths[1], 'baked1', this.roomMat1)
+        loadRoomComponent(modelPaths[2], 'baked2', this.roomMat2)
+        loadRoomComponent(modelPaths[3], 'baked3', this.roomMat3)
+        loadRoomComponent(modelPaths[4], 'baked4', this.roomMat4)
+        loadRoomComponent(modelPaths[5], 'baked5', this.roomMat5)
+        loadRoomComponent(modelPaths[6], 'baked6', this.roomMat6)
+        loadRoomComponent(modelPaths[7], 'baked7', this.roomMat7)
 
         this.gltfLoader.load(doorsModelPath, gltf => {
-            onLoad(scene, this.physics)(gltf)
+            onLoad(scene)(gltf)
         })
         this.gltfLoader.load(screenModelPath, (gltf) => {
-            onLoad(scene, this.physics)(gltf)
+            onLoad(scene)(gltf)
             const screen = gltf.scene.children[0]
             screen.material.dispose()
             screen.material = videoMeshMaterial

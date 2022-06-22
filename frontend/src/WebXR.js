@@ -64,7 +64,6 @@ const init = (conf) => {
         leftGrip.add(controllerModelFactory.createControllerModel(leftGrip))
         rightGrip.add(controllerModelFactory.createControllerModel(rightGrip))
     }
-    console.log(hands)
     if (hands) {
         hands.left(leftGrip)
         hands.right(rightGrip)

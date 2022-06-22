@@ -28,7 +28,6 @@ export default class Game {
         this.leftHand = {}
         this.rightHand = {}
 
-        console.log(xr)
         const webXRConf = {
             xr,
             leftHandlers: this.inputs.leftConEventHandlers,

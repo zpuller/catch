@@ -71,7 +71,6 @@ export default class BallGame extends Game {
 
         this.dynamicEntities = []
 
-        console.log(this.objects)
         createBody(this.objects.floor, this.physics, CANNON.Body.STATIC, this.physics.groundMaterial)
         createBody(this.objects.lane, this.physics, CANNON.Body.STATIC, this.physics.groundMaterial)
         createBody(this.objects.lane1, this.physics, CANNON.Body.STATIC, this.physics.groundMaterial)

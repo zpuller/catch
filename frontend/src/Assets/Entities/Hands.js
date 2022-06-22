@@ -90,9 +90,6 @@ export default class Hands {
     }
 
     right(group) {
-        console.log('right')
-        console.log(group)
-        console.log(this.rhGltf)
         onLoad(group, this.rightGroups)(this.rhGltf)
     }
 
