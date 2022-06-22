@@ -33,7 +33,7 @@ const makeBoneGroups = () => {
     return groups
 }
 
-const onLoad = (group, boneGroups) => (gltf) => {
+const bindHand = (group, boneGroups, gltf) => {
     const bones = gltf.scene.children[0].children[0]
     const mesh = gltf.scene.children[0].children[1]
     mesh.material.dispose()
@@ -86,11 +86,11 @@ export default class Hands {
     }
 
     left(group) {
-        onLoad(group, this.leftGroups)(this.lhGltf)
+        bindHand(group, this.leftGroups, this.lhGltf)
     }
 
     right(group) {
-        onLoad(group, this.rightGroups)(this.rhGltf)
+        bindHand(group, this.rightGroups, this.rhGltf)
     }
 
     clenchLeft(x) {

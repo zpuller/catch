@@ -20,15 +20,12 @@ const ballPath = localMode ? localBallPath : remoteBallPath
 
 const pinPath = 'models/ballgame/pin.glb'
 
-// global local/uploaded option
 export default class Objects {
-    constructor(gltfLoader, physics) {
+    constructor(gltfLoader) {
         this.gltfLoader = gltfLoader
-        // this.physics = physics
     }
 
-    // TODO move to sep. classes
-    buildRoom(scene, game) {
+    buildRoom(scene) {
         this.gltfLoader.load(floorPath, gltf => {
             this.floor = gltf.scene.children.find(o => o.name === 'floor')
             this.floor.material = Utils.swapToToonMaterial(this.floor.material)
@@ -62,6 +59,7 @@ export default class Objects {
 
     buildBall(ball, scene, sound) {
         ball.mesh = new THREE.Mesh(ballGeometry, ballMaterial)
+        ball.sound = sound
         scene.add(ball.mesh)
 
         // this.gltfLoader.load(

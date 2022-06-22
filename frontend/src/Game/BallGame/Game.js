@@ -3,7 +3,6 @@ import { ShapeType, threeToCannon } from 'three-to-cannon'
 import * as THREE from 'three'
 import * as CANNON from 'cannon-es'
 import CannonDebugger from 'cannon-es-debugger'
-import GameAudio from '../../Assets/GameAudio'
 import Utils from '../../Utils'
 import Game from '../Game'
 
@@ -34,8 +33,7 @@ const defaultPlayer = () => {
 }
 
 export default class BallGame extends Game {
-    constructor(objects, gltfLoader, xr, scene, cameraGroup, client, camera, onInputsConnected, stats, hands) {
-        // const hands = new Hands(gltfLoader)
+    constructor(objects, gltfLoader, xr, scene, cameraGroup, client, camera, onInputsConnected, stats, hands, sounds) {
         super(objects, gltfLoader, xr, scene, cameraGroup, camera, onInputsConnected, stats, false, hands)
         this.hands = hands
         this.client = client
@@ -47,10 +45,7 @@ export default class BallGame extends Game {
 
         this.ball = { state: 'free', }
 
-        const sounds = new GameAudio(camera)
-
-
-        const ballHandler = () => {
+        const ballHandler = (e) => {
             const b = this.ball
             const gain = Utils.clamp(b.body.velocity.length() / 5)
             if (b.sound) {
@@ -64,10 +59,7 @@ export default class BallGame extends Game {
         const physicsHandlers = { ball: ballHandler }
 
         this.physics = new Physics(this.ball, this.leftHand, this.rightHand, physicsHandlers)
-        // TODO inject objects? or, it will come out of base game class
-        // this.objects = new Objects(gltfLoader, this.physics)
         this.objects.buildBall(this.ball, this.scene, sounds.ball)
-        // this.objects.buildRoom(this.scene, this)
 
         this.dynamicEntities = []
 
@@ -93,7 +85,7 @@ export default class BallGame extends Game {
         // this.addDynamicEntity(new GarbageBin({ x: 0.7, y: 0.0, z: -3 }, this.scene, gltfLoader))
 
         if (MODE === 'dev') {
-            this.cannonDebuggerEnabled = true
+            this.cannonDebuggerEnabled = false
             if (this.cannonDebuggerEnabled) {
                 this.cannonDebugger = new CannonDebugger(this.scene, this.physics.world)
             }

@@ -4,6 +4,8 @@ import * as THREE from 'three'
 import { VRButton } from 'three/examples/jsm/webxr/VRButton.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 
+import gsap from 'gsap'
+
 import {
     GLTFLoader
 } from 'three/examples/jsm/loaders/GLTFLoader'
@@ -25,7 +27,7 @@ import Stats from 'three/examples/jsm/libs/stats.module'
 import ApartmentObjects from './Assets/Apartment/Objects'
 import BallGameObjects from './Assets/BallGame/Objects'
 import Hands from './Assets/Entities/Hands'
-import gsap from 'gsap'
+import GameAudio from './Assets/GameAudio'
 
 let stats
 
@@ -33,9 +35,6 @@ if (MODE === 'dev') {
     stats = Stats()
     document.body.appendChild(stats.dom)
 }
-
-let objects
-let hands
 
 const shaderMaterial = new THREE.ShaderMaterial({
     transparent: true,
@@ -56,8 +55,18 @@ const shaderMaterial = new THREE.ShaderMaterial({
         `
 })
 
+const waitForClientLogin = () => {
+    if (client.id === undefined) {
+        setTimeout(waitForClientLogin, 100)
+    } else {
+        game = new BallGame(objects, gltfLoader, renderer.xr, scene, cameraGroup, client, camera, animateXR, stats, hands, sounds)
+        document.body.appendChild(VRButton.createButton(renderer))
+    }
+}
+
 let gameChoice = -1
 
+let objects
 const onLoad = () => {
     switch (gameChoice) {
         case 0:
@@ -98,6 +107,8 @@ let client
 
 let controls
 
+let sounds
+
 const sizes = {
     width: window.innerWidth,
     height: window.innerHeight
@@ -111,7 +122,6 @@ const init = () => {
 
     renderer = new Renderer(canvas, sizes)
     renderer.outputEncoding = THREE.sRGBEncoding
-    // renderer.shadowMapEnabled = true
 
     camera = new Camera(sizes)
 
@@ -180,11 +190,13 @@ const init = () => {
     animate()
 }
 
+let hands
 const launchBallGame = () => {
     gameChoice = 1
     client = new Client()
     objects = new BallGameObjects(gltfLoader)
-    objects.buildRoom(scene, this)
+    objects.buildRoom(scene)
+    sounds = new GameAudio(camera, loadingManager)
     hands = new Hands(gltfLoader)
 
     lights = new GameLights()
@@ -196,15 +208,6 @@ const launchApartment = () => {
     objects = new ApartmentObjects(gltfLoader, textureLoader, cubeTextureLoader)
     objects.buildRoom(scene)
     document.body.appendChild(VRButton.createButton(renderer))
-}
-
-const waitForClientLogin = () => {
-    if (client.id === undefined) {
-        setTimeout(waitForClientLogin, 100)
-    } else {
-        game = new BallGame(objects, gltfLoader, renderer.xr, scene, cameraGroup, client, camera, animateXR, stats, hands)
-        document.body.appendChild(VRButton.createButton(renderer))
-    }
 }
 
 const animate = () => {

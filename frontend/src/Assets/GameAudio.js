@@ -1,7 +1,9 @@
 import * as THREE from 'three'
 
 export default class GameAudio {
-    constructor(camera) {
+    constructor(camera, loadingManager) {
+        this.audioLoader = new THREE.AudioLoader(loadingManager)
+
         this.camera = camera
         this.listener = new THREE.AudioListener();
         this.camera.add(this.listener);
@@ -12,10 +14,9 @@ export default class GameAudio {
     }
 
     loadSound(file) {
-        const sound = new THREE.PositionalAudio(this.listener);
+        const sound = new THREE.PositionalAudio(this.listener)
 
-        const audioLoader = new THREE.AudioLoader();
-        audioLoader.load(file, function (buffer) {
+        this.audioLoader.load(file, function (buffer) {
             sound.setBuffer(buffer);
             sound.setRefDistance(0.5);
         });

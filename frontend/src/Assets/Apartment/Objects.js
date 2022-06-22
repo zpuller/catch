@@ -5,13 +5,7 @@ video.play()
 const videoTexture = new THREE.VideoTexture(video)
 const videoMeshMaterial = new THREE.MeshBasicMaterial({ map: videoTexture })
 
-
-const onLoad = (scene) => gltf => {
-    gltf.scene.matrixAutoUpdate = false
-    scene.add(gltf.scene)
-}
-
-const localMode = true
+const localMode = false
 
 const localTexturePaths = [
     'textures/baked.jpg',
@@ -73,7 +67,11 @@ const localScreenModelPath = 'models/apartment/screen.glb'
 const remoteScreenModelPath = 'https://res.cloudinary.com/hack-reactor888/image/upload/v1655685447/zachGame/models/apartment/screen_te6lzq.glb'
 const screenModelPath = localMode ? localScreenModelPath : remoteScreenModelPath
 
-// global local/uploaded option
+const onLoad = (scene) => gltf => {
+    gltf.scene.matrixAutoUpdate = false
+    scene.add(gltf.scene)
+}
+
 export default class Objects {
     constructor(gltfLoader, textureLoader, cubeTextureLoader) {
         this.gltfLoader = gltfLoader
@@ -121,10 +119,8 @@ export default class Objects {
         return mat
     }
 
-    // TODO move to sep. classes
-    buildRoom(scene, handlers) {
+    buildRoom(scene) {
         scene.background = this.environmentMap
-        // scene.environment = this.environmentMap
 
         this.gltfLoader.load(floorModelPath, gltf => {
             onLoad(scene)(gltf)
