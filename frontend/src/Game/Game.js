@@ -9,21 +9,16 @@ import WebXR from '../WebXR'
 import Teleport from './Teleport'
 
 export default class Game {
-    constructor(objects, gltfLoader, xr, scene, cameraGroup, camera, onInputsConnected, stats, controllerModels = false, hands) {
+    constructor(objects, xr, scene, cameraGroup, onInputsConnected, stats, controllerModels = false, hands) {
         this.objects = objects
 
         this.inputs = new Inputs()
         this.inputs.addListener('left', 'joystick', this.movePlayer.bind(this))
         this.inputs.addListener('right', 'joystick', this.rotatePlayer.bind(this))
 
-        this.inputs.addListener('right', 'selectStart', (() => {
-            this.teleport?.startPoint(this.rightHand.con)
-        }).bind(this))
-        this.inputs.addListener('right', 'selectEnd', (() => {
-            this.teleport?.go(this.rightHand.con)
-        }).bind(this))
+        this.inputs.addListener('right', 'selectStart', (() => { this.teleport?.startPoint(this.rightHand.con) }).bind(this))
+        this.inputs.addListener('right', 'selectEnd', (() => { this.teleport?.go(this.rightHand.con) }).bind(this))
         this.inputs.addListener('right', 'bPressed', this.toggleGui.bind(this))
-
 
         this.leftHand = {}
         this.rightHand = {}

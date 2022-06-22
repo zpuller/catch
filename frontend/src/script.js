@@ -59,7 +59,7 @@ const waitForClientLogin = () => {
     if (client.id === undefined) {
         setTimeout(waitForClientLogin, 100)
     } else {
-        game = new BallGame(objects, gltfLoader, renderer.xr, scene, cameraGroup, client, camera, animateXR, stats, hands, sounds)
+        game = new BallGame(objects, renderer.xr, scene, cameraGroup, client, animateXR, stats, hands, sounds)
         document.body.appendChild(VRButton.createButton(renderer))
     }
 }
@@ -70,7 +70,7 @@ let objects
 const onLoad = () => {
     switch (gameChoice) {
         case 0:
-            game = new Apartment(objects, gltfLoader, renderer.xr, scene, cameraGroup, camera, animateXR, stats)
+            game = new Apartment(objects, renderer.xr, scene, cameraGroup, animateXR, stats)
             break
 
         case 1:

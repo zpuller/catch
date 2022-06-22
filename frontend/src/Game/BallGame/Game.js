@@ -33,8 +33,8 @@ const defaultPlayer = () => {
 }
 
 export default class BallGame extends Game {
-    constructor(objects, gltfLoader, xr, scene, cameraGroup, client, camera, onInputsConnected, stats, hands, sounds) {
-        super(objects, gltfLoader, xr, scene, cameraGroup, camera, onInputsConnected, stats, false, hands)
+    constructor(objects, xr, scene, cameraGroup, client, onInputsConnected, stats, hands, sounds) {
+        super(objects, xr, scene, cameraGroup, onInputsConnected, stats, false, hands)
         this.hands = hands
         this.client = client
         this.client.subscribeToEvents(this)
