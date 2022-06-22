@@ -3,8 +3,6 @@ import CannonDebugger from 'cannon-es-debugger'
 import Utils from '../../Utils'
 import Game from '../Game'
 
-import GarbageBin from '../../Assets/Entities/GarbageBin'
-
 const defaultEntity = () => { return { position: [], quaternion: [], } }
 const defaultPlayer = () => {
     return {
@@ -30,7 +28,7 @@ export default class BallGame extends Game {
             localHeld: false,
         }
 
-        const ballHandler = () => {
+        this.ballHandler = () => {
             const b = this.ball
             const gain = Utils.clamp(b.body.velocity.length() / 5)
             if (b.sound) {
@@ -43,36 +41,6 @@ export default class BallGame extends Game {
         }
 
         this.physics = new Physics(this.leftHand, this.rightHand)
-        this.ball.body = this.physics.createBall(0.04, 5)
-        // this.ball.body = this.physics.createBall(0.12, 10)
-        this.ball.body.linearDamping = .5
-        this.ball.body.angularDamping = .5
-        this.ball.body.addEventListener('collide', ballHandler)
-        this.ball.mesh = this.objects.buildBall()
-        this.ball.sound = sounds.ball
-
-        this.dynamicEntities = []
-
-        this.physics.createStaticBox(this.objects.floor, this.physics.groundMaterial)
-        // this.physics.createStaticBox(this.objects.lane)
-        // this.physics.createStaticBox(this.objects.lane1)
-
-        // const entities = []
-        // this.objects.pinsGltf.scene.traverse(c => {
-        //     if (c.type === 'Mesh') {
-        //         c.material = Utils.swapToToonMaterial(c.material)
-        //         const e = {
-        //             mesh: c,
-        //             bodies: [],
-        //             constraints: [],
-        //         }
-        //         e.bodies.push(this.physics.createDynamicBox(c))
-        //         entities.push(e)
-        //     }
-        // })
-        // entities.forEach(this.addDynamicEntity.bind(this))
-
-        this.addDynamicEntity(new GarbageBin({ x: 0.7, y: 0.0, z: -3 }, this.scene, this.objects.garbageBinGltf))
 
         if (MODE === 'dev') {
             this.cannonDebuggerEnabled = false

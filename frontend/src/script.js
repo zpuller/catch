@@ -21,13 +21,15 @@ import Renderer from './Assets/Renderer'
 import Windowing from './Assets/Window'
 
 import Apartment from './Game/Apartment/Game'
-import BallGame from './Game/BallGame/Game'
 
 import Stats from 'three/examples/jsm/libs/stats.module'
 import ApartmentObjects from './Assets/Apartment/Objects'
-import BallGameObjects from './Assets/BallGame/Objects'
 import Hands from './Assets/Entities/Hands'
 import GameAudio from './Assets/GameAudio'
+import BaseballObjects from './Assets/BallGame/BaseballObjects'
+import BowlingObjects from './Assets/BallGame/BowlingObjects'
+import BaseballGame from './Game/BallGame/Baseball'
+import Bowling from './Game/BallGame/Bowling'
 
 let stats
 
@@ -54,12 +56,12 @@ const shaderMaterial = new THREE.ShaderMaterial({
             }
         `
 })
+const plane = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), shaderMaterial)
 
 const waitForClientLogin = () => {
     if (client.id === undefined) {
         setTimeout(waitForClientLogin, 100)
     } else {
-        game = new BallGame(objects, renderer.xr, scene, cameraGroup, client, animateXR, stats, hands, sounds)
         document.body.appendChild(VRButton.createButton(renderer))
     }
 }
@@ -74,12 +76,22 @@ const onLoad = () => {
             break
 
         case 1:
+            game = new BaseballGame(objects, renderer.xr, scene, cameraGroup, client, animateXR, stats, hands, sounds)
+            waitForClientLogin()
+            break
+
+        case 2:
+            game = new Bowling(objects, renderer.xr, scene, cameraGroup, client, animateXR, stats, hands, sounds)
             waitForClientLogin()
             break
     }
 
     gsap.delayedCall(0.5, () => {
-        gsap.to(shaderMaterial.uniforms.uAlpha, { duration: 3, value: 0.0 })
+        const delay = 3
+        gsap.to(shaderMaterial.uniforms.uAlpha, { duration: delay, value: 0.0 })
+        gsap.delayedCall(delay, () => {
+            scene.remove(plane)
+        })
         loadingBarElement.classList.add('ended')
         loadingBarElement.style.transform = ''
     })
@@ -160,7 +172,8 @@ const init = () => {
         ctx.fillText(s, (1 + xBuf) * dim - 0.5 * w, (r + yBuf) * dim)
     }
     drawButton(1, 'Apartment')
-    drawButton(2, 'Ball Game')
+    drawButton(2, 'Baseball')
+    drawButton(3, 'Bowling')
 
     const inBounds = (r, x, y) => x >= dim && x < 2 * dim && y >= r * dim && y < (r + 0.5) * dim
 
@@ -178,11 +191,14 @@ const init = () => {
         }
         if (inBounds(2, x, y)) {
             clearOverlay()
-            launchBallGame()
+            launchBaseball()
+        }
+        if (inBounds(3, x, y)) {
+            clearOverlay()
+            launchBowling()
         }
     })
 
-    const plane = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), shaderMaterial)
     plane.position.copy(camera)
 
     scene.add(plane)
@@ -192,15 +208,26 @@ const init = () => {
 
 let hands
 const launchBallGame = () => {
-    gameChoice = 1
-    client = new Client()
-    objects = new BallGameObjects(gltfLoader)
     objects.buildRoom(scene)
+
+    client = new Client()
     sounds = new GameAudio(camera, loadingManager)
     hands = new Hands(gltfLoader)
 
     lights = new GameLights()
     scene.add(lights.get())
+}
+
+const launchBaseball = () => {
+    gameChoice = 1
+    objects = new BaseballObjects(gltfLoader, scene)
+    launchBallGame()
+}
+
+const launchBowling = () => {
+    gameChoice = 2
+    objects = new BowlingObjects(gltfLoader, scene)
+    launchBallGame()
 }
 
 const launchApartment = () => {

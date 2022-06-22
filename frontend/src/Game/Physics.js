@@ -20,17 +20,20 @@ export default class Physics {
         })
         this.world.allowSleep = true
 
-        // this.groundMaterial = new CANNON.Material('ground')
-        // this.defaultMaterial = new CANNON.Material('default')
-        // this.world.addContactMaterial(new CANNON.ContactMaterial(this.groundMaterial, this.defaultMaterial, {
-        //     friction: 0,
-        //     restitution: 0.0,
-        //     contactEquationStiffness: 1e8,
-        //     contactEquationRelaxation: 3,
-        // }))
-
         this.addHand(this.leftHand)
         this.addHand(this.rightHand)
+
+        this.groundMaterial = new CANNON.Material('ground')
+        this.defaultMaterial = new CANNON.Material('default')
+    }
+
+    enableSlippery() {
+        this.world.addContactMaterial(new CANNON.ContactMaterial(this.groundMaterial, this.defaultMaterial, {
+            friction: 0.002,
+            restitution: 0.1,
+            contactEquationStiffness: 1e8,
+            contactEquationRelaxation: 3,
+        }))
     }
 
     createBoxBody(mesh, material, handler, type) {
