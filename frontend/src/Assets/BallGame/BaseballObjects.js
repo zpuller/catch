@@ -1,10 +1,10 @@
 import Utils from '../../Utils'
 import Objects from './Objects'
 
-const localMode = true
+const localMode = false
 
 const localFloorPath = 'models/ballgame/baseball.glb'
-const remoteFloorPath = 'https://res.cloudinary.com/hack-reactor888/image/upload/v1655685470/zachGame/models/ballgame/floor_x69ubr.glb'
+const remoteFloorPath = 'https://res.cloudinary.com/hack-reactor888/image/upload/v1656191874/zachGame/models/ballgame/baseball_uwj3vk.glb'
 const floorPath = localMode ? localFloorPath : remoteFloorPath
 
 export default class BaseballObjects extends Objects {

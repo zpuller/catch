@@ -2,10 +2,10 @@ import * as THREE from 'three'
 
 import Objects from './Objects'
 
-const localMode = true
+const localMode = false
 
 const localModelPath = 'models/ballgame/bowling.glb'
-const remoteModelPath = 'https://res.cloudinary.com/hack-reactor888/image/upload/v1655685470/zachGame/models/ballgame/floor_x69ubr.glb'
+const remoteModelPath = 'https://res.cloudinary.com/hack-reactor888/image/upload/v1656191874/zachGame/models/ballgame/bowling_wmqpoy.glb'
 const modelPath = localMode ? localModelPath : remoteModelPath
 
 export default class BaseballObjects extends Objects {
