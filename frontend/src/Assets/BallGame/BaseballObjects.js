@@ -19,8 +19,9 @@ const garbageBinPath = localMode ? localGarbageBinPath : remoteGarbageBinPath
 
 export default class BaseballObjects extends Objects {
     buildRoom(scene) {
-        super.buildRoom(scene)
         this.gltfLoader.load(floorPath, gltf => {
+            this.onFloorLoaded(gltf)
+            scene.add(this.floor)
         })
 
         this.gltfLoader.load(garbageBinPath, gltf => { this.garbageBinGltf = gltf })

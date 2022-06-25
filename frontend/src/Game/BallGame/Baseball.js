@@ -18,5 +18,7 @@ export default class BaseballGame extends BallGame {
         this.physics.createStaticBox(this.objects.floor, this.physics.groundMaterial)
 
         this.addDynamicEntity(new GarbageBin({ x: 0.7, y: 0.0, z: -3 }, this.scene, this.objects.garbageBinGltf))
+
+        this.inputs.addListener('right', 'aPressed', this.resetBallAboveRightCon.bind(this))
     }
 }

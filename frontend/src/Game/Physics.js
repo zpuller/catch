@@ -36,9 +36,10 @@ export default class Physics {
         }))
     }
 
-    createBoxBody(mesh, material, handler, type) {
+    createBoxBody(mesh, material, mass, handler, type) {
+        mass = mass || type === CANNON.Body.DYNAMIC ? 0.5 : 0
         material = material || this.defaultMaterial
-        const body = new CANNON.Body({ type, mass: type === CANNON.Body.DYNAMIC ? 0.5 : 0, material })
+        const body = new CANNON.Body({ type, mass, material, sleepSpeedLimit: 1.0, sleepTimeLimit: 1.0 })
         const p = mesh.getWorldPosition(new THREE.Vector3())
         body.position.copy(p)
         body.quaternion.copy(mesh.quaternion)
@@ -46,6 +47,7 @@ export default class Physics {
         const { shape } = threeToCannon(mesh, { type: ShapeType.BOX })
         body.addShape(shape)
         if (handler) {
+            console.log('handler', handler)
             body.addEventListener('collide', handler)
         }
         this.world.addBody(body)
@@ -53,12 +55,12 @@ export default class Physics {
         return body
     }
 
-    createStaticBox(mesh, material, handler) {
-        return this.createBoxBody(mesh, material, handler, CANNON.Body.STATIC)
+    createStaticBox(mesh, material, mass, handler) {
+        return this.createBoxBody(mesh, material, mass, handler, CANNON.Body.STATIC)
     }
 
-    createDynamicBox(mesh, material, handler) {
-        return this.createBoxBody(mesh, material, handler, CANNON.Body.DYNAMIC)
+    createDynamicBox(mesh, material, mass, handler) {
+        return this.createBoxBody(mesh, material, mass, handler, CANNON.Body.DYNAMIC)
     }
 
     createBall(radius, mass, material, sleepSpeedLimit = 1.0, sleepTimeLimit = 1.0) {
@@ -151,6 +153,7 @@ export default class Physics {
         const prevTime = this.elapsedTime
         this.elapsedTime = this.clock.getElapsedTime()
         const dt = this.elapsedTime - prevTime
+        this.dt = dt
         let ks = [...this.timeframes.keys()].slice(1)
         ks.forEach(i => {
             this.timeframes[i - 1] = this.timeframes[i]

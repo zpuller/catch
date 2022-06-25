@@ -55,7 +55,6 @@ export default class BallGame extends Game {
         this.inputs.addListener('right', 'squeezeEnd', (() => { this.tryThrow(this.rightHand.con) }).bind(this))
         this.inputs.addListener('left', 'squeeze', this.clenchLeftHand.bind(this))
         this.inputs.addListener('right', 'squeeze', this.clenchRightHand.bind(this))
-        this.inputs.addListener('right', 'aPressed', this.resetBallAboveRightCon.bind(this))
 
         this.handParams = {
             x: .035,
@@ -71,7 +70,7 @@ export default class BallGame extends Game {
 
     addDynamicEntity(e) {
         this.addEntity(e)
-        this.scene.add(e.mesh)
+        // this.scene.add(e.mesh)
         e.constraints.forEach(c => this.physics.world.addConstraint(c))
         this.dynamicEntities.push(e)
     }

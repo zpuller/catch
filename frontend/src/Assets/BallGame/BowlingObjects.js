@@ -15,47 +15,42 @@ const pinPath = 'models/ballgame/pin.glb'
 
 export default class BaseballObjects extends Objects {
     buildRoom(scene) {
-        this.gltfLoader.load(floorPath, gltf => {
+        this.gltfLoader.load('models/ballgame/bowling.glb', gltf => {
+            scene.add(gltf.scene)
             this.onFloorLoaded(gltf)
 
-            const lane = gltf.scene.children.find(o => o.name === 'lane')
-            lane.material.dispose()
-            lane.material = this.floor.material
-            this.lane = lane
+            gltf.scene.traverse(c => {
+                if (c.type === 'Mesh') {
+                    c.material.dispose()
+                    c.material = this.floor.material
+                }
+            })
 
-            scene.add(lane)
-            {
-                const lane = gltf.scene.children.find(o => o.name === 'lane001')
-                lane.material.dispose()
-                lane.material = this.floor.material
+            this.lanes = gltf.scene.children.filter(c => /lane.*/.test(c.name))
 
-                scene.add(lane)
+            const getNamedChild = name => gltf.scene.children.find(c => c.name === name)
 
-                this.lane1 = lane
+            this.pins = getNamedChild('pins').children
+            this.ball = getNamedChild('ball')
+            this.bar = getNamedChild('bar')
+            this.belt = getNamedChild('belt')
+
+            this.mixer = new THREE.AnimationMixer(gltf.scene)
+
+            const initAction = name => {
+                const a = this.mixer.clipAction(gltf.animations.find(c => c.name === name))
+                a.setLoop(THREE.LoopOnce)
+                a.clampWhenFinished = true
+                a.time = a.getClip().duration
+                a.play()
+
+                return a
             }
+
+            this.ballAction = initAction('BallAction')
+            this.barAction = initAction('BarAction')
+            this.pinsAction = initAction('PinsAction')
+            this.mixer.update()
         })
-
-        this.gltfLoader.load(pinPath, gltf => {
-            this.pinsGltf = gltf
-        })
-    }
-
-    buildBall(ball) {
-        return new THREE.Mesh(ballGeometry, ballMaterial)
-
-    }
-
-    buildGlove(group) {
-        this.gltfLoader.load(
-            'https://res.cloudinary.com/hack-reactor888/image/upload/v1652647643/zachGame/glove.glb',
-            (gltf) => {
-                gltf.scene.scale.set(0.05, 0.05, 0.05)
-                gltf.scene.rotateX(Math.PI * -0.5)
-                gltf.scene.rotateY(Math.PI * 0.5)
-                gltf.scene.rotateX(Math.PI * 0.2)
-                gltf.scene.rotateY(Math.PI * -0.2)
-                group.add(gltf.scene)
-            }
-        )
     }
 }

@@ -22,8 +22,6 @@ export default class Objects {
         this.floor = gltf.scene.children.find(o => o.name === 'floor')
         this.floor.material = Utils.swapToToonMaterial(this.floor.material)
         this.floor.material.color = new THREE.Color(0x888888)
-
-        this.scene.add(this.floor)
     }
 
     buildRoom(scene) {
