@@ -5,27 +5,21 @@ import Utils from '../../Utils'
 const gripGeometry = new THREE.SphereGeometry(0.025, 16, 16)
 const gripMaterial = new THREE.MeshBasicMaterial({ color: '#ffffff' })
 
-const localMode = true
-
-const localFloorPath = 'models/ballgame/floor.glb'
-const remoteFloorPath = 'https://res.cloudinary.com/hack-reactor888/image/upload/v1655685470/zachGame/models/ballgame/floor_x69ubr.glb'
-const floorPath = localMode ? localFloorPath : remoteFloorPath
-
-// TODO don't add to scene, just store the models
 export default class Objects {
-    constructor(gltfLoader, scene) {
+    constructor(gltfLoader) {
         this.gltfLoader = gltfLoader
-        this.scene = scene
+    }
+
+    filterTraverse(gltf, c, f) {
+        gltf.scene.traverse(e => {
+            if (c(e)) { f(e) }
+        })
     }
 
     onFloorLoaded(gltf) {
         this.floor = gltf.scene.children.find(o => o.name === 'floor')
         this.floor.material = Utils.swapToToonMaterial(this.floor.material)
         this.floor.material.color = new THREE.Color(0x888888)
-    }
-
-    buildRoom(scene) {
-        this.gltfLoader.load(floorPath, this.onFloorLoaded.bind(this))
     }
 
     buildNewPlayer() {

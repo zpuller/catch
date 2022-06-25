@@ -73,7 +73,7 @@ const onLoad = (scene) => gltf => {
 }
 
 export default class Objects {
-    constructor(gltfLoader, textureLoader, cubeTextureLoader) {
+    constructor(gltfLoader, scene, textureLoader, cubeTextureLoader) {
         this.gltfLoader = gltfLoader
         this.video = video
 
@@ -107,6 +107,8 @@ export default class Objects {
         ])
 
         this.environmentMap.encoding = THREE.sRGBEncoding
+
+        this.buildRoom(scene)
     }
 
     loadTextureMaterial(path) {

@@ -2,28 +2,22 @@ import * as THREE from 'three'
 
 import Objects from './Objects'
 
-const ballGeometry = new THREE.SphereGeometry(0.12, 16, 16)
-const ballMaterial = new THREE.MeshToonMaterial({ color: 0x118ad0 })
-
 const localMode = true
 
-const localFloorPath = 'models/ballgame/floor.glb'
-const remoteFloorPath = 'https://res.cloudinary.com/hack-reactor888/image/upload/v1655685470/zachGame/models/ballgame/floor_x69ubr.glb'
-const floorPath = localMode ? localFloorPath : remoteFloorPath
-
-const pinPath = 'models/ballgame/pin.glb'
+const localModelPath = 'models/ballgame/bowling.glb'
+const remoteModelPath = 'https://res.cloudinary.com/hack-reactor888/image/upload/v1655685470/zachGame/models/ballgame/floor_x69ubr.glb'
+const modelPath = localMode ? localModelPath : remoteModelPath
 
 export default class BaseballObjects extends Objects {
-    buildRoom(scene) {
-        this.gltfLoader.load('models/ballgame/bowling.glb', gltf => {
+    constructor(gltfLoader, scene) {
+        super(gltfLoader)
+        this.gltfLoader.load(modelPath, gltf => {
             scene.add(gltf.scene)
             this.onFloorLoaded(gltf)
 
-            gltf.scene.traverse(c => {
-                if (c.type === 'Mesh') {
-                    c.material.dispose()
-                    c.material = this.floor.material
-                }
+            this.filterTraverse(gltf, c => c.type === 'Mesh', c => {
+                c.material.dispose()
+                c.material = this.floor.material
             })
 
             this.lanes = gltf.scene.children.filter(c => /lane.*/.test(c.name))

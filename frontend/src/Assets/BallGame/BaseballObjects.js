@@ -3,45 +3,27 @@ import Objects from './Objects'
 
 const localMode = true
 
-const localFloorPath = 'models/ballgame/floor.glb'
+const localFloorPath = 'models/ballgame/baseball.glb'
 const remoteFloorPath = 'https://res.cloudinary.com/hack-reactor888/image/upload/v1655685470/zachGame/models/ballgame/floor_x69ubr.glb'
 const floorPath = localMode ? localFloorPath : remoteFloorPath
 
-const localBallPath = 'models/ballgame/baseball.glb'
-const remoteBallPath = 'https://res.cloudinary.com/hack-reactor888/image/upload/v1655685470/zachGame/models/ballgame/baseball_rwilbc.glb'
-const ballPath = localMode ? localBallPath : remoteBallPath
-
-const pinPath = 'models/ballgame/pin.glb'
-
-const localGarbageBinPath = 'models/ballgame/garbage_bin.glb'
-const remoteGarbageBinPath = 'https://res.cloudinary.com/hack-reactor888/image/upload/v1655685470/zachGame/models/ballgame/garbage_bin_zjm9cb.glb'
-const garbageBinPath = localMode ? localGarbageBinPath : remoteGarbageBinPath
-
 export default class BaseballObjects extends Objects {
-    buildRoom(scene) {
+    constructor(gltfLoader, scene) {
+        super(gltfLoader)
         this.gltfLoader.load(floorPath, gltf => {
             this.onFloorLoaded(gltf)
             scene.add(this.floor)
+
+            this.ball = gltf.scene.children.find(c => c.name === 'baseball')
+            this.ball.children.forEach(c => {
+                const oldMaterial = c.material
+                c.material.dispose()
+                c.material = Utils.swapToLambertMat(oldMaterial)
+            })
+
+            this.garbageBinGltf = gltf.scene.children.find(c => c.name === 'garbage')
+            console.log(this.garbageBinGltf)
         })
-
-        this.gltfLoader.load(garbageBinPath, gltf => { this.garbageBinGltf = gltf })
-
-        this.gltfLoader.load(
-            ballPath,
-            gltf => {
-                gltf.scene.traverse(o => {
-                    if (o.type === 'Mesh') {
-                        const oldMaterial = o.material
-                        o.material = Utils.swapToLambertMat(oldMaterial)
-                    }
-                })
-                this.ballGltf = gltf.scene.children[0]
-            }
-        )
-    }
-
-    buildBall() {
-        return this.ballGltf
     }
 
     buildGlove(group) {

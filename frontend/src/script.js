@@ -208,8 +208,6 @@ const init = () => {
 
 let hands
 const launchBallGame = () => {
-    objects.buildRoom(scene)
-
     client = new Client()
     sounds = new GameAudio(camera, loadingManager)
     hands = new Hands(gltfLoader)
@@ -232,8 +230,7 @@ const launchBowling = () => {
 
 const launchApartment = () => {
     gameChoice = 0
-    objects = new ApartmentObjects(gltfLoader, textureLoader, cubeTextureLoader)
-    objects.buildRoom(scene)
+    objects = new ApartmentObjects(gltfLoader, scene, textureLoader, cubeTextureLoader)
     document.body.appendChild(VRButton.createButton(renderer))
 }
 

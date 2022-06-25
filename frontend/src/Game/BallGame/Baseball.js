@@ -10,7 +10,7 @@ export default class BaseballGame extends BallGame {
         this.ball.body.linearDamping = .5
         this.ball.body.angularDamping = .5
         this.ball.body.addEventListener('collide', this.ballHandler)
-        this.ball.mesh = this.objects.buildBall()
+        this.ball.mesh = this.objects.ball
         this.ball.sound = sounds.ball
 
         this.dynamicEntities = []

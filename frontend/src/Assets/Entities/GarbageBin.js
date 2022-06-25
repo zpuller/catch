@@ -22,14 +22,14 @@ const createBody = conf => {
 const createBodies = conf => conf.map(createBody)
 
 export default class GarbageBin {
-    constructor(p, scene, gltf) {
+    constructor(p, scene, mesh) {
         const geometry = new THREE.BoxGeometry(1, 1, 1)
         const material = new THREE.MeshBasicMaterial({ wireframe: true })
         this.mesh = new THREE.Mesh(geometry, material)
 
         // Note: these are all half extents
         const w = .16
-        const h = .25
+        const h = .24
         const t = .015 // thickness
 
         const spread = 1.1 * w
@@ -48,15 +48,10 @@ export default class GarbageBin {
         const ixs = [...Array(4).keys()]
         this.constraints = ixs.map(i => new CANNON.LockConstraint(this.bodies[i], this.bodies[i + 1]))
 
-        const mesh = gltf.scene.children[0]
         const oldMat = mesh.material
         mesh.material = Utils.swapToLambertMat(oldMat)
-        // mesh.castShadow = true
 
-        const scale = 1
-        gltf.scene.scale.set(scale, scale, scale)
-        scene.remove(this.mesh)
-        this.mesh = gltf.scene
+        this.mesh = mesh
         this.mesh.position.copy(p)
         scene.add(this.mesh)
     }
